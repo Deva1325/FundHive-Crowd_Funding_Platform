@@ -1,0 +1,162 @@
+﻿@model Crowd_Funding_Platform.Models.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<div>
+    <div class="login-form-container" style="margin-top: 100px;
+    min-height: 70vh;
+    margin-right: 178px;">
+        <h2 style="margin-left: 136px;
+    font-size: 25px;
+    margin-top: -7px;
+    margin-bottom: 19px;">
+            Welcome Back
+        </h2>
+        <div class="social-login">
+            <button class="google-btn"> <i class="fab fa-google"></i> Google </button>
+            <button class="facebook-btn"> <i class="fab fa-facebook"></i> Facebook </button>
+        </div>
+        <p class="or-text">OR LOGIN WITH EMAIL</p>
+        <form id="loginForm" method="post" class="contact_form">
+            <div class="form-group">
+                <label asp-for="EmailOrUsername" class="control-label">Email address</label>
+                <input type="text" asp-for="EmailOrUsername" class="form-control" placeholder="Enter your email or Username here">
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">Password</label>
+                <div class="input-group">
+                    <input asp-for="Password" id="PasswordHash" type="password" class="form-control" placeholder="Enter Password">
+                    <button type="button" class="btn toggle-password-btn" data-target="#PasswordHash">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group remember-me">
+                <input type="checkbox" asp-for="RememberMe"> Keep me logged in
+                <a href="~/Account/ForgotPassword" class="forgot-password">Forgot Password?</a>
+            </div>
+            <div class="form-group mt-3">
+                <button type="submit" id="btnLogin" class="btn btn-primary" style=" width: 100%;
+        padding:24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;">
+                    Login
+                </button>
+            </div>
+        </form>
+        <p class="signup-text">Don't have an account? <a href="~/Account/Registration">Sign up</a></p>
+    </div>
+    @* <div class="login-image-container">
+        <img src="/images/login-illustration.png" alt="Login Illustration">
+    </div> *@
+</div>
+
+<style>
+
+    
+    .input-group .toggle-password {
+        border-left: none;
+    }
+
+    .input-group .toggle-password i {
+        font-size: 1rem;
+    }
+
+    a:hover {
+        color: darkblue;
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f4f7fc;
+    }
+    .login-form-container {
+        margin-left: 160px;
+        width: 50%;
+        padding: 40px;
+        background: #fff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    .login-image-container {
+        width: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-image-container img {
+        max-width: 80%;
+    }
+    .social-login {
+        display: flex;
+        gap: 10px;
+    }
+    .google-btn, .facebook-btn {
+        width: 48%;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .google-btn {
+        background: #C30047;
+        color: white;
+    }
+    .facebook-btn { background: #3b5998; color: white; }
+    .or-text {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+    }
+    .signup-text {
+        text-align: center;
+        margin-top: 10px;
+    }
+    .remember-me {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .forgot-password {
+        color: #4a90e2;
+    }
+</style>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/Login.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+
+}

@@ -1,0 +1,99 @@
+﻿@model Crowd_Funding_Platform.Models.User
+
+@{
+    ViewData["Title"] = "Registration";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_mainLayout.cshtml";
+}
+
+<h1>Registration Form</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="Registration" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PasswordHash" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="PasswordHash" class="form-control" id="PasswordHash" type="password" />
+                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#PasswordHash">
+                        <i class="fa fa-eye" style="height: 16px;padding-right: -3px;"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="PasswordHash" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="ConfirmPassword" class="form-control" id="ConfirmPassword" type="password" />
+                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#ConfirmPassword">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <br />
+                <input asp-for="PhoneNumber" class="form-control" id="PhoneNo" />
+                @* <span asp-validation-for="PhoneNumber" class="text-danger"></span> *@
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Register" class="btn btn-primary" />
+            </div>
+            <div class="form-group">
+                <p>
+                    Already a user? <a href="~/Account/Login" class="hover-a" style="color: #311aeb;
+    outline: blue;">Sign In</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" style="color: #311aeb;
+    outline: blue;">Back to List</a>
+</div>
+
+<style>
+    .input-group .toggle-password  {
+        border-left: none;
+    }
+
+        .input-group .toggle-password i {
+            font-size: 1rem;
+        }
+
+        a:hover{
+            color:darkblue;
+        }
+
+</style>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/Register1.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+}

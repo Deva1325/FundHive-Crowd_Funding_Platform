@@ -1,0 +1,325 @@
+﻿<!doctype html>
+<html class="no-js" lang="zxx">
+
+<!-- Mirrored from preview.colorlib.com/theme/chariter/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jan 2025 12:00:10 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Charity | Template</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets/img/icon/favicon.png">
+    <link rel="stylesheet" href="~/Crowd_Funding_Platform.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css" />
+    
+   
+    @RenderSection("Styles", required: false)
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" asp-append-version="true">
+  
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/assets/css/slicknav.css">
+    <link rel="stylesheet" href="~/assets/css/progressbar_barfiller.css">
+    <link rel="stylesheet" href="~/assets/css/animate.min.css">
+    <link rel="stylesheet" href="~/assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/assets/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="~/assets/css/themify-icons.css">
+    <link rel="stylesheet" href="~/assets/css/slick.css">
+    <link rel="stylesheet" href="~/assets/css/nice-select.css">
+    <link rel="stylesheet" href="~/assets/css/style.css">
+
+</head>
+<body>
+    
+    <header>
+        <div class="header-area">
+            <div class="main-header ">
+                <div class="header-top d-none d-sm-block">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="d-flex justify-content-between flex-wrap align-items-center">
+                                    <div class="header-info-left">
+                                        <ul>
+                                            <li><i class="fas fa-phone-alt"></i> +10 (78) 564 4568</li>
+                                            <li><a href="https://preview.colorlib.com/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6b02050d0445525b2b08030a19021f0e1945080406">[email&#160;protected]</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="header-info-right">
+                                        <ul class="header-social">
+                                            <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                                            <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                            <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                                            <li> <a href="#"><i class="fab fa-instagram"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-bottom  header-sticky">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <!-- Logo -->
+                            <div class="col-xl-2 col-lg-2">
+                                <div class="logo">
+                                    <a href="index.html"><img src="~/assets/img/logo/logo.png" alt=""></a>
+                                </div>
+                            </div>
+                            <div class="col-xl-10 col-lg-10">
+                                <!-- Main-menu -->
+                                <div class="main-menu f-right d-none d-lg-block">
+                                    <nav>
+                                        <ul id="navigation">
+                                            <li><a href="index.html">Home</a></li>
+                                            <li><a href="cases.html">Cases</a></li>
+                                            <li><a href="about.html">About</a></li>
+                                            <li>
+                                                <a href="blog.html">Blog</a>
+                                                <ul class="submenu">
+                                                    <li><a href="blog.html">Blog</a></li>
+                                                    <li><a href="blog_details.html">Blog Details</a></li>
+                                                    <li><a href="elements.html">Elements</a></li>
+                                                </ul>
+                                            </li>
+                                            <li><a href="contact.html">Contact</a></li>
+                                            <li>
+                                                <div class="header-right-btn f-right  ml-15">
+                                                    <a asp-controller="Campaign" asp-action="ApplyForCreator" class="header-btn">Start A FundRaiser</a>
+                                                </div>
+                                            </li>
+
+                                            @if (Context.Session.GetString("LoginCred") != null)
+                                            {
+                                                <li>
+                                                    @if (Context.Session.GetString("IsAdmin_ses") == "true")
+                                                    {
+                                                        <a href="/Admin/Dashboard">Admin Dashboard</a>
+                                                    }
+                                                    else if (Context.Session.GetString("IsCreatorApproved") == "true")
+                                                    {
+                                                        <a href="~/Dashboard/Dashboard">Creator Dashboard</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="~/Dashboard/Dashboard">Contributor Dashboard</a>
+                                                    }
+                                                </li>
+                                                <li>
+                                                    <div class="header-right-btn f-right  ml-15">
+                                                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                                        <button type="submit" class="header-btn">Logout</button>
+                                                    </form>
+                                                    </div>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <a asp-controller="Account" asp-action="Login" class="header-btn">Login</a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="Account" asp-action="Registration" class="header-btn">Register</a>
+                                                </li>
+                                            } 
+
+                                            @* <li>
+                                                <div class="header-right-btn f-right  ml-15">
+
+                                                    <a asp-controller="Account" asp-action="Registration" class="header-btn">Donate Now</a>
+                                                </div>
+                                            </li> *@
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <!-- Mobile Menu -->
+                            <div class="col-12">
+                                <div class="mobile_menu d-block d-lg-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+  
+    <div class="container" style="margin-top: 100px; min-height: 70vh;     margin-left: 208px;
+    margin-right: 400px;">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer>
+        <div class="footer-wrapper">
+            <div class="footer-area footer-padding">
+                <div class="container">
+                    <div class="row justify-content-between">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-8">
+                            <div class="single-footer-caption mb-50">
+                                <div class="single-footer-caption mb-20">
+                                    <!-- logo -->
+                                    <div class="footer-logo mb-35">
+                                        <a href="index.html"><img src="~/assets/img/logo/logo2_footer.png" alt=""></a>
+                                    </div>
+                                    <div class="footer-tittle">
+                                        <div class="footer-pera">
+                                            <p>Seddo eiusmod tempor incididunt ut labore et dolore magna aliqua. Conse ctetur pisicin elit, sed do eiusmod tempor.</p>
+                                        </div>
+                                    </div>
+                                    <!-- social -->
+                                    <div class="footer-social">
+                                        <a href="https://bit.ly/sai4ull"><i class="fab fa-facebook"></i></a>
+                                        <a href="#"><i class="fab fa-instagram"></i></a>
+                                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                                        <a href="#"><i class="fab fa-youtube"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="offset-xl-1 col-xl-2 col-lg-2 col-md-4 col-sm-6">
+                            <div class="single-footer-caption mb-50">
+                                <div class="footer-tittle">
+                                    <h4>Navigation</h4>
+                                    <ul>
+                                        <li><a href="#">Home</a></li>
+                                        <li><a href="#">About</a></li>
+                                        <li><a href="#">Services</a></li>
+                                        <li><a href="#">Blog</a></li>
+                                        <li><a href="#">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
+                            <div class="single-footer-caption mb-50">
+                                <div class="footer-tittle">
+                                    <h4>Services</h4>
+                                    <ul>
+                                        <li><a href="#">Pet Care</a></li>
+                                        <li><a href="#">Pet Treatment</a></li>
+                                        <li><a href="#">Pet Trainingl</a></li>
+                                        <li><a href="#">Hygienic Care</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-8">
+                            <div class="single-footer-caption mb-50">
+                                <div class="footer-tittle mb-10">
+                                    <h4>Subscribe newsletter</h4>
+                                    <p>Subscribe our newsletter to get updates about our services and offers.</p>
+                                </div>
+                                <!-- Form -->
+                                <div class="footer-form mb-20">
+                                    <div id="mc_embed_signup">
+                                        <form target="_blank" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+                                              method="get" class="subscribe_form relative mail_part">
+                                            <input type="email" name="email" id="newsletter-form-email" placeholder="Enter your email"
+                                                   class="placeholder hide-on-focus">
+                                            <div class="form-icon">
+                                                <button type="submit" name="submit" id="newsletter-submit"
+                                                        class="email_icon newsletter-submit button-contactForm">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                </button>
+                                            </div>
+                                            <div class="mt-10 info"></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- footer-bottom area -->
+            <div class="footer-bottom-area">
+                <div class="container">
+                    <div class="footer-border">
+                        <div class="row">
+                            <div class="col-xl-12 ">
+                                <div class="footer-copy-right text-center">
+                                    <p>Copyright ©2020 All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i>  by <a href="https://colorlib.com/" target="_blank">Colorlib</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Scroll Up -->
+    <div id="back-top">
+        <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
+    </div>
+
+    <!-- JS here -->
+
+        <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" asp-append-version="true">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Jquery, Popper, Bootstrap -->
+
+  
+    <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="~/assets/js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="~/assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="~/assets/js/popper.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+
+    <!-- Slick-slider , Owl-Carousel ,slick-nav -->
+    <script src="~/assets/js/owl.carousel.min.js"></script>
+    <script src="~/assets/js/slick.min.js"></script>
+    <script src="~/assets/js/jquery.slicknav.min.js"></script>
+
+    <!--wow , counter , waypoint, Nice-select -->
+    <script src="~/assets/js/wow.min.js"></script>
+    <script src="~/assets/js/jquery.magnific-popup.js"></script>
+    <script src="~/assets/js/jquery.nice-select.min.js"></script>
+    <script src="~/assets/js/jquery.counterup.min.js"></script>
+    <script src="~/assets/js/waypoints.min.js"></script>
+    <script src="~/assets/js/barfiller.js"></script>
+
+    <!-- contact js -->
+    <script src="~/assets/js/contact.js"></script>
+    <script src="~/assets/js/jquery.form.js"></script>
+    <script src="~/assets/js/jquery.validate.min.js"></script>
+    <script src="~/assets/js/mail-script.js"></script>
+    <script src="~/assets/js/jquery.ajaxchimp.min.js"></script>
+
+    <!--  Plugins, main-Jquery -->
+    <script src="~/assets/js/plugins.js"></script>
+    <script src="~/assets/js/main.js"></script>
+
+    <script src="~/js/CampaignCreator.js"></<script></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-23581568-13');
+    </script>
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"908894b04a643b0d","version":"2025.1.0","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"cd0b4b3a733644fc843ef0b185f98241","b":1}' crossorigin="anonymous"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.rawgit.com/jzaefferer/jquery-validation/1.19.3/dist/jquery.validate.min.js"></script>
+
+
+  
+</body>
+
+<!-- Mirrored from preview.colorlib.com/theme/chariter/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jan 2025 12:00:35 GMT -->
+</html>

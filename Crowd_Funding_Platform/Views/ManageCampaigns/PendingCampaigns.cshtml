@@ -1,0 +1,33 @@
+﻿@model List<Crowd_Funding_Platform.Models.CreatorApplication>
+
+@{
+    ViewData["Title"] = "Pending Campaigns";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+
+}
+
+<h2>Pending Campaigns</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Application ID</th>
+            <th>User ID</th>
+            <th>Document Type</th>
+            <th>Status</th>
+            <th>Submission Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var campaign in Model)
+        {
+            <tr>
+                <td>@campaign.ApplicationId</td>
+                <td>@campaign.UserId</td>
+                <td>@campaign.DocumentType</td>
+                <td>@campaign.Status</td>
+                <td>@campaign.SubmissionDate?.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>
