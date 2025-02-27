@@ -25,7 +25,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             user.Otpexpiry = DateTime.Now.AddMinutes(5);
             user.EmailVerified = false;
             string subj = "OTP Verification!!!";
-            await _emailSender.SendEmailAsync(user.Email, subj, user.Otp, "Registration");
+            await _emailSender.SendEmailAsync(user.Email,user.Username, subj, user.Otp, "Registration");
 
             await _dbMain_CFS.Users.AddAsync(user);
             await _dbMain_CFS.SaveChangesAsync();

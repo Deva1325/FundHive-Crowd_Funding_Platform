@@ -1,21 +1,21 @@
 ﻿@model List<Crowd_Funding_Platform.Models.CreatorApplication>
 
 @{
-    ViewData["Title"] = "Pending Campaigns";
+    ViewData["Title"] = "Pending Creator Requests";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
-
 }
 
-<h2>Pending Campaigns</h2>
+<h2>Pending Creator Requests</h2>
 
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Application ID</th>
-            <th>User ID</th>
+            <th>Creator</th>
             <th>Document Type</th>
             <th>Status</th>
             <th>Submission Date</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -23,11 +23,16 @@
         {
             <tr>
                 <td>@campaign.ApplicationId</td>
-                <td>@campaign.UserId</td>
+                <td>@campaign.User.Username</td>
                 <td>@campaign.DocumentType</td>
                 <td>@campaign.Status</td>
                 <td>@campaign.SubmissionDate?.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a href="@Url.Action("PendingCampaignsDetails", "ManageCampaigns", new { id = campaign.ApplicationId })" class="btn btn-primary">
+                        View Details
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
-</table>
+</table> 

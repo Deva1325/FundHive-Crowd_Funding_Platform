@@ -24,7 +24,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             return random.Next(100000, 999999).ToString();
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body, string emailType)
+        public async Task SendEmailAsync(string toEmail,string userName, string subject, string body, string emailType)
         {
             try
             {
@@ -36,77 +36,78 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
                 // Email content based on the email type
                 string emailBody = string.Empty;
 
-                if (emailType == "Registration")
-                {
-                    emailBody = $@"
-        <html>
-            <head>
-                <style>
-                    body {{ font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-                    .header {{ text-align: center; margin-bottom: 20px; }}
-                    .content {{ font-size: 16px; line-height: 1.5; }}
-                    .otp {{ font-size: 24px; font-weight: bold; color: #ff4500; text-align: center; margin: 20px 0; }}
-                    .footer {{ text-align: center; font-size: 12px; color: #888; margin-top: 20px; }}
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h2>Welcome to Bug Tracking System</h2>
-                    </div>
-                    <div class='content'>
-                        <p>Dear Admin,</p>
-                        <p>We are excited to have you as a part of our Bug Tracking System. As an admin, you will have access to manage and monitor the system effectively.</p>
-                        <p>Your One-Time Password (OTP) for account verification is:</p>
-                        <div class='otp'>{body}</div>
-                        <p>Please enter this OTP on the verification page to complete your registration process.</p>
-                        <p>If you did not request this registration, please ignore this email.</p>
-                        <p>Thank you!</p>
-                    </div>
-                    <div class='footer'>
-                        &copy; {DateTime.Now.Year} Bug Tracking System. All rights reserved.
-                    </div>
-                </div>
-            </body>
-        </html>";
-                }
-                else if (emailType == "ForgotPassword")
-                {
-                    emailBody = $@"
-        <html>
-            <head>
-                <style>
-                    body {{ font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
-                    .header {{ text-align: center; margin-bottom: 20px; }}
-                    .content {{ font-size: 16px; line-height: 1.5; }}
-                    .link {{ font-size: 18px; font-weight: bold; color: #007bff; text-align: center; margin: 20px 0; }}
-                    .footer {{ text-align: center; font-size: 12px; color: #888; margin-top: 20px; }}
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h2>Password Reset Request</h2>
-                    </div>
-                    <div class='content'>
-                        <p>Dear Admin,</p>
-                        <p>We received a request to reset the password for your Bug Tracking System account.</p>
-                        <p>Click the link below to reset your password:</p>
-                        <div class='otp'>
-                            {body}
+            if (emailType == "Registration")
+            {
+                emailBody = $@"
+            <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }}
+                        .container {{ max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+                        .header {{ text-align: center; margin-bottom: 20px; }}
+                        .header h2 {{ color: #333; }}
+                        .content {{ font-size: 16px; line-height: 1.6; color: #555; text-align: left; }}
+                        .otp {{ font-size: 22px; font-weight: bold; color: #ff4500; text-align: center; margin: 20px 0; padding: 10px; background: #fff3e6; border-radius: 5px; }}
+                        .footer {{ text-align: center; font-size: 12px; color: #888; margin-top: 20px; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h2>Welcome to FundHive!</h2>
                         </div>
-                        <p>If you did not request this, please ignore this email. Your account is safe, and no changes have been made.</p>
-                        <p>Thank you!</p>
+                        <div class='content'>
+                            <p>Dear {userName},</p>
+                            <p>Thank you for registering on our crowdfunding platform. We are excited to have you onboard!</p>
+                            <p>To verify your account, please use the following One-Time Password (OTP):</p>
+                            <div class='otp'>{body}</div>
+                            <p>Please enter this OTP on the verification page to complete your registration.</p>
+                            <p>If you did not request this, you can safely ignore this email.</p>
+                            <p>We look forward to seeing you create and support impactful campaigns!</p>
+                        </div>
+                        <div class='footer'>
+                            &copy; {DateTime.Now.Year} [Your Crowdfunding Platform Name]. All rights reserved.
+                        </div>
                     </div>
-                    <div class='footer'>
-                        &copy; {DateTime.Now.Year} Bug Tracking System. All rights reserved.
+                </body>
+            </html>";
+            }
+            else if (emailType == "ForgotPassword")
+            {
+                emailBody = $@"
+            <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }}
+                        .container {{ max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+                        .header {{ text-align: center; margin-bottom: 20px; }}
+                        .header h2 {{ color: #333; }}
+                        .content {{ font-size: 16px; line-height: 1.6; color: #555; text-align: left; }}
+                        .reset-link {{ display: block; text-align: center; font-size: 18px; font-weight: bold; color: #007bff; margin: 20px 0; text-decoration: none; background: #e6f2ff; padding: 10px; border-radius: 5px; }}
+                        .footer {{ text-align: center; font-size: 12px; color: #888; margin-top: 20px; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h2>Password Reset Request</h2>
+                        </div>
+                        <div class='content'>
+                            <p>Dear {userName},</p>
+                            <p>We received a request to reset your password for your account on [Your Crowdfunding Platform Name].</p>
+                            <p>To reset your password, please click the link below:</p>
+                            {body}
+                            <p>If you did not request this, please ignore this email. Your account is safe.</p>
+                            <p>Need help? Feel free to contact our support team.</p>
+                        </div>
+                        <div class='footer'>
+                            &copy; {DateTime.Now.Year} [Your Crowdfunding Platform Name]. All rights reserved.
+                        </div>
                     </div>
-                </div>
-            </body>
-        </html>";
-                }
+                </body>
+             </html>";
+            }
+
 
                 message.Body = new TextPart("html") { Text = emailBody };
 

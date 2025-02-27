@@ -89,9 +89,13 @@
                                             </li>
                                             <li><a href="contact.html">Contact</a></li>
                                             <li>
-                                                <div class="header-right-btn f-right  ml-15">
-                                                    <a asp-controller="Campaign" asp-action="ApplyForCreator" class="header-btn">Start A FundRaiser</a>
-                                                </div>
+                                                @if (Context.Session.GetString("IsCreatorApproved") == "false")
+                                                {
+                                                    <div class="header-right-btn f-right  ml-15">
+                                                        <a asp-controller="Campaign" asp-action="ApplyForCreator" class="header-btn">Start A FundRaiser</a>
+                                                    </div>
+                                                }
+                                               
                                             </li>
 
                                             @if (Context.Session.GetString("LoginCred") != null)
@@ -105,10 +109,10 @@
                                                     {
                                                         <a href="~/Dashboard/Dashboard">Creator Dashboard</a>
                                                     }
-                                                    else
+                                                    @* else
                                                     {
                                                         <a href="~/Dashboard/Dashboard">Contributor Dashboard</a>
-                                                    }
+                                                    } *@
                                                 </li>
                                                 <li>
                                                     <div class="header-right-btn f-right  ml-15">

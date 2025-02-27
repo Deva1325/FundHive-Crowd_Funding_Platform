@@ -106,7 +106,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             var resetUrl = "http://localhost:5084/Account/ResetPassword?token=" + resetToken;
 
             //Send the reset email
-            await _emailSender.SendEmailAsync(user.Email, "Password Reset Request",
+            await _emailSender.SendEmailAsync(user.Email,user.Username, "Password Reset Request",
                 $"Click <a href='{resetUrl}'>here</a> to reset your password.", "ForgotPassword");
 
             return new { success = true, message = "Password reset link sent to your email." };

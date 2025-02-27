@@ -15,16 +15,12 @@
         <table class="table table-hover">
             <thead class="thead-dark">
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.Title)</th>
-                    <th>@Html.DisplayNameFor(model => model.Description)</th>
-                    <th>@Html.DisplayNameFor(model => model.Requirement)</th>
-                    <th>@Html.DisplayNameFor(model => model.RaisedAmount)</th>
-                    <th>@Html.DisplayNameFor(model => model.StartDate)</th>
-                    <th>@Html.DisplayNameFor(model => model.EndDate)</th>
-                    <th>@Html.DisplayNameFor(model => model.MediaUrl)</th>
-                    <th>@Html.DisplayNameFor(model => model.Status)</th>
-                    <th>@Html.DisplayNameFor(model => model.Category)</th>
-                    <th>@Html.DisplayNameFor(model => model.Creator)</th>
+                    <th>Title</th>
+                    <th>Requirement Amount</th>
+                    <th>Raised Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -33,21 +29,21 @@
                 {
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                        @* <td>@Html.DisplayFor(modelItem => item.Description)</td> *@
                         <td>@Html.DisplayFor(modelItem => item.Requirement)</td>
                         <td>@Html.DisplayFor(modelItem => item.RaisedAmount)</td>
                         <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
                         <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
-                        <td>
-                            <img src="@item.MediaUrl" alt="Campaign Image" class="img-thumbnail" style="max-width: 80px; height: auto;">
-                        </td>
+                        @* <td>
+                            <img src="@Url.Content(item.MediaUrl)" alt="Campaign Image" class="img-thumbnail" style="max-width: 80px; height: auto;">
+                        </td> *@
                         <td>
                             <span class="badge @(item.Status == "Active" ? "badge-success" : "badge-danger")">
                                 @Html.DisplayFor(modelItem => item.Status)
                             </span>
                         </td>
-                        <td>@Html.DisplayFor(modelItem => item.Category.CategoryId)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Creator.UserId)</td>
+                       @*  <td>@Html.DisplayFor(modelItem => item.Category.CategoryId)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Creator.UserId)</td> *@
                         <td class="text-center">
                             <a asp-action="SaveCampaigns" asp-route-id="@item.CampaignId" class="btn btn-primary btn-sm">
                                 <i class="fas fa-edit"></i> Edit

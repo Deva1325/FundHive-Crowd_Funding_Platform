@@ -1,0 +1,135 @@
+﻿@model Crowd_Funding_Platform.Models.CreatorApplication
+
+@{
+    ViewData["Title"] = "Creator Application Details";
+}
+
+@if (Model != null)
+{
+
+    <div class="container mt-4">
+        <h2 class="text-center text-primary mb-4">Creator Application Details</h2>
+
+        <div class="card shadow p-4">
+            <h5 class="text-dark"><i class="fas fa-user"></i> Applicant Details</h5>
+            <hr />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Application ID:</strong> @Model.ApplicationId</p>
+                    <p><strong>User Name:</strong> @Model.User?.Username</p>
+                    <p><strong>Email:</strong> @Model.User?.Email</p>
+                    <p><strong>Submission Date:</strong> @Model.SubmissionDate?.ToString("dd MMM yyyy")</p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge bg-@(Model.Status == "Pending" ? "warning" : (Model.Status == "Approved" ? "success" : "danger"))">
+                            @Model.Status
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Admin Remarks:</strong> @(Model.AdminRemarks ?? "No remarks yet")</p>
+                    <p><strong>Last Updated:</strong> @Model.StatusUpdatedDate?.ToString("dd MMM yyyy")</p>
+                </div>
+            </div>
+
+            <h5 class="mt-4"><i class="fas fa-file-alt"></i> Submitted Documents</h5>
+            <hr />
+
+            @if (Model.DocumentPath != null && Model.DocumentPath.Contains(";"))
+            {
+                var documents = Model.DocumentPath.Split(";");
+                <div class="row">
+                    @foreach (var doc in documents)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card border shadow-sm">
+                                <div class="card-body text-center">
+                                    <a href="@doc" target="_blank" class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-file-alt"></i> View Document
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(Model.DocumentPath))
+            {
+                <a href="@Model.DocumentPath" target="_blank" class="btn btn-info btn-sm">
+                    <i class="fas fa-file-alt"></i> View Document
+                </a>
+            }
+            else
+            {
+                <p class="text-muted">No documents uploaded</p>
+            }
+
+            <h5 class="mt-4"><i class="fas fa-cogs"></i> Admin Actions</h5>
+            <hr />
+
+            @if (Model.Status == "Pending")
+            {
+                <div class="text-center">
+                    <button class="btn btn-success me-2" onclick="approveCreator(@Model.ApplicationId)">
+                        <i class="fas fa-check-circle"></i> Approve
+                    </button>
+                    <button class="btn btn-danger" onclick="rejectCreator(@Model.ApplicationId)">
+                        <i class="fas fa-times-circle"></i> Reject
+                    </button>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center">Action already taken.</p>
+            }
+        </div>
+    </div>
+}
+else{
+    <p class="text-danger text-center">Error: User data could not be loaded</p>
+}
+
+<script>
+    function approveCreator(applicationId) {
+        if (confirm("Are you sure you want to approve this creator?")) {
+            $.ajax({
+                url: '/ManageCampaigns/ApproveCreator',
+                type: 'POST',
+                data: { id: applicationId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong.");
+                }
+            });
+        }
+    }
+
+    function rejectCreator(applicationId) {
+        if (confirm("Are you sure you want to reject this creator?")) {
+            $.ajax({
+                url: '/ManageCampaigns/RejectCreator',
+                type: 'POST',
+                data: { id: applicationId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong.");
+                }
+            });
+        }
+    }
+</script>

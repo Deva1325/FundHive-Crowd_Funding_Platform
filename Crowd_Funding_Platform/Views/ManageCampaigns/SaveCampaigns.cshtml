@@ -3,11 +3,11 @@
     ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
-
 <h4>Campaign</h4>
 <div class="row">
     <div class="col-md-4">
-<form id="campaignForm" enctype="multipart/form-data" method="post">
+
+    <form id="campaignForm" enctype="multipart/form-data" method="post">
     <input type="hidden" asp-for="CampaignId" />
 
     <div class="form-group">
@@ -25,11 +25,11 @@
         <input asp-for="Requirement" type="number" step="0.01" class="form-control"  />
     </div>
 
-    <div class="form-group">
+  @*   <div class="form-group">
         <label asp-for="RaisedAmount">Contribution Amount</label>
         <input asp-for="RaisedAmount" class="form-control" min="1" placeholder="Enter minimum contribution" placeholder="Enter target amount">
     </div>
-
+ *@
     <div class="form-group">
         <label asp-for="StartDate"></label>
         <input asp-for="StartDate" type="date" class="form-control"  />
@@ -52,8 +52,11 @@
         <input asp-for="ImageFile" class="form-control" id="MediaFile" />
     </div>
 
-    <button type="submit" class="btn btn-primary">@((Model?.CampaignId ?? 0) > 0 ? "Update" : "Create")</button>
-</form>
+            <button type="submit" class="btn btn-primary">
+                @((Model?.CampaignId ?? 0) > 0 ? "Update" : "Create")
+            </button>
+
+        </form>
 
 
     </div>
@@ -62,9 +65,12 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script src="~/js/SaveCampaignForm.js"></script>
+        
 
     }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="~/js/SaveCampaignForm.js"></script>
 
     <!-- jQuery (Ensure it's before Bootstrap JS) -->
   @*   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

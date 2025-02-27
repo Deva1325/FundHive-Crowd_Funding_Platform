@@ -58,19 +58,29 @@
 
             // AJAX submission
             $.ajax({
-                url: '/Account/Login',
+                url: '/Account/Login',  
                 type: 'POST',
                 processData: false,
                 contentType: false,
                 data: formData,
 
                 success: function (result) {
-                    alert(result.message);
+                    console.log("Login Response:", result);
+
                     if (result.success) {
-                        window.location.href = '/Dashboard/Dashboard';
-                       // alert('Login successful');
+                        alert(result.message);
+
+                        if (result.redirectUrl) {
+                            window.location.assign(result.redirectUrl);
+                        } else {
+                            alert("Redirect URL is missing!");
+                        }
+                    } else {
+                        alert(result.message);
                     }
                 },
+
+
 
                 error: function () {
                     alert('An error occurred while Login.');

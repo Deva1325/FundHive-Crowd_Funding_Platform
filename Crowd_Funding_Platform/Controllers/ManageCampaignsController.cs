@@ -34,10 +34,16 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SaveCampaigns()
+        public async Task<IActionResult> SaveCampaigns(int? id)
         {
             var userId = HttpContext.Session.GetInt32("UserId_ses");
             var isCreatorApproved = (HttpContext.Session.GetString("IsCreatorApproved") ?? "false") == "true";
+
+            Campaign campaign = new Campaign();
+            if ( id > 0)
+            {
+                campaign = await _CFS.Campaigns.FirstOrDefaultAsync(c => c.CampaignId == id);
+            }
 
             ViewBag.Categories = new SelectList(await _CFS.Categories.ToListAsync(), "CategoryId", "Name");
 
@@ -56,54 +62,10 @@ namespace Crowd_Funding_Platform.Controllers
                 return RedirectToAction("SaveCampaigns", "ManageCampaigns");
             }
 
-            return View();
+            return View(campaign);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> SaveCampaigns(Campaign campaign)
-        //{
-        //    try
-        //    {
-        //        var userId = HttpContext.Session.GetInt32("UserId_ses");
-
-        //        if (userId == null)
-        //        {
-        //            return Json(new { success = false, message = "Session expired. Please login again." });
-        //        }
-
-
-        //        // Get today's date as DateOnly
-        //        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-
-        //        if (campaign.StartDate > today)
-        //        {
-        //            campaign.Status = "Upcoming";
-        //        }
-        //        else if (campaign.StartDate <= today && campaign.EndDate >= today)
-        //        {
-        //            campaign.Status = "Ongoing";
-        //        }
-        //        else if (campaign.EndDate < today)
-        //        {
-        //            campaign.Status = "Completed";
-        //        }
-
-
-        //        var result = await _campaign.SaveCampaigns(campaign, userId.Value);
-
-        //        if (!result.success)
-        //        {
-        //            return Json(new { success = false, message = result.message });
-        //        }
-
-        //        return Json(new { success = true, message = result.message, redirectUrl = Url.Action("CreatorDashboard", "Dashboard") });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
-        //    }
-        //}
-
+      
         [HttpPost]
         public async Task<IActionResult> SaveCampaigns(Campaign campaign, IFormFile? MediaUrl)
         {
@@ -164,53 +126,60 @@ namespace Crowd_Funding_Platform.Controllers
             }
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> SaveCampaigns(Campaign campaign)
-        //{
-        //    try
-        //    {
-        //        var userId = HttpContext.Session.GetInt32("UserId_ses");
+        [HttpGet]
+        public async Task<IActionResult> ViewCreatorDocument(int id)
+        {
+            //var creatorDetails = _campaign.GetCreatorApplicationDetails(id);
+            //if (creatorDetails == null) return NotFound();
 
-        //        if (userId == null)
-        //        {
-        //            return Json(new { success = false, message = "Session expired. Please login again." });
-        //        }
+            //return View(creatorDetails);
+            return View();
+        }
 
-        //        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
-        //        if (campaign.StartDate > today)
-        //        {
-        //            campaign.Status = "Upcoming";
-        //        }
-        //        else if (campaign.StartDate <= today && campaign.EndDate >= today)
-        //        {
-        //            campaign.Status = "Ongoing";
-        //        }
-        //        else if (campaign.EndDate < today)
-        //        {
-        //            campaign.Status = "Completed";
-        //        }
+        [HttpPost]
+        public async Task<IActionResult> ApproveCreator(int id)
+        {
+            var result = await _campaign.ApproveCreator(id);
+            return Json(new { success = result.success, message = result.message });
+        }
 
-        //        var result = await _campaign.SaveCampaigns(campaign, userId.Value);
+        [HttpPost]
+        public async Task<IActionResult> RejectCreator(int id)
+        {
+            var result = await _campaign.RejectCreator(id);
+            return Json(new { success = result.success, message = result.message });
+        }
 
-        //        if (!result.success)
-        //        {
-        //            return Json(new { success = false, message = result.message });
-        //        }
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deltCam = await _campaign.GetCampaignById(id);
+            return View(deltCam);
+        }
 
-        //        return Json(new
-        //        {
-        //            success = true,
-        //            message = "Campaign saved successfully!",
-        //            redirectUrl = Url.Action("Dashboard", "Dashboard")
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
-        //    }
-        //}
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var DelCam = await _campaign.DeleteCampaign(id);
 
+                return RedirectToAction("CampaignsList", "ManageCampaigns");
+                //return View(DelCam);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Delete failed", ex);
+            }
+        }
+
+        [HttpGet, ActionName("PendingCampaignsDetails")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var campaign = await _campaign.GetApplicationById(id);
+            return View(campaign);
+        }
 
     }
 }

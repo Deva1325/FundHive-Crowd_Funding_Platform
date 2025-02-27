@@ -158,5 +158,61 @@
     <script src="~/js/Login.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
+    <script>
+        $("#loginForm").validate({
+            rules: {
+                EmailOrUsername: {
+                    required: true,
+                },
+                Password: {
+                    required: true,
+                }
+            },
+            messages: {
+                EmailOrUsername: {
+                    required: "Please enter your Credentials."
+                },
+                Password: {
+                    required: "Please enter your Password.",
+                }
+            },
+
+            submitHandler: function (form, event) {
+                event.preventDefault()
+                const formData = new FormData(form);
+
+                // AJAX submission
+                $.ajax({
+                    url: '/Account/Login',
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+
+                    success: function (result) {
+                        console.log("Login Response:", result);
+
+                        if (result.success) {
+                            alert(result.message);
+
+                            if (result.redirectUrl) {
+                                window.location.assign(result.redirectUrl);
+                            } else {
+                                alert("Redirect URL is missing!");
+                            }
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+
+
+
+                    error: function () {
+                        alert('An error occurred while Login.');
+                    }
+                });
+            }
+        });
+    </script>
 
 }

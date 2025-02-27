@@ -59,7 +59,7 @@ namespace Crowd_Funding_Platform.Controllers
                 {
                     Console.WriteLine($"User Email: {email}");
                 }
-
+                 
                 return Json(await _acc.AddUserRegister(user, ImageFile));
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace Crowd_Funding_Platform.Controllers
                 {
                     user.Otp = _emailSender.GenerateOtp();
                     user.Otpexpiry = DateTime.Now.AddMinutes(5);
-                    await _emailSender.SendEmailAsync(user.Email, "OTP Verification!!", user.Otp, "Registration");
+                    await _emailSender.SendEmailAsync(user.Email,user.Username, "OTP Verification!!", user.Otp, "Registration");
                     await _dbMain.SaveChangesAsync();
                     return Json(new { success = true, message = "OTP sent successfully" });
                 }
@@ -151,47 +151,46 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel login)
         {
-            const int maxAttempts = 5; //Maximum allowed attempts
-            const int lockoutDurationSeconds = 300; //Lockout duration in seconds
+            const int maxAttempts = 5; // Maximum allowed attempts
+            const int lockoutDurationSeconds = 300; // Lockout duration in seconds
 
-            //Define cache keys for tracking attempts and lockout status
             var attemptKey = $"LoginAttempts_{login.EmailOrUsername}";
             var lockoutKey = $"Lockout_{login.EmailOrUsername}";
 
-            //Check if the user is locked out
             if (_memoryCache.TryGetValue(lockoutKey, out DateTime lockoutEndTime) && lockoutEndTime > DateTime.Now)
             {
                 var remainingTime = (int)(lockoutEndTime - DateTime.Now).TotalSeconds;
                 return Json(new { success = false, message = $"Account is locked. Try again in {remainingTime} seconds." });
             }
+
             var result = await _loginRepos.AuthenticateUser(login.EmailOrUsername, login.Password);
 
             if (((dynamic)result).success)
             {
                 HttpContext.Session.SetString("LoginCred", login.EmailOrUsername);
 
-                var user = await _dbMain.Users.FirstOrDefaultAsync(u=>u.Email==login.EmailOrUsername|| u.Username==login.EmailOrUsername);
+                var user = await _dbMain.Users.FirstOrDefaultAsync(u => u.Email == login.EmailOrUsername || u.Username == login.EmailOrUsername);
 
-                if (user!=null)
+                string redirectUrl = "/Home/Index"; // Default for contributors
+
+                if (user != null)
                 {
-                    HttpContext.Session.SetInt32("UserId_ses",user.UserId);
-                    HttpContext.Session.SetString("IsAdmin_ses",user.IsAdmin==true?"true":"false");
+                    HttpContext.Session.SetInt32("UserId_ses", user.UserId);
+                    HttpContext.Session.SetString("IsAdmin_ses", user.IsAdmin == true ? "true" : "false");
                     HttpContext.Session.SetString("IsCreatorApproved", user.IsCreatorApproved == true ? "true" : "false");
 
-                    if (user.IsAdmin==true)
+                    if (user.IsAdmin == true)
                     {
-                        return Json(new { success=true,role="Admin", message = "Welcome Admin!" });
+                        redirectUrl = "/Dashboard/Dashboard"; // Admin Dashboard
                     }
                     else if (user.IsCreatorApproved == true)
                     {
-                        return Json(new { success = true, role = "Creator", message = "Welcome Campaign Creator!" });
+                        redirectUrl = "/Home/Index"; // Creator Dashboard
                     }
-                    else
-                    {
-                        return Json(new { success = true, role = "Contributor", message = "Welcome Contributor!" });
-                    }
+
                 }
-;
+
+
                 if (login.RememberMe)
                 {
                     var options = new CookieOptions
@@ -209,14 +208,20 @@ namespace Crowd_Funding_Platform.Controllers
                     Response.Cookies.Delete("RememberMe_Email");
                     Response.Cookies.Delete("RememberMe_Password");
                 }
-                //Reset login attempts after successful login
+
                 _memoryCache.Remove(attemptKey);
 
-                return Ok(new { success = true, message = "You are successfully logged in" });
+                return Json(new
+                {
+                    success = true,
+                    message = "Login successful!",
+                    role = user.IsAdmin == true ? "Admin" :
+                   user.IsCreatorApproved == true ? "Creator" :
+                   "Contributor",
+                    redirectUrl // Ensure this is included in the response!
+                });
             }
             return Json(new { success = false, message = "Invalid Login credentials. Please try again." });
-
-           // return Ok(result);
         }
 
         [HttpGet]
@@ -254,6 +259,8 @@ namespace Crowd_Funding_Platform.Controllers
             string userEmail = HttpContext.Session.GetString("abc");
 
             Console.WriteLine(userEmail);
+         
+            
             if (string.IsNullOrEmpty(userEmail))
             {
                 return Json(new { success = false, message = "Session expired. Please request a new password reset." });

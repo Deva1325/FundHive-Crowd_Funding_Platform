@@ -10,5 +10,15 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign
         Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId,IFormFile? MediaUrl); // Modified to include userId
 
         Task<List<Campaign>> GetAllCampaigns();
+
+        Task<Campaign?> GetCampaignById(int id);
+
+        Task<CreatorApplication?> GetApplicationById(int id);
+
+        Task<bool> DeleteCampaign(int id);
+
+        Task<(bool success, string message)> ApproveCreator(int id);
+        Task<(bool success, string message)> RejectCreator(int id);
+
     }
 }
