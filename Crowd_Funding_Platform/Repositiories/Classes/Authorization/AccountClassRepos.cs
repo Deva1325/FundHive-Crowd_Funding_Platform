@@ -32,6 +32,22 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             return new { success = true, message = "Registration Sucessfull!!" };
         }
 
+        public async Task<string> fetchEmail(string cred)
+        {
+            return await _dbMain_CFS.Users
+                .Where(u => u.Email == cred || u.Username == cred)
+                .Select(u => u.Email)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<User> GetUserDataByEmail(string email)
+        {
+            return await _dbMain_CFS.Users
+                .FirstOrDefaultAsync(x => x.Email == email);
+        }
+
+
+
         public async Task<int?> GetUserIdByEmail(string email)
         {
             return await _dbMain_CFS.Users

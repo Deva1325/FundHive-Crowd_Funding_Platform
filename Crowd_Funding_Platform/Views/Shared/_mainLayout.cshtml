@@ -103,11 +103,11 @@
                                                 <li>
                                                     @if (Context.Session.GetString("IsAdmin_ses") == "true")
                                                     {
-                                                        <a href="/Admin/Dashboard">Admin Dashboard</a>
+                                                        <a href="/Admin/Dashboard" class="header-btn">Admin Dashboard</a>
                                                     }
                                                     else if (Context.Session.GetString("IsCreatorApproved") == "true")
                                                     {
-                                                        <a href="~/Dashboard/Dashboard">Creator Dashboard</a>
+                                                        <a href="~/Dashboard/Dashboard" class="header-btn">Creator Dashboard</a>
                                                     }
                                                     @* else
                                                     {
@@ -320,8 +320,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.rawgit.com/jzaefferer/jquery-validation/1.19.3/dist/jquery.validate.min.js"></script>
-
-
   
 </body>
 

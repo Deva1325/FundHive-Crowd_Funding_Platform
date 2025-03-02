@@ -2,9 +2,11 @@ using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Classes;
 using Crowd_Funding_Platform.Repositiories.Classes.Authorization;
 using Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign;
+using Crowd_Funding_Platform.Repositiories.Classes.UserProfile;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
+using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -19,6 +21,7 @@ builder.Services.AddScoped<ILoginRepos, LoginClassRepos>();
 builder.Services.AddScoped<ICreatorApplicationRepos, CreatorApplicationRepos>();
 builder.Services.AddScoped<ISidebarRepos, SidebarClassRepos>();
 builder.Services.AddScoped<ICampaignsRepos, CampaignsClassRepos>();
+builder.Services.AddScoped<IProfileRepos, ProfileClassRepos>();
 
 builder.Services.AddDbContext<DbMain_CFS>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

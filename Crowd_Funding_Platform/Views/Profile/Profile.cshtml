@@ -1,0 +1,143 @@
+﻿@model Crowd_Funding_Platform.Models.User
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+<div class="profile-container" style="font-family: 'Material Design Icons';">
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Profile Section -->
+            <div class="col-md-4">
+                <div class="card shadow-lg border-0 rounded-lg text-center">
+                    <div class="profile-header">
+                        <div class="profile-img-container">
+                            <img src="~/Documents_Upload/40663dad-ed63-4cef-bcec-ef858a1c3da4.jpg" class="rounded-circle profile-img" alt="Profile Image" />
+                        </div>
+                        <h3 class="text-white mt-3" style="font-family: 'Material Design Icons';">Welcome @Model.Username !</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="    color: #05339d;">@Model.Email</p>
+                        @if (Model.IsAdmin.GetValueOrDefault())
+                        {
+                            <span class="badge badge-primary">Admin</span>
+                        }
+                        else if (Model.IsCreatorApproved.GetValueOrDefault())
+                        {
+                            <span class="badge badge-success">Campaign Creator</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Information Section -->
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-body">
+                        <h4 class="section-title" style="font-family: 'Material Design Icons';">My Account</h4>
+                        <hr>
+
+                        <div class="info-box"><label>Phone Number</label><p>@Model.PhoneNumber</p></div>
+                        <div class="info-box"><label>Email</label><p>@Model.Email</p></div>
+                        <div class="info-box"><label>Joined Date</label><p>@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
+                        <div class="info-box"><label>Approved On</label><p>@Model.UpdatedAt?.ToString("dd MMM yyyy")</p></div>
+                        <div class="info-box">
+                            <label>Email Status</label>
+                            <span style="    margin-top: 7px;    background: #1bcfb4;    color: #ffffff;" class="badge @(Model.EmailVerified.GetValueOrDefault())">
+                                @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
+                            </span>
+                            @* <span style="    margin-top: 7px;    background: #1bcfb4;" class="badge text-bg-@(Model.EmailVerified.GetValueOrDefault() ? "success" : "danger")">
+                                @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
+                            </span> *@
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg" style="    font-family: 'Material Design Icons';">
+                                <i class="fas fa-edit"></i> Edit Profile
+                            </a>
+                           @*  <a asp-action="Index" class="btn btn-danger btn-lg">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    <link rel="stylesheet" href="~/css/Fonts.css" / >
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: url('/Documents_Upload/background.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .profile-container {
+        padding: 50px 0;
+    }
+
+    .profile-header {
+        background: linear-gradient(to right, #007bff, #0056b3);
+        padding: 40px;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        text-align: center;
+    }
+
+    .profile-img-container {
+        position: relative;
+        margin-top: -60px;
+    }
+
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        border: 3px solid white;
+        object-fit: cover;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #333;
+    }
+
+    .info-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 16px;
+    }
+
+    .info-box label {
+        font-weight: 600;
+        display: block;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .info-box p {
+        margin: 5px 0 0;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .btn-lg {
+        padding: 12px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+</style>
+

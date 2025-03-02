@@ -41,7 +41,6 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
 
             return creators;
         }
-
         public async Task<List<Campaign>> GetAllCampaigns()
         {
             return await _CFS.Campaigns.OrderByDescending(c => c.StartDate).ToListAsync();

@@ -209,6 +209,16 @@ namespace Crowd_Funding_Platform.Controllers
                     Response.Cookies.Delete("RememberMe_Password");
                 }
 
+                string email = await _acc.fetchEmail(login.EmailOrUsername);
+                HttpContext.Session.SetString("UserEmail", email);
+
+                var data = await _acc.GetUserDataByEmail(email);
+                int id = data.UserId;
+                HttpContext.Session.SetInt32("UserId", id);
+                HttpContext.Session.SetString("UserName", data.Username);
+                HttpContext.Session.SetString("UserImage", data.ProfilePicture); // Assuming ProfileImage is a filename
+
+
                 _memoryCache.Remove(attemptKey);
 
                 return Json(new

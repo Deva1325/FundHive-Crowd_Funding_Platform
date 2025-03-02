@@ -108,6 +108,7 @@ namespace Crowd_Funding_Platform.Controllers
             }
             catch (Exception ex)
             {
+                Console.Write(ex.Message);
                 return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
             }
         }

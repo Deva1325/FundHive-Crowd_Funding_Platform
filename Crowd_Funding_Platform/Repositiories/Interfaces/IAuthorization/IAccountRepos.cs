@@ -12,6 +12,10 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization
 
         Task<bool> OtpVerification(string Otp);
 
+        Task<User> GetUserDataByEmail(string email);
+
+        Task<string> fetchEmail(string cred);
+
         Task<object> updateStatus(string Email);
     }
 }
