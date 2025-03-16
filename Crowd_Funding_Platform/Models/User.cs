@@ -14,9 +14,6 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    [NotMapped]
-    public string? ConfirmPassword {  get; set; } = null!;
-
     public string? PhoneNumber { get; set; }
 
     public bool? EmailVerified { get; set; }
@@ -31,12 +28,29 @@ public partial class User
 
     public string? ProfilePicture { get; set; }
 
-    [NotMapped]
-    public FormFile? ImageFile { get; set; }
-
     public bool? IsAdmin { get; set; }
 
     public bool? IsCreatorApproved { get; set; }
+
+    [NotMapped]
+    public string? ConfirmPassword { get; set; } = null!;
+
+    [NotMapped]
+    public FormFile? ImageFile { get; set; }
+
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
+    public string? Address { get; set; }
+
+    public string? ProfileBio { get; set; }
+
+    public string? Website { get; set; }
+
+    public string? InstagramLink { get; set; }
+
+    public string? FaceBookLink { get; set; }
 
     public virtual ICollection<AdminLog> AdminLogs { get; set; } = new List<AdminLog>();
 

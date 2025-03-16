@@ -1,0 +1,189 @@
+﻿@model Crowd_Funding_Platform.Models.User
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+<div class="profile-container" style="font-family: 'Material Design Icons';">
+    <div class="container mt-5">
+        <div class="row">
+            
+
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-body">
+                        <h4 class="section-title">Update Your Information</h4>
+                        <hr>
+                        <form asp-action="EditProfile" enctype="multipart/form-data" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="UserId" />
+
+                            <div class="col-md-4">
+                                <div class="card shadow-lg border-0 rounded-lg text-center profile-card" style=" margin-left: 263px;margin-bottom: 25px;">
+                                    <!-- Profile Image with Edit Option -->
+                                    <div class="text-center mb-4" style="margin-top: 21px;">
+                                        <div class="position-relative d-inline-block">
+                                            <img id="profilePreview" src="@(!string.IsNullOrEmpty(Model.ProfilePicture) ? Model.ProfilePicture : "/images/default-profile.png")" class="rounded-circle border" style="width: 130px; height: 130px;">
+                                            <label for="ProfilePicture" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" style="cursor: pointer;">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </label>
+                                        </div>
+                                        <input type="file" id="ProfilePicture" name="ImageFile" class="d-none" accept="image/*" onchange="previewImage(event)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label asp-for="FirstName" class="control-label"></label>
+                                    <input asp-for="FirstName" class="form-control" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label asp-for="LastName" class="control-label"></label>
+                                    <input asp-for="LastName" class="form-control" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Username" class="control-label"></label>
+                                <input asp-for="Username" class="form-control" />
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Email" class="control-label"></label>
+                                <input asp-for="Email" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber" class="control-label"></label>
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Address" class="control-label"></label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="ProfileBio" class="control-label"></label>
+                                <textarea asp-for="ProfileBio" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="ProfileBio" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Website" class="control-label"></label>
+                                <input asp-for="Website" class="form-control" />
+                                <span asp-validation-for="Website" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="InstagramLink" class="control-label"></label>
+                                <input asp-for="InstagramLink" class="form-control" />
+                                <span asp-validation-for="InstagramLink" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="FaceBookLink" class="control-label"></label>
+                                <input asp-for="FaceBookLink" class="form-control" />
+                                <span asp-validation-for="FaceBookLink" class="text-danger"></span>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a asp-action="Profile" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        padding: 50px 0;
+    }
+
+    .profile-header {
+        background: linear-gradient(to right, #007bff, #0056b3);
+        padding: 40px;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        text-align: center;
+    }
+
+    .profile-img-container {
+        position: relative;
+        margin-top: -60px;
+    }
+
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        border: 3px solid white;
+        object-fit: cover;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .edit-profile-icon {
+        position: absolute;
+        bottom: 0;
+        right: 5px;
+        background: #fff;
+        padding: 5px;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+        .edit-profile-icon i {
+            font-size: 14px;
+            color: #007bff;
+        }
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #333;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Profile Image Preview
+        $("#ProfilePicture").change(function (event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                $("#profilePreview").attr("src", reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+    </script>
+}

@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\Documents_Upload\" />
     <Folder Include="wwwroot\Campaign_Media\" />
+    <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
 
 </Project>

@@ -164,7 +164,7 @@ namespace Crowd_Funding_Platform.Controllers
             }
 
             var result = await _loginRepos.AuthenticateUser(login.EmailOrUsername, login.Password);
-
+             
             if (((dynamic)result).success)
             {
                 HttpContext.Session.SetString("LoginCred", login.EmailOrUsername);
@@ -189,7 +189,6 @@ namespace Crowd_Funding_Platform.Controllers
                     }
 
                 }
-
 
                 if (login.RememberMe)
                 {
@@ -216,7 +215,11 @@ namespace Crowd_Funding_Platform.Controllers
                 int id = data.UserId;
                 HttpContext.Session.SetInt32("UserId", id);
                 HttpContext.Session.SetString("UserName", data.Username);
-                HttpContext.Session.SetString("UserImage", data.ProfilePicture); // Assuming ProfileImage is a filename
+
+                if (data.ProfilePicture != null)
+                {
+                    HttpContext.Session.SetString("UserImage", data.ProfilePicture);
+                }
 
 
                 _memoryCache.Remove(attemptKey);

@@ -4,6 +4,7 @@
     ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
+
 <div class="profile-container" style="font-family: 'Material Design Icons';">
     <div class="container mt-5">
         <div class="row">
@@ -12,15 +13,15 @@
                 <div class="card shadow-lg border-0 rounded-lg text-center">
                     <div class="profile-header">
                         <div class="profile-img-container">
-                            <img src="~/Documents_Upload/40663dad-ed63-4cef-bcec-ef858a1c3da4.jpg" class="rounded-circle profile-img" alt="Profile Image" />
+                            <img src="@Model.ProfilePicture" class="rounded-circle profile-img" alt="Profile Image" />
                         </div>
-                        <h3 class="text-white mt-3" style="font-family: 'Material Design Icons';">Welcome @Model.Username !</h3>
+                        <h3 class="text-white mt-3" style="font-family: 'Material Design Icons';">Welcome @Model.Username!</h3>
                     </div>
                     <div class="card-body">
-                        <p style="    color: #05339d;">@Model.Email</p>
+                        <p class="text-primary">@Model.Email</p>
                         @if (Model.IsAdmin.GetValueOrDefault())
                         {
-                            <span class="badge badge-primary">Admin</span>
+                            <span class="badge badge-success">Admin</span>
                         }
                         else if (Model.IsCreatorApproved.GetValueOrDefault())
                         {
@@ -36,28 +37,36 @@
                     <div class="card-body">
                         <h4 class="section-title" style="font-family: 'Material Design Icons';">My Account</h4>
                         <hr>
-
-                        <div class="info-box"><label>Phone Number</label><p>@Model.PhoneNumber</p></div>
-                        <div class="info-box"><label>Email</label><p>@Model.Email</p></div>
-                        <div class="info-box"><label>Joined Date</label><p>@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
-                        <div class="info-box"><label>Approved On</label><p>@Model.UpdatedAt?.ToString("dd MMM yyyy")</p></div>
-                        <div class="info-box">
-                            <label>Email Status</label>
-                            <span style="    margin-top: 7px;    background: #1bcfb4;    color: #ffffff;" class="badge @(Model.EmailVerified.GetValueOrDefault())">
-                                @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
-                            </span>
-                            @* <span style="    margin-top: 7px;    background: #1bcfb4;" class="badge text-bg-@(Model.EmailVerified.GetValueOrDefault() ? "success" : "danger")">
-                                @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
-                            </span> *@
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-box"><label>First Name</label><p>@Model.FirstName</p></div>
+                                <div class="info-box"><label>Email</label><p>@Model.Email</p></div>
+                                <div class="info-box"><label>Joined Date</label><p>@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
+                                <div class="info-box"><label>Profile Bio</label><p>@Model.ProfileBio</p></div>
+                                <div class="info-box"><label>Website</label><p><a href="@Model.Website" target="_blank">@Model.Website</a></p></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-box"><label>Last Name</label><p>@Model.LastName</p></div>
+                                <div class="info-box"><label>Phone Number</label><p>@Model.PhoneNumber</p></div>
+                                <div class="info-box"><label>Approved On</label><p>@Model.UpdatedAt?.ToString("dd MMM yyyy")</p></div>
+                                <div class="info-box"><label>Address</label><p>@Model.Address</p></div>
+                                <div class="info-box"><label>Instagram</label><p><a href="@Model.InstagramLink" target="_blank">@Model.InstagramLink</a></p></div>
+                                <div class="info-box"><label>Facebook</label><p><a href="@Model.FaceBookLink" target="_blank">@Model.FaceBookLink</a></p></div>
+                                <div class="info-box">
+                                    <label>Email Status</label>
+                                    <span class="badge @(Model.EmailVerified.GetValueOrDefault() ? "badge-success" : "badge-danger")">
+                                        @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
+                        
+
                         <div class="text-center mt-4">
-                            <a asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg" style="    font-family: 'Material Design Icons';">
+                            <a asp-action="EditProfile" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg">
                                 <i class="fas fa-edit"></i> Edit Profile
                             </a>
-                           @*  <a asp-action="Index" class="btn btn-danger btn-lg">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a> *@
                         </div>
                     </div>
                 </div>
@@ -68,8 +77,6 @@
 
 <!-- Custom CSS -->
 <style>
-    <link rel="stylesheet" href="~/css/Fonts.css" / >
-
     body {
         font-family: 'Poppins', sans-serif;
         background: url('/Documents_Upload/background.jpg') no-repeat center center fixed;
@@ -120,18 +127,18 @@
         font-size: 16px;
     }
 
-    .info-box label {
-        font-weight: 600;
-        display: block;
-        color: #333;
-        font-size: 14px;
-    }
+        .info-box label {
+            font-weight: 600;
+            display: block;
+            color: #333;
+            font-size: 14px;
+        }
 
-    .info-box p {
-        margin: 5px 0 0;
-        font-size: 16px;
-        color: #555;
-    }
+        .info-box p {
+            margin: 5px 0 0;
+            font-size: 16px;
+            color: #555;
+        }
 
     .btn-lg {
         padding: 12px 20px;
@@ -139,5 +146,13 @@
         font-weight: bold;
         border-radius: 8px;
     }
-</style>
 
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        a:hover {
+            text-decoration: underline;
+        }
+</style>

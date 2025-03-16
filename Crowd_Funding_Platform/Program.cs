@@ -22,6 +22,8 @@ builder.Services.AddScoped<ICreatorApplicationRepos, CreatorApplicationRepos>();
 builder.Services.AddScoped<ISidebarRepos, SidebarClassRepos>();
 builder.Services.AddScoped<ICampaignsRepos, CampaignsClassRepos>();
 builder.Services.AddScoped<IProfileRepos, ProfileClassRepos>();
+builder.Services.AddScoped<IUser, UserClassRepos>();
+builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
 
 builder.Services.AddDbContext<DbMain_CFS>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

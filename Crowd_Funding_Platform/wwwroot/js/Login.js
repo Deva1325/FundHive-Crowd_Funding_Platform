@@ -53,9 +53,17 @@
         },
 
         submitHandler: function (form, event) {
-            event.preventDefault()
+            event.preventDefault();
+
+            const btnLogin = $("#btnLogin");
+            const btnLoader = $("#btnLoader");
+
+            btnLogin.prop("disabled", true);
+            btnLoader.removeClass("d-none");
+
             const formData = new FormData(form);
 
+            
             // AJAX submission
             $.ajax({
                 url: '/Account/Login',  
@@ -68,7 +76,8 @@
                     console.log("Login Response:", result);
 
                     if (result.success) {
-                        alert(result.message);
+                        //window.location.href = '/Home/Index';
+                        alert("Login Success!!!!");
 
                         if (result.redirectUrl) {
                             window.location.assign(result.redirectUrl);
@@ -76,15 +85,19 @@
                             alert("Redirect URL is missing!");
                         }
                     } else {
-                        alert(result.message);
+                        alert("Login Failed!");
                     }
                 },
 
-
-
-                error: function () {
-                    alert('An error occurred while Login.');
+                complete: function () {
+                    btnLogin.prop("disabled", false);
+                    btnLoader.addClass("d-none");
                 }
+
+                //error: function () {
+                //    alert('An error occurred while Login.');
+                //}
+
             });
         }
     });

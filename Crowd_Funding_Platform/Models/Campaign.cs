@@ -26,10 +26,10 @@ public partial class Campaign
 
     public string? MediaUrl { get; set; }
 
+    public string? Status { get; set; }
+
     [NotMapped]
     public FormFile? ImageFile { get; set; }
-
-    public string? Status { get; set; }
 
     public virtual ICollection<CampaignAnalytic> CampaignAnalytics { get; set; } = new List<CampaignAnalytic>();
 

@@ -1,0 +1,98 @@
+﻿@model Crowd_Funding_Platform.Models.Category
+
+@{
+    ViewData["Title"] = Model?.CategoryId > 0 ? "Edit Category" : "Create Category";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+            <h2 class="m-0">@(Model.CategoryId == 0 ? "Add Category" : "Edit Category")</h2>
+        </div>
+        <div class="card-body">
+            <form id="categoryForm" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+                <input type="hidden" asp-for="CategoryId" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-bold text-primary">Category Name</label>
+                    <input asp-for="Name" id="Name" class="form-control border-primary" placeholder="Enter category name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-bold text-primary">Description</label>
+                    <textarea asp-for="Description" id="Description" class="form-control border-primary" rows="3" placeholder="Enter category description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary fw-bold">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<div class="text-center mt-3">
+    <a asp-action="Index" class="btn btn-outline-primary">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/SaveCategories.js"></script>
+
+    <style>
+        /* Custom styles for professional look */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff; /* Light Sky Blue Shade */
+        }
+
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+
+        .btn-outline-primary {
+            border: 2px solid #007bff;
+            color: #007bff;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #007bff;
+                color: white;
+            }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-label {
+            font-size: 16px;
+        }
+
+        h2 {
+            font-weight: bold;
+        }
+    </style>
+}

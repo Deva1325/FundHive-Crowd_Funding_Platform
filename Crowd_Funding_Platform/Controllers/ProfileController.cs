@@ -2,7 +2,9 @@
 using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Cms;
+using System.Diagnostics;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -15,9 +17,7 @@ namespace Crowd_Funding_Platform.Controllers
         {
             _profileRepos = profileRepos;
             _CFS = dbMain_CFS;
-        }
-
-    
+        }   
 
         [HttpGet]
         public async Task<IActionResult> Profile()
@@ -38,13 +38,44 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditProfile() {
-            return View();
+        public async Task<IActionResult> EditProfile(int id) {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            User user = new User();
+
+           if(id > 0)
+            {
+                user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId  == id);
+            }
+
+            return View(user);
+
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> EditProfile() {
-        //    return View();
-        //}
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(User user, IFormFile? ImageFile)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+
+            //if (userId == null)
+            //{
+            //    return RedirectToAction("Login", "Account");
+            //}
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            user.UserId = userId.Value; //Ensure correct user Id is used 
+
+            await _profileRepos.EditProfile(user, ImageFile);
+            return RedirectToAction("Profile");
+
+        }
     }
 }

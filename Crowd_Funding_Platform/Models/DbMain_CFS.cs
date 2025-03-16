@@ -240,13 +240,16 @@ public partial class DbMain_CFS : DbContext
 
             entity.HasIndex(e => e.Email, "UQ__Users__A9D105347E804092").IsUnique();
 
+            entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.DateCreated)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.EmailVerified).HasDefaultValue(false);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.IsAdmin).HasDefaultValue(false);
             entity.Property(e => e.IsCreatorApproved).HasDefaultValue(false);
+            entity.Property(e => e.LastName).HasMaxLength(100);
             entity.Property(e => e.Otp)
                 .HasMaxLength(6)
                 .HasColumnName("OTP");
@@ -255,11 +258,13 @@ public partial class DbMain_CFS : DbContext
                 .HasColumnName("OTPExpiry");
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
+            entity.Property(e => e.ProfileBio).HasMaxLength(500);
             entity.Property(e => e.ProfilePicture).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(100);
+            entity.Property(e => e.Website).HasMaxLength(255);
         });
 
         modelBuilder.Entity<UserReward>(entity =>

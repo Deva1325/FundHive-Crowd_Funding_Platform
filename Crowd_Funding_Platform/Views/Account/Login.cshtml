@@ -41,14 +41,19 @@
                 <a href="~/Account/ForgotPassword" class="forgot-password">Forgot Password?</a>
             </div>
             <div class="form-group mt-3">
+                @* CAPTCHA For Security*@
+                @* <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div> *@
                 <button type="submit" id="btnLogin" class="btn btn-primary" style=" width: 100%;
-        padding:24px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;">
+                        padding:24px;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 18px;">
+                    <span class="spinner-border spinner-border-sm d-none" id="btnLoader" role="status" aria-hidden="true"></span>
                     Login
                 </button>
+                @* <span id="btnText">Login</span>
+                <i id="btnSpinner" class="fas fa-spinner fa-spin" style="display: none;"></i> *@
             </div>
         </form>
         <p class="signup-text">Don't have an account? <a href="~/Account/Registration">Sign up</a></p>
@@ -59,6 +64,27 @@
 </div>
 
 <style>
+    .loader {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
     
     .input-group .toggle-password {
@@ -150,69 +176,15 @@
         color: #4a90e2;
     }
 </style>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="~/js/Login.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
-    <script>
-        $("#loginForm").validate({
-            rules: {
-                EmailOrUsername: {
-                    required: true,
-                },
-                Password: {
-                    required: true,
-                }
-            },
-            messages: {
-                EmailOrUsername: {
-                    required: "Please enter your Credentials."
-                },
-                Password: {
-                    required: "Please enter your Password.",
-                }
-            },
-
-            submitHandler: function (form, event) {
-                event.preventDefault()
-                const formData = new FormData(form);
-
-                // AJAX submission
-                $.ajax({
-                    url: '/Account/Login',
-                    type: 'POST',
-                    processData: false,
-                    contentType: false,
-                    data: formData,
-
-                    success: function (result) {
-                        console.log("Login Response:", result);
-
-                        if (result.success) {
-                            alert(result.message);
-
-                            if (result.redirectUrl) {
-                                window.location.assign(result.redirectUrl);
-                            } else {
-                                alert("Redirect URL is missing!");
-                            }
-                        } else {
-                            alert(result.message);
-                        }
-                    },
-
-
-
-                    error: function () {
-                        alert('An error occurred while Login.');
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="~/js/Login.js"></script>
 
 }

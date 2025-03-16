@@ -182,5 +182,21 @@ namespace Crowd_Funding_Platform.Controllers
             return View(campaign);
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> CreatorList()
+        {
+            return View();
+            //try
+            //{
+            //    var campaigns = await _campaign.GetAllCampaigns();
+            //    return View(campaigns);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
+            //}
+        }
+
     }
 }
