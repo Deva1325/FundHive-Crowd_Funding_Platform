@@ -1,190 +1,202 @@
 ﻿@model Crowd_Funding_Platform.Models.LoginModel
 
-@{
-    ViewData["Title"] = "Login";
-    Layout = "~/Views/Shared/_mainLayout.cshtml";
-}
+<!DOCTYPE html>
 
-<div>
-    <div class="login-form-container" style="margin-top: 100px;
-    min-height: 70vh;
-    margin-right: 178px;">
-        <h2 style="margin-left: 136px;
-    font-size: 25px;
-    margin-top: -7px;
-    margin-bottom: 19px;">
-            Welcome Back
-        </h2>
-        <div class="social-login">
-            <button class="google-btn"> <i class="fab fa-google"></i> Google </button>
-            <button class="facebook-btn"> <i class="fab fa-facebook"></i> Facebook </button>
+<html class="loading" lang="en" data-textdirection="ltr">
+<!-- BEGIN: Head-->
+<!-- /auth-login.html by,  04:44:35 GMT -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="Frest admin is super flexible, powerful, clean &amp; modern responsive bootstrap 4 admin template with unlimited possibilities.">
+    <meta name="keywords" content="admin template, Frest admin template, dashboard template, flat admin template, responsive admin template, web app">
+    <meta name="author" content="PIXINVENT">
+    <title>Login Page - Frest - Bootstrap HTML admin template</title>
+    <link rel="apple-touch-icon" href="~/Authentication_T/app-assets/images/ico/apple-icon-120.html">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/~/Authentication_T/app-assets/images/ico/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,600%7CIBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
+
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/vendors/css/vendors.min.css">
+    <!-- END: Vendor CSS-->
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap-extended.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/colors.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/components.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/dark-layout.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/semi-dark-layout.min.css">
+    <!-- END: Theme CSS-->
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/core/menu/menu-types/vertical-menu.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/pages/authentication.css">
+    <!-- END: Page CSS-->
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/assets/css/style.css">
+    <!-- END: Custom CSS-->
+
+    <style>
+        .form-group {
+            position: relative;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<!-- END: Head-->
+<!-- BEGIN: Body-->
+<body class="vertical-layout vertical-menu-modern boxicon-layout no-card-shadow 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+    <!-- BEGIN: Content-->
+
+    @* 
+<!-- Toast Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div> *@
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3"></div>
+
+    <div class="app-content content">
+        <div class="content-overlay"></div>
+        <div class="content-wrapper">
+            <div class="content-header row">
+            </div>
+            <div class="content-body">
+                <!-- login page start -->
+                <section id="auth-login" class="row flexbox-container">
+                    <div class="col-xl-8 col-11">
+                        <div class="card bg-authentication mb-0">
+                            <div class="row m-0">
+                                <!-- left section-login -->
+                                <div class="col-md-6 col-12 px-0">
+                                    <div class="card disable-rounded-right mb-0 p-2 h-100 d-flex justify-content-center">
+                                        <div class="card-header pb-1">
+                                            <div class="card-title">
+                                                <h4 class="text-center mb-2">Welcome Back</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex flex-md-row flex-column justify-content-around">
+                                                <a href="javascript:void(0);"
+                                                   class="btn btn-social btn-google btn-block font-small-3 mr-md-1 mb-md-0 mb-1">
+                                                    <i class="bx bxl-google font-medium-3"></i><span class="pl-50 d-block text-center">Google</span>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-social btn-block mt-0 btn-facebook font-small-3">
+                                                    <i class="bx bxl-facebook-square font-medium-3"></i><span class="pl-50 d-block text-center">Facebook</span>
+                                                </a>
+                                            </div>
+                                            <div class="divider">
+                                                <div class="divider-text text-uppercase text-muted">
+                                                    <small>
+                                                        or login with
+                                                        email
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <form id="loginForm" method="post">
+                                                <div class="form-group mb-50">
+                                                    <label class="text-bold-600" asp-for="EmailOrUsername">Email address</label>
+                                                    <input type="email" asp-for="EmailOrUsername" class="form-control" placeholder="Email address">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="text-bold-600" asp-for="Password">Password</label>
+                                                    <input type="password" id="password" asp-for="Password" class="form-control" placeholder="Password">
+                                                    <button type="button" class="toggle-password-btn" data-target="#password">
+                                                        <i class="fas fa-eye" style="margin-top: 17px;"></i>
+                                                    </button>
+                                                </div>
+
+                                                <div class="form-group d-flex flex-md-row flex-column justify-content-between align-items-center">
+                                                    <div class="text-left">
+                                                        <div class="checkbox checkbox-sm">
+                                                            <input type="checkbox" class="form-check-input" asp-for="RememberMe">
+                                                            <label class="checkboxsmall" asp-for="RememberMe">
+                                                                <small>
+                                                                    Keep me logged
+                                                                    in
+                                                                </small>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <a href="Account/ForgotPassword" class="card-link"><small>Forgot Password?</small></a>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" id="btnLogin" class="btn btn-primary glow w-100 position-relative">
+                                                    <span id="btnLoader" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                                    <span>Login</span>
+                                                    <i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
+                                                </button>
+
+                                                @* <button type="submit" id="btnLogin" class="btn btn-primary glow w-100 position-relative">
+                                                    <span class="spinner-border spinner-border-sm d-none" id="btnLoader" role="status" aria-hidden="true"></span>
+                                                    Login<i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
+                                                </button> *@
+                                            </form>
+                                            <hr>
+                                            <div class="text-center">
+                                                <small class="mr-25">Don't have an account?</small><a href="~/Account/Registration"><small>Sign up</small></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- right section image -->
+                                <div class="col-md-6 d-md-block d-none text-center align-self-center p-3">
+                                    <img class="img-fluid" src="~/Authentication_T/app-assets/images/pages/login.png" alt="branding logo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- login page ends -->
+
+            </div>
         </div>
-        <p class="or-text">OR LOGIN WITH EMAIL</p>
-        <form id="loginForm" method="post" class="contact_form">
-            <div class="form-group">
-                <label asp-for="EmailOrUsername" class="control-label">Email address</label>
-                <input type="text" asp-for="EmailOrUsername" class="form-control" placeholder="Enter your email or Username here">
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Password" class="control-label">Password</label>
-                <div class="input-group">
-                    <input asp-for="Password" id="PasswordHash" type="password" class="form-control" placeholder="Enter Password">
-                    <button type="button" class="btn toggle-password-btn" data-target="#PasswordHash">
-                        <i class="fa fa-eye"></i>
-                    </button>
-                </div>
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group remember-me">
-                <input type="checkbox" asp-for="RememberMe"> Keep me logged in
-                <a href="~/Account/ForgotPassword" class="forgot-password">Forgot Password?</a>
-            </div>
-            <div class="form-group mt-3">
-                @* CAPTCHA For Security*@
-                @* <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div> *@
-                <button type="submit" id="btnLogin" class="btn btn-primary" style=" width: 100%;
-                        padding:24px;
-                        border: none;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 18px;">
-                    <span class="spinner-border spinner-border-sm d-none" id="btnLoader" role="status" aria-hidden="true"></span>
-                    Login
-                </button>
-                @* <span id="btnText">Login</span>
-                <i id="btnSpinner" class="fas fa-spinner fa-spin" style="display: none;"></i> *@
-            </div>
-        </form>
-        <p class="signup-text">Don't have an account? <a href="~/Account/Registration">Sign up</a></p>
     </div>
-    @* <div class="login-image-container">
-        <img src="/images/login-illustration.png" alt="Login Illustration">
-    </div> *@
-</div>
 
-<style>
-    .loader {
-    border: 3px solid #f3f3f3; /* Light grey */
-    border-top: 3px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    animation: spin 1s linear infinite;
-    vertical-align: middle;
-    margin-left: 10px;
-}
+    <!-- Load jQuery First -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    @@keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
+    <!-- Bootstrap Bundle (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        100% {
-            transform: rotate(360deg);
-        }
-    }
+    <!-- Load Vendors (Ensure jQuery is not duplicated inside) -->
+    <script src="~/Authentication_T/app-assets/vendors/js/vendors.min.js"></script>
 
-    
-    .input-group .toggle-password {
-        border-left: none;
-    }
+    <!-- Load Unison (If needed) -->
+    <script src="~/Authentication_T/app-assets/vendors/js/extensions/unison.min.js"></script>
 
-    .input-group .toggle-password i {
-        font-size: 1rem;
-    }
+    <!-- Load jQuery Validation Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 
-    a:hover {
-        color: darkblue;
-    }
+    <!-- Load Theme Scripts -->
+    <script src="~/Authentication_T/app-assets/js/core/app-menu.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/core/app.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/scripts/components.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/scripts/footer.min.js"></script>
 
-    .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: #f4f7fc;
-    }
-    .login-form-container {
-        margin-left: 160px;
-        width: 50%;
-        padding: 40px;
-        background: #fff;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-    }
-    .login-image-container {
-        width: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .login-image-container img {
-        max-width: 80%;
-    }
-    .social-login {
-        display: flex;
-        gap: 10px;
-    }
-    .google-btn, .facebook-btn {
-        width: 48%;
-        padding: 10px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        border-radius: 5px;
-    }
 
-    .google-btn {
-        background: #C30047;
-        color: white;
-    }
-    .facebook-btn { background: #3b5998; color: white; }
-    .or-text {
-        text-align: center;
-        margin: 20px 0;
-    }
-    .form-group {
-        margin-bottom: 15px;
-    }
-    .form-control {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    .login-btn {
-        width: 100%;
-        padding: 12px;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;
-    }
-    .signup-text {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .remember-me {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .forgot-password {
-        color: #4a90e2;
-    }
-</style>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- External Scripts -->
+    <script src="https://www.google.com/recaptcha/api.js">async defer</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
+    <!-- Custom Scripts -->
     <script src="~/js/Login.js"></script>
 
-}
+  
+
+
+</body>
+<!-- END: Body-->
+<!-- /auth-login.html by,  04:44:35 GMT -->
+</html>
+

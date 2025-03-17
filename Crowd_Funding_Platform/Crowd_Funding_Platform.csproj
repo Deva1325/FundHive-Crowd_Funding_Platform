@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\Authentication_Folder\**" />
+    <Content Remove="wwwroot\Authentication_Folder\**" />
+    <EmbeddedResource Remove="wwwroot\Authentication_Folder\**" />
+    <None Remove="wwwroot\Authentication_Folder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="MailKit" Version="4.9.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
@@ -23,7 +30,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\Documents_Upload\" />
     <Folder Include="wwwroot\Campaign_Media\" />
-    <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
 
 </Project>
