@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Creator Application Details";
+
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
 
 @if (Model != null)
@@ -90,46 +92,56 @@ else{
     <p class="text-danger text-center">Error: User data could not be loaded</p>
 }
 
-<script>
-    function approveCreator(applicationId) {
-        if (confirm("Are you sure you want to approve this creator?")) {
-            $.ajax({
-                url: '/ManageCampaigns/ApproveCreator',
-                type: 'POST',
-                data: { id: applicationId },
-                success: function (response) {
-                    if (response.success) {
-                        alert(response.message);
-                        location.reload();
-                    } else {
-                        alert("Error: " + response.message);
-                    }
-                },
-                error: function () {
-                    alert("Something went wrong.");
-                }
-            });
-        }
+
+@section Scripts{
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    function rejectCreator(applicationId) {
-        if (confirm("Are you sure you want to reject this creator?")) {
-            $.ajax({
-                url: '/ManageCampaigns/RejectCreator',
-                type: 'POST',
-                data: { id: applicationId },
-                success: function (response) {
-                    if (response.success) {
-                        alert(response.message);
-                        location.reload();
-                    } else {
-                        alert("Error: " + response.message);
+    <script>
+        function approveCreator(applicationId) {
+            if (confirm("Are you sure you want to approve this creator?")) {
+                $.ajax({
+                    url: '/ManageCampaigns/ApproveCreator',
+                    type: 'POST',
+                    data: { id: applicationId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert("Error: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Something went wrong.");
                     }
-                },
-                error: function () {
-                    alert("Something went wrong.");
-                }
-            });
+                });
+            }
         }
-    }
-</script>
+
+        function rejectCreator(applicationId) {
+            if (confirm("Are you sure you want to reject this creator?")) {
+                $.ajax({
+                    url: '/ManageCampaigns/RejectCreator',
+                    type: 'POST',
+                    data: { id: applicationId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert("Error: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Something went wrong.");
+                    }
+                });
+            }
+        }
+    </script>
+}
+
+

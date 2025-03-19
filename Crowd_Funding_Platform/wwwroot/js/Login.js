@@ -1,7 +1,42 @@
 ﻿$(document).ready(function () {
     console.log("Login JS Loaded");
 
-    // Toggle Password Visibility
+    // ================================
+    // 🔥 Toastr Configuration
+    // ================================
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    // Function to display Toastr messages
+    function showToast(type, message) {
+        if (type === "success") {
+            toastr.success(message);
+        } else if (type === "error") {
+            toastr.error(message);
+        } else if (type === "warning") {
+            toastr.warning(message);
+        } else {
+            toastr.info(message);
+        }
+    }
+
+    // ================================
+    // 👁️ Toggle Password Visibility
+    // ================================
     $('.toggle-password-btn').on('click', function () {
         const target = $(this).data('target'); // Get the target input field
         const input = $(target);
@@ -16,7 +51,73 @@
         }
     });
 
-    // Login Form Validation & Submission
+    // ================================
+    // 🔥 Password Strength Indicator (Text-based Only)
+    // ================================
+    const passwordInput = $("#PasswordHash");
+    const strengthText = $("<small id='password-strength-text' class='form-text mt-1'></small>").insertAfter(passwordInput);
+
+    passwordInput.on("input", function () {
+        const password = $(this).val();
+
+        if (password.length > 0) {
+            const strength = getPasswordStrength(password);
+
+            let color, label;
+
+            switch (strength) {
+                case "Weak":
+                    color = "#FF4C4C";  // Red
+                    label = "Weak";
+                    break;
+                case "Fair":
+                    color = "#FFB74D";  // Orange
+                    label = "Fair";
+                    break;
+                case "Good":
+                    color = "#64B5F6";  // Light Blue
+                    label = "Good";
+                    break;
+                case "Strong":
+                    color = "#4CAF50";  // Green
+                    label = "Strong";
+                    break;
+                default:
+                    color = "#BDBDBD";  // Grey
+                    label = "Too Weak";
+            }
+
+            strengthText.text(`Password Strength: ${label}`)
+                .css({
+                    "color": color,
+                    "font-weight": "bold",
+                    "font-size": "14px"
+                });
+
+        } else {
+            strengthText.text("").css("color", "");
+        }
+    });
+
+    // Function to determine password strength
+    function getPasswordStrength(password) {
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[\W]/.test(password)) strength++;
+
+        if (strength < 2) return "Weak";
+        if (strength < 3) return "Fair";
+        if (strength < 4) return "Good";
+        return "Strong";
+    }
+
+    // ================================
+    // 🔑 Login Form Validation & Submission
+    // ================================
     $("#loginForm").validate({
         errorClass: "text-danger fw-bold",
         rules: {
@@ -85,7 +186,9 @@
         }
     });
 
-    // Forgot Password Form Validation & Submission
+    // ================================
+    // 📧 Forgot Password Validation & Submission
+    // ================================
     $("#forgotPassword").validate({
         rules: {
             Email: {
@@ -95,12 +198,21 @@
         },
         messages: {
             Email: {
-                required: "Please enter your Email.",
+                required: "Please enter your email.",
                 email: "Enter a valid email address."
             }
         },
+        errorPlacement: function (error, element) {
+            error.insertAfter(element);
+        },
         submitHandler: function (form, event) {
             event.preventDefault();
+
+            const btnForgot = $("#btnForgot");
+            const btnLoader = $("#btnLoaderForgot");
+
+            btnForgot.prop("disabled", true);
+            btnLoader.removeClass("d-none").addClass("d-inline-block me-2");
 
             const formData = new FormData(form);
 
@@ -111,16 +223,28 @@
                 contentType: false,
                 data: formData,
                 success: function (result) {
-                    showToast("success", result.message);
+                    console.log("Forgot Password Response:", result);
+
+                    if (result.success) {
+                        showToast("success", result.message);
+                    } else {
+                        showToast("error", result.message || "Failed to send reset email.");
+                    }
                 },
                 error: function () {
                     showToast("error", "An error occurred while sending the email.");
+                },
+                complete: function () {
+                    btnForgot.prop("disabled", false);
+                    btnLoader.addClass("d-none").removeClass("d-inline-block");
                 }
             });
         }
     });
 
-    // Reset Password Form Validation & Submission
+    // ================================
+    // 🔒 Reset Password Validation & Submission
+    // ================================
     $("#ResetPassword").validate({
         rules: {
             PasswordHash: {
@@ -140,13 +264,14 @@
             },
             ConfirmPassword: {
                 required: "Please confirm your password.",
-                minlength: "Confirm password must be at least 8 characters.",
                 equalTo: "Passwords do not match."
             }
         },
+        errorPlacement: function (error, element) {
+            error.insertAfter(element);
+        },
         submitHandler: function (form, event) {
             event.preventDefault();
-
             const formData = new FormData(form);
 
             $.ajax({
@@ -156,11 +281,11 @@
                 contentType: false,
                 data: formData,
                 success: function (result) {
-                    showToast("success", result.message);
                     if (result.success) {
-                        setTimeout(() => {
-                            window.location.href = '/Account/Login';
-                        }, 1500);
+                        showToast("success", result.message);
+                        window.location.href = '/Account/Login';
+                    } else {
+                        showToast("error", result.message || "Failed to reset password.");
                     }
                 },
                 error: function () {
@@ -170,32 +295,76 @@
         }
     });
 
-    // Toast Message Function
-    function showToast(message, type) {
-        let bgColor = type === "success" ? "bg-success" : "bg-danger";
-        let toastId = "toast-" + new Date().getTime();
-
-        // Ensure the toast container exists
-        if ($("#toastContainer").length === 0) {
-            $("body").append('<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
-        }
-
-        $("#toastContainer").append(`
-        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    `);
-
-        let toastElement = new bootstrap.Toast(document.getElementById(toastId));
-        toastElement.show();
-
-        setTimeout(() => {
-            $("#" + toastId).fadeOut("slow", function () { $(this).remove(); });
-        }, 3000);
-    }
-
-
 });
+
+//    // ================================
+//    // 🔒 Reset Password Validation & Submission
+//    // ================================
+//    $("#ResetPassword").validate({
+//        rules: {
+//            PasswordHash: {
+//                required: true,
+//                minlength: 8
+//            },
+//            ConfirmPassword: {
+//                required: true,
+//                minlength: 8,
+//                equalTo: "#PasswordHash"
+//            }
+//        },
+//        messages: {
+//            PasswordHash: {
+//                required: "Please enter a password.",
+//                minlength: "Password must be at least 8 characters."
+//            },
+//            ConfirmPassword: {
+//                required: "Please confirm your password.",
+//                minlength: "Confirm password must be at least 8 characters.",
+//                equalTo: "Passwords do not match."
+//            }
+//        },
+//        errorPlacement: function (error, element) {
+//            error.insertAfter(element);
+//        },
+//        submitHandler: function (form, event) {
+//            event.preventDefault();
+
+//            const btnReset = $("#btnReset");
+//            const btnLoader = $("#btnLoaderReset");
+
+//            btnReset.prop("disabled", true);
+//            btnLoader.removeClass("d-none").addClass("d-inline-block me-2");
+
+//            const formData = new FormData(form);
+
+//            $.ajax({
+//                url: '/Account/ResetPassword',
+//                type: 'POST',
+//                processData: false,
+//                contentType: false,
+//                data: formData,
+//                success: function (result) {
+//                    console.log("Reset Password Response:", result);
+
+//                    if (result.success) {
+//                        showToast("success", result.message);
+
+//                        setTimeout(() => {
+//                            window.location.href = '/Account/Login';
+//                        }, 1500);
+//                    } else {
+//                        showToast("error", result.message || "Failed to reset password.");
+//                    }
+//                },
+//                error: function () {
+//                    showToast("error", "An error occurred while resetting the password.");
+//                },
+//                complete: function () {
+//                    btnReset.prop("disabled", false);
+//                    btnLoader.addClass("d-none").removeClass("d-inline-block");
+//                }
+//            });
+//        }
+//    });
+
+//});

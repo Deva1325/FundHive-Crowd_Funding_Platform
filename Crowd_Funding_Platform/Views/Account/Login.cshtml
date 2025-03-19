@@ -3,8 +3,7 @@
 <!DOCTYPE html>
 
 <html class="loading" lang="en" data-textdirection="ltr">
-<!-- BEGIN: Head-->
-<!-- /auth-login.html by,  04:44:35 GMT -->
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -54,16 +53,11 @@
 
     </style>
 </head>
-<!-- END: Head-->
-<!-- BEGIN: Body-->
+
 <body class="vertical-layout vertical-menu-modern boxicon-layout no-card-shadow 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
     <!-- BEGIN: Content-->
 
-    @* 
-<!-- Toast Notifications -->
-<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div> *@
-    <div id="toastContainer" class="position-fixed top-0 end-0 p-3"></div>
-
+ 
     <div class="app-content content">
         <div class="content-overlay"></div>
         <div class="content-wrapper">
@@ -127,7 +121,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="text-right">
-                                                        <a href="Account/ForgotPassword" class="card-link"><small>Forgot Password?</small></a>
+                                                        <a href="~/Account/ForgotPassword" class="card-link"><small>Forgot Password?</small></a>
                                                     </div>
                                                 </div>
                                                 <button type="submit" id="btnLogin" class="btn btn-primary glow w-100 position-relative">
@@ -189,6 +183,12 @@
     <script src="https://www.google.com/recaptcha/api.js">async defer</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha384-...your-hash..."
+            crossorigin="anonymous"></script>
     <!-- Custom Scripts -->
     <script src="~/js/Login.js"></script>
 
@@ -196,7 +196,6 @@
 
 
 </body>
-<!-- END: Body-->
-<!-- /auth-login.html by,  04:44:35 GMT -->
+
 </html>
 

@@ -23,7 +23,7 @@ public partial class CreatorApplication
     public string? AdminRemarks { get; set; }
 
     [NotMapped]
-    public FormFile? ImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }
 
     [NotMapped]
     public virtual User? User { get; set; }

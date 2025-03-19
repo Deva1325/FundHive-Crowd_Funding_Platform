@@ -17,5 +17,7 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization
         Task<string> fetchEmail(string cred);
 
         Task<object> updateStatus(string Email);
+
+        string? GenerateDefaultProfileImage(string userName);
     }
 }

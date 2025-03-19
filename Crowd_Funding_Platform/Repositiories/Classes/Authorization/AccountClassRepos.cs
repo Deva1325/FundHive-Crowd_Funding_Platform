@@ -1,6 +1,7 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 
 namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 {
@@ -27,10 +28,54 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             string subj = "OTP Verification!!!";
             await _emailSender.SendEmailAsync(user.Email,user.Username, subj, user.Otp, "Registration");
 
+            if(ImageFile == null)
+            {
+                user.ProfilePicture = GenerateDefaultProfileImage(user.Username);
+            }
+
             await _dbMain_CFS.Users.AddAsync(user);
             await _dbMain_CFS.SaveChangesAsync();
             return new { success = true, message = "Registration Sucessfull!!" };
         }
+
+        public string GenerateDefaultProfileImage(string userName)
+        {
+            if (string.IsNullOrWhiteSpace(userName))
+                userName = "U"; // Default to 'U' if username is empty
+
+            string firstLetter = userName.Substring(0, 1).ToUpper();
+            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/ProfileImage");
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            string imagePath = Path.Combine(directoryPath, $"{userName}_profile.png");
+            string relativePath = $"/ProfileImage/{userName}_profile.png"; // Path for DB storage
+
+            int width = 200, height = 200;
+
+            using (Bitmap bmp = new Bitmap(width, height))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.Clear(Color.Gray); // Set background color
+
+                    using (System.Drawing.Font font = new System.Drawing.Font("Arial", 80, FontStyle.Bold, GraphicsUnit.Pixel))
+                    using (SolidBrush textBrush = new SolidBrush(Color.White))
+                    {
+                        SizeF textSize = g.MeasureString(firstLetter, font);
+                        PointF position = new PointF((width - textSize.Width) / 2, (height - textSize.Height) / 2);
+                        g.DrawString(firstLetter, font, textBrush, position);
+                    }
+                }
+
+                bmp.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
+            }
+
+            return relativePath;
+        }
+
 
         public async Task<string> fetchEmail(string cred)
         {

@@ -35,6 +35,41 @@ namespace Crowd_Funding_Platform.Controllers
             return View();
         }
 
+        //[HttpPost, ActionName("Registration")]
+        //public async Task<IActionResult> AddUserRegister(User user, IFormFile? ImageFile)
+        //{
+        //    try
+        //    {
+        //        if (await _acc.IsUsernameExist(user.Username))
+        //        {
+        //            return Json(new { success = false, message = $"{user.Username} already exists." });
+        //        }
+
+        //        if (await _acc.IsEmailExist(user.Email))
+        //        {
+        //            return Json(new { success = false, message = $"{user.Email} already exists" });
+        //        }
+
+        //        // Store email in session
+        //        HttpContext.Session.SetString("UserEmail", user.Email);
+
+        //        var result = await _acc.AddUserRegister(user, ImageFile);
+
+        //        if (result != null)
+        //        {
+        //            return Json(new { success = true, message = "User Registered successfully!" });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false, message = "Failed to register user." });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "An error occurred: " + ex.Message });
+        //    }
+        //}
+
         [HttpPost, ActionName("Registration")]
         public async Task<IActionResult> AddUserRegister(User user, IFormFile? ImageFile)
         {
@@ -53,14 +88,30 @@ namespace Crowd_Funding_Platform.Controllers
                 //TempData["UserEmail"] = user.Email;
                 HttpContext.Session.SetString("UserEmail", user.Email);
 
+                if(ImageFile == null)
+                {
+                    user.ProfilePicture = _acc.GenerateDefaultProfileImage(user.Username);
+                }
+
                 //Get session value
                 var email = HttpContext.Session.GetString("UserEmail");
                 if (!string.IsNullOrEmpty(email))
                 {
                     Console.WriteLine($"User Email: {email}");
                 }
-                 
-                return Json(await _acc.AddUserRegister(user, ImageFile));
+
+                var result = await _acc.AddUserRegister(user, ImageFile);
+
+                if (result != null)
+                {
+                    return Json(new { success = true, message = "User Registered successfully!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to register user." });
+                }
+
+                // return Json(await _acc.AddUserRegister(user, ImageFile));
             }
             catch (Exception ex)
             {

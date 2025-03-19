@@ -1,99 +1,216 @@
 ﻿@model Crowd_Funding_Platform.Models.User
 
-@{
-    ViewData["Title"] = "Registration";
-    // Layout = "~/Views/Shared/_Layout.cshtml";
-    Layout = "~/Views/Shared/_mainLayout.cshtml";
-}
 
-<h1>Registration Form</h1>
+<!DOCTYPE html>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form id="Registration" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+<html class="loading" lang="en" data-textdirection="ltr">
+<!-- BEGIN: Head-->
+<!-- /auth-login.html by,  04:44:35 GMT -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="Frest admin is super flexible, powerful, clean &amp; modern responsive bootstrap 4 admin template with unlimited possibilities.">
+    <meta name="keywords" content="admin template, Frest admin template, dashboard template, flat admin template, responsive admin template, web app">
+    <meta name="author" content="PIXINVENT">
+    <title>Login Page - Frest - Bootstrap HTML admin template</title>
+    <link rel="apple-touch-icon" href="~/Authentication_T/app-assets/images/ico/apple-icon-120.html">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/~/Authentication_T/app-assets/images/ico/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,600%7CIBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
 
-            <div class="form-group">
-                <label asp-for="PasswordHash" class="control-label"></label>
-                <div class="input-group">
-                    <input asp-for="PasswordHash" class="form-control" id="PasswordHash" type="password" />
-                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#PasswordHash">
-                        <i class="fa fa-eye" style="height: 16px;padding-right: -3px;"></i>
-                    </button>
-                </div>
-                <span asp-validation-for="PasswordHash" class="text-danger"></span>
-            </div>
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/vendors/css/vendors.min.css">
+    <!-- END: Vendor CSS-->
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap-extended.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/colors.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/components.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/dark-layout.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/semi-dark-layout.min.css">
+    <!-- END: Theme CSS-->
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/core/menu/menu-types/vertical-menu.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/pages/authentication.css">
+    <!-- END: Page CSS-->
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/assets/css/style.css">
+    <!-- END: Custom CSS-->
 
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <div class="input-group">
-                    <input asp-for="ConfirmPassword" class="form-control" id="ConfirmPassword" type="password" />
-                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#ConfirmPassword">
-                        <i class="fa fa-eye"></i>
-                    </button>
-                </div>
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
 
+    <style>
+        .form-group {
+            position: relative;
+        }
 
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <br />
-                <input asp-for="PhoneNumber" class="form-control" id="PhoneNo" />
-                @* <span asp-validation-for="PhoneNumber" class="text-danger"></span> *@
-            </div>
+        .toggle-password-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
 
-            <div class="form-group">
-                <input type="submit" value="Register" class="btn btn-primary" />
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+    </style>
+</head>
+<!-- END: Head-->
+<!-- BEGIN: Body-->
+<!-- BEGIN: Body-->
+<body class="vertical-layout vertical-menu-modern boxicon-layout no-card-shadow 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+    <!-- BEGIN: Content-->
+    <div class="app-content content">
+        <div class="content-overlay"></div>
+        <div class="content-wrapper">
+            <div class="content-header row">
             </div>
-            <div class="form-group">
-                <p>
-                    Already a user? <a href="~/Account/Login" class="hover-a" style="color: #311aeb;
-    outline: blue;">Sign In</a>
-                </p>
+            <div class="content-body">
+                <!-- register section starts -->
+                <section class="row flexbox-container">
+                    <div class="col-xl-8 col-10">
+                        <div class="card bg-authentication mb-0">
+                            <div class="row m-0">
+                                <!-- register section left -->
+                                <div class="col-md-6 col-12 px-0">
+                                    <div class="card disable-rounded-right mb-0 p-2 h-100 d-flex justify-content-center">
+                                        <div class="card-header pb-1">
+                                            <div class="card-title" style="margin-bottom: -18px;">
+                                                <h4 class="text-center mb-2">Sign Up</h4>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <p>
+                                                <small> Please enter your details to sign up and be part of our great community</small>
+                                            </p>
+                                        </div>
+                                        <div class="card-body" style="    margin-top: -25px;">
+                                            <form id="Registration" method="post">
+                                                @* <div class="form-row">
+                                                    <div class="form-group col-md-6 mb-50">
+                                                        <label asp-for="Username"></label>
+                                                        <input asp-for="Username" class="form-control" placeholder="Enter Username" />
+                                                    </div>
+ 
+                                                    <div class="form-group col-md-6 mb-50">
+
+                                                        <label asp-for="Email"></label>
+                                                        <input asp-for="Email" class="form-control" placeholder="Enter Email" />
+                                                    </div>
+                                                </div> *@
+                                                <div class="form-group mb-50">
+                                                    <label class="text-bold-600" asp-for="Username">username</label>
+                                                    <input asp-for="Username" class="form-control"
+                                                           placeholder="Username">
+                                                </div>
+                                                <div class="form-group mb-50">
+                                                    <label class="text-bold-600" asp-for="Email">Email address</label>
+                                                    <input asp-for="Email" class="form-control"
+                                                           placeholder="Email address">
+                                                </div>
+                                                <div class="form-group mb-50" style="margin-top: 1px;">
+                                                    <label class="text-bold-600" asp-for="PhoneNumber">PhoneNumber</label>
+                                                    <input asp-for="PhoneNumber" class="form-control" id="PhoneNo"
+                                                           placeholder="PhoneNumber">
+                                                </div>
+                                                <div class="form-group mb-2">
+                                                    <label class="text-bold-600" asp-for="PasswordHash">Password</label>
+                                                    <input asp-for="PasswordHash" class="form-control" placeholder="Password" id="PasswordHash" type="password">
+                                                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#PasswordHash" style="margin-top: 12px;">
+                                                        <i class="fa fa-eye" style="height: 16px;padding-right: -3px;"></i>
+                                                    </button>
+                                                    <small id="password-strength" class="text-muted"></small>
+                                                </div>
+                                                <div class="form-group mb-2" style="margin-top: -13px;">
+                                                    <label class="text-bold-600" asp-for="ConfirmPassword">Confirm Password</label>
+                                                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" id="ConfirmPassword" type="password">
+                                                    <button type="button" class="btn btn-outline-secondary toggle-password-btn" data-target="#ConfirmPassword" style="margin-top: 12px;">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                                <button type="submit" value="Register" id="btnRegister" class="btn btn-primary glow position-relative w-100">
+                                                    <span class="spinner-border spinner-border-sm d-none" id="btnLoader" role="status" aria-hidden="true"></span>
+
+                                                    SIGN UP<i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
+                                                </button>
+                                            </form>
+                                            <hr>
+                                            <div class="text-center">
+                                                <small class="mr-25">Already have an account?</small><a href="~/Account/Login"><small>Sign in</small> </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- image section right -->
+                                <div class="col-md-6 d-md-block d-none text-center align-self-center p-3">
+                                    <img class="img-fluid" src="~/Authentication_T/app-assets/images/pages/register.png" alt="branding logo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- register section endss -->
+
             </div>
-        </form>
+        </div>
     </div>
-</div>
+    <!-- END: Content-->
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
-<div>
-    <a asp-action="Index" style="color: #311aeb;
-    outline: blue;">Back to List</a>
-</div>
+<!-- Load jQuery First -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<style>
-    .input-group .toggle-password  {
-        border-left: none;
-    }
+<!-- Bootstrap Bundle (includes Popper.js) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        .input-group .toggle-password i {
-            font-size: 1rem;
-        }
+<!-- Load Vendors (Ensure jQuery is not duplicated inside) -->
+<script src="~/Authentication_T/app-assets/vendors/js/vendors.min.js"></script>
 
-        a:hover{
-            color:darkblue;
-        }
+@* <!-- Load Unison (If needed) -->
+<script src="~/Authentication_T/app-assets/vendors/js/extensions/unison.min.js"></script> *@
 
-</style>
+<!-- Load jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<!-- Load Theme Scripts -->
+<script src="~/Authentication_T/app-assets/js/core/app-menu.min.js"></script>
+<script src="~/Authentication_T/app-assets/js/core/app.min.js"></script>
+<script src="~/Authentication_T/app-assets/js/scripts/components.min.js"></script>
+<script src="~/Authentication_T/app-assets/js/scripts/footer.min.js"></script>
+
+   @*  Load Unison *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/unison/1.0.0/unison.min.js"></script>
 
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script src="~/js/Register1.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- intlTelInput Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
-}
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script> *@
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+            integrity="sha384-...your-hash..."
+            crossorigin="anonymous"></script>
+
+
+<!-- Custom Scripts -->
+<script src="~/js/Register1.js"></script>
+
+
+
+
+</body>
+<!-- END: Body-->
+<!-- /auth-login.html by,  04:44:35 GMT -->
+</html>

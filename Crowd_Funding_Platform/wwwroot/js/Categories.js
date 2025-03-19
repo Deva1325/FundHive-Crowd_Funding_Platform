@@ -1,71 +1,69 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
-    attachDeleteEvent();
-    attachFormSubmitHandler();
-});
+﻿$(document).ready(function () {
+    $("#categoryForm").on("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
 
-// Function to handle Delete confirmation
-function confirmDelete(categoryId) {
-    if (confirm("Are you sure you want to delete this category?")) {
-        fetch(`/Categories/DeleteCategory/${categoryId}`, {
-            method: "DELETE"
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast("successToast", "Category deleted successfully.");
-                    setTimeout(() => location.reload(), 1500);
+        if (!validateForm()) return; // Validate form before submission
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "/Categories/SaveCategories",
+            type: "POST",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    showToast(response.message, "success");
+                    setTimeout(() => {
+                        window.location.href = "/Categories/CategoriesList";
+                    }, 2000);
                 } else {
-                    showToast("errorToast", "Failed to delete category.");
+                    showToast(response.message, "error");
                 }
-            })
-            .catch(error => {
-                showToast("errorToast", "An error occurred while deleting.");
-            });
-    }
-}
-
-// Function to show toast notifications
-function showToast(toastId, message) {
-    document.getElementById(toastId).querySelector(".toast-body").innerText = message;
-    let toastElement = new bootstrap.Toast(document.getElementById(toastId));
-    toastElement.show();
-}
-
-// Attach event listeners for Delete buttons
-function attachDeleteEvent() {
-    document.querySelectorAll(".btn-delete-category").forEach(button => {
-        button.addEventListener("click", function () {
-            let categoryId = this.getAttribute("data-id");
-            confirmDelete(categoryId);
-        });
-    });
-}
-
-// Attach validation and form submission handling
-function attachFormSubmitHandler() {
-    const form = document.getElementById("categoryForm");
-    if (form) {
-        form.addEventListener("submit", function (event) {
-            event.preventDefault();
-            if (validateForm()) {
-                form.submit();
+            },
+            error: function () {
+                showToast("An error occurred while saving the category!", "error");
             }
         });
-    }
-}
+    });
 
-// Function to validate form
-function validateForm() {
-    let name = document.getElementById("CategoryName").value.trim();
-    let description = document.getElementById("CategoryDescription").value.trim();
+    function validateForm() {
+        let isValid = true;
+        $(".text-danger").text(""); // Clear previous errors
 
-    if (name === "") {
-        showToast("errorToast", "Category name is required.");
-        return false;
+        let name = $("#Name").val().trim();
+        let description = $("#Description").val().trim();
+
+        if (name === "") {
+            $("#Name").next(".text-danger").text("Name is required.");
+            isValid = false;
+        }
+
+        if (description === "") {
+            $("#Description").next(".text-danger").text("Description is required.");
+            isValid = false;
+        }
+
+        return isValid;
     }
-    if (description === "") {
-        showToast("errorToast", "Category description is required.");
-        return false;
+
+    function showToast(message, type) {
+        let bgColor = type === "success" ? "bg-success" : "bg-danger";
+        let toastId = "toast-" + new Date().getTime();
+
+        $("#toastContainer").append(
+            <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        );
+
+        let toastElement = new bootstrap.Toast(document.getElementById(toastId));
+        toastElement.show();
+
+        setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 3000);
     }
-    return true;
-}
+});

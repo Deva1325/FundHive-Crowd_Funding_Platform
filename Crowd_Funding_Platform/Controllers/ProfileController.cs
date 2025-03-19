@@ -62,9 +62,9 @@ namespace Crowd_Funding_Platform.Controllers
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
-            //if (userId == null)
+            //if (userId == null) 
             //{
-            //    return RedirectToAction("Login", "Account");
+            //    return RedirectToAction("Login", "Account"); 
             //}
             if (!userId.HasValue)
             {

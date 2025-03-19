@@ -31,9 +31,9 @@ namespace Crowd_Funding_Platform.Controllers
             ViewBag.DocumentTypes = new string[] { "Aadhar Card", "Voter ID", "Driving License", "PAN Card", "Passport" };
             return View();
         }
-       
+
         [HttpPost]
-        public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp)
+        public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp, IFormFile? ImageFile)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace Crowd_Funding_Platform.Controllers
                 }
 
                 creatorApp.UserId = user.UserId;
-                var result = await _creatorAppInterface.ApplyForCreator(creatorApp);
+                var result = await _creatorAppInterface.ApplyForCreator(creatorApp,ImageFile);
 
                 return Ok(result);
             }
@@ -59,6 +59,37 @@ namespace Crowd_Funding_Platform.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp)
+        //{
+        //    try
+        //    {
+        //        string SesEmail = HttpContext.Session.GetString("LoginCred");
+        //        if (string.IsNullOrEmpty(SesEmail))
+        //        {
+        //            return Json(new { success = false, message = "Session expired. Please log in again." });
+        //        }
+
+        //        var user = await _dbMain1.Users.FirstOrDefaultAsync(u => u.Email == SesEmail);
+        //        if (user == null)
+        //        {
+        //            return Json(new { success = false, message = "User not found." });
+        //        }
+
+        //        creatorApp.UserId = user.UserId;
+        //        var result = await _creatorAppInterface.ApplyForCreator(creatorApp);
+
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = ex.Message });
+        //    }
+        //}
 
 
 

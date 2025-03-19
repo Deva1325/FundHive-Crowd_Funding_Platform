@@ -4,6 +4,6 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign
 {
     public interface ICreatorApplicationRepos
     {
-        Task<object> ApplyForCreator(CreatorApplication creatorApplication);
+        Task<object> ApplyForCreator(CreatorApplication creatorApplication, IFormFile? ImageFile);
     }
 }
