@@ -25,6 +25,16 @@ namespace Crowd_Funding_Platform.Controllers
             return View();
         }
 
+        public async Task<IActionResult> ShowCampaignCases()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> DetailCampaignCases()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> PendingCampaigns()
         {
             List<CreatorApplication> pendingCampaigns = await _campaign.GetPendingCampaigns();
