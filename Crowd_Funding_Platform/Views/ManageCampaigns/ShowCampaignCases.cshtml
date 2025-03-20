@@ -1,0 +1,54 @@
+﻿@model List<Crowd_Funding_Platform.Models.Campaign>
+
+@{
+    ViewData["Title"] = "All Campaigns";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Explore Campaigns</h2>
+
+    <div class="row">
+        @if (Model.Any()) 
+        {
+            @foreach (var campaign in Model)
+            {
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <!-- Campaign Image -->
+                        <img src="@campaign.MediaUrl" class="card-img-top" alt="Campaign Image" style="height: 200px; object-fit: cover;">
+
+                        <div class="card-body">
+                            <h5 class="card-title">@campaign.Title</h5>
+                            <p class="card-text text-muted" style="height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                @campaign.Description
+                            </p>
+
+                            <!-- Goal and Raised -->
+                            <div class="d-flex justify-content-between">
+                                <span class="text-success">Goal: ₹@campaign.Requirement</span>
+                                <span class="text-primary">Raised: ₹@campaign.RaisedAmount</span>
+                            </div>
+
+                            <!-- Creator -->
+                            <div class="mt-3">
+                                <small class="text-muted">Created by: <strong>@campaign.Creator.FirstName</strong></small>
+                            </div>
+
+                            <a href="@Url.Action("DetailCampaignCases", "Campaign", new { id = campaign.CampaignId })"
+                               class="btn btn-primary mt-3 w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>  
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p>No campaigns found.</p>
+            </div>
+        }
+    </div>
+</div>

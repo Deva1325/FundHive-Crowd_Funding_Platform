@@ -29,7 +29,7 @@ public partial class Campaign
     public string? Status { get; set; }
 
     [NotMapped]
-    public FormFile? ImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }  // Updated type
 
     public virtual ICollection<CampaignAnalytic> CampaignAnalytics { get; set; } = new List<CampaignAnalytic>();
 
@@ -37,5 +37,5 @@ public partial class Campaign
 
     public virtual ICollection<Contribution> Contributions { get; set; } = new List<Contribution>();
 
-    public virtual User Creator { get; set; } = null!;
+    public virtual User Creator { get; set; } = null!; //Fetching user table as Creator   
 }

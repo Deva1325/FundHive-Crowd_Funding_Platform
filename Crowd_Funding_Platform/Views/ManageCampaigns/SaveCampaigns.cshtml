@@ -1,6 +1,115 @@
 ﻿@model Crowd_Funding_Platform.Models.Campaign
 @{
     ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
+    // bool isEditMode = Model.CampaignId > 0;  // Check if it's edit mode
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-lg p-4">
+        <h3 class="text-center text-primary mb-4">@ViewData["Title"]</h3>
+
+        <form id="campaignForm" enctype="multipart/form-data" method="post">
+            <input type="hidden" asp-for="CampaignId" />
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Campaign Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter campaign title"  />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Requirement" class="form-label fw-bold">Goal Amount ($)</label>
+                        <input asp-for="Requirement" type="number" step="0.01" class="form-control" placeholder="Enter goal amount"  />
+                    </div>
+
+                   @*  <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
+
+                        @if (isEditMode)
+                        {
+                            <input asp-for="StartDate"
+                                   type="date"
+                                   class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                   id="StartDate"
+                                   readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="StartDate"
+                                   type="date"
+                                   class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                   id="StartDate" />
+                        }
+                    </div> *@
+                    <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
+                        <input asp-for="StartDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" id="StartDate" />
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="EndDate" class="form-label fw-bold">End Date</label>
+                        <input asp-for="EndDate" type="date" class="form-control"  min="@DateTime.Today.ToString("yyyy-MM-dd")" id="EndDate" />
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                            <option value="">Select Category</option>
+                        </select>
+@*                         <span class="text-danger" asp-validation-for="CategoryId"></span>*@  
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Upload Media</label>
+                        <input name="ImageFile" type="file" class="form-control" id="MediaFile" accept="image/*,video/*" />
+                        <span class="text-danger" id="imageError"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your campaign"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-save me-2"></i> @((Model?.CampaignId ?? 0) > 0 ? "Edit Campaign" : "Create Campaign")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+    <!-- ✅ Toastr and jQuery Validation Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="~/js/SaveCampaignForm.js"></script>
+}
+
+
+
+
+@* @model Crowd_Funding_Platform.Models.Campaign
+@{
+    ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
 
@@ -8,13 +117,14 @@
     body {
         font-family: 'Nunito', sans-serif;
     }
-
     .card {
         font-family: 'Nunito', sans-serif;
     }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded-lg p-4">
@@ -37,32 +147,45 @@
 
                     <div class="form-group mb-3">
                         <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
-                        <input asp-for="StartDate" type="date" class="form-control" required />
+                        <input asp-for="StartDate" type="date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" id="StartDate" />
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="EndDate" class="form-label fw-bold">End Date</label>
-                        <input asp-for="EndDate" type="date" class="form-control" required />
+                        <input asp-for="EndDate" type="date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" id="EndDate" />
                     </div>
+             
+                    @* <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
+                        <input asp-for="StartDate" type="date" class="form-control" id="StartDate"
+                               data-original="@Model.StartDate.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EndDate" class="form-label fw-bold">End Date</label>
+                        <input asp-for="EndDate" type="date" class="form-control" id="EndDate"
+                               data-original="@Model.EndDate.ToString("yyyy-MM-dd")" required />
+                    </div> 
+
                 </div>
 
                 <!-- Right Column -->
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
-                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories" required>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
                             <option value="">Select Category</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="MediaUrl" class="form-label fw-bold">Upload Media</label>
-                        <input asp-for="ImageFile" type="file" class="form-control" id="MediaFile" accept="image/*,video/*" required />
+                        <input asp-for="ImageFile" type="file" class="form-control" id="MediaFile" accept="image/*,video/*"  />
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="Description" class="form-label fw-bold">Description</label>
-                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your campaign" required></textarea>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your campaign" ></textarea>
                     </div>
                 </div>
             </div>
@@ -77,8 +200,10 @@
 </div>
 
 @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+  
+
 <script src="~/js/SaveCampaignForm.js"></script>
-
- 
-
-}
+} *@

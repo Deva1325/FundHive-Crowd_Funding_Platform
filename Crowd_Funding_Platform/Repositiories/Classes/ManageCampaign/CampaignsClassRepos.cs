@@ -47,10 +47,28 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             return await _CFS.Campaigns.OrderByDescending(c => c.StartDate).ToListAsync();
         }
 
+
+        // Add this method inside the repository class
+        private string GetCampaignStatus(DateOnly startDate, DateOnly endDate, DateOnly today)
+        {
+            if (startDate > today)
+            {
+                return "Upcoming";
+            }
+            else if (startDate <= today && endDate >= today)
+            {
+                return "Ongoing";
+            }
+            else
+            {
+                return "Completed";
+            }
+        }
+
         /// <summary>
         /// Saves a campaign after verifying user eligibility.
         /// </summary>
-        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? MediaUrl)
+        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ImageFile)
         {
             var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
@@ -65,7 +83,6 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
                 {
                     return (false, "Please fill out the document form to request campaign creation.");
                 }
-
                 if (creatorApplication.Status == "Pending")
                 {
                     return (false, "Your request is pending. Please wait for admin approval.");
@@ -73,37 +90,27 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             }
 
             string newFilePath = null; // Store new image path if uploaded
-
-            if (MediaUrl != null && MediaUrl.Length > 0)
+            if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
-
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(MediaUrl.FileName);
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await MediaUrl.CopyToAsync(fileStream);
+                    await ImageFile.CopyToAsync(fileStream);
                 }
-
                 newFilePath = "/Campaign_Media/" + uniqueFileName;
             }
 
             if (campaign.CampaignId == 0)
             {
-                // Add new campaign
-                campaign.CreatorId = userId; // Assign user ID
-
-                // Assign image path if uploaded, otherwise keep MediaUrl null
+                campaign.CreatorId = userId;
                 campaign.MediaUrl = newFilePath;
-
-                // Get today's date as DateOnly
                 DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-
                 if (campaign.StartDate > today)
                 {
                     campaign.Status = "Upcoming";
@@ -120,14 +127,21 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             }
             else
             {
-                // Edit existing campaign
                 var existingCampaign = await _CFS.Campaigns.FindAsync(campaign.CampaignId);
                 if (existingCampaign == null)
                 {
                     return (false, "Campaign not found.");
                 }
 
-                // If a new image is uploaded, delete the old one
+                //// Validate date only if changed
+                //if (campaign.StartDate != existingCampaign.StartDate || campaign.EndDate != existingCampaign.EndDate)
+                //{
+                //    if (campaign.EndDate < campaign.StartDate)
+                //    {
+                //        return (false, "End date cannot be before start date.");
+                //    }
+                //}
+
                 if (!string.IsNullOrEmpty(newFilePath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
                 {
                     string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingCampaign.MediaUrl.TrimStart('/'));
@@ -136,18 +150,14 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
                         System.IO.File.Delete(oldFilePath);
                     }
                 }
-
                 existingCampaign.Title = campaign.Title;
                 existingCampaign.Description = campaign.Description;
                 existingCampaign.Requirement = campaign.Requirement;
                 existingCampaign.StartDate = campaign.StartDate;
                 existingCampaign.EndDate = campaign.EndDate;
                 existingCampaign.CategoryId = campaign.CategoryId;
-
-                // Keep existing image if no new image is uploaded
                 existingCampaign.MediaUrl = newFilePath ?? existingCampaign.MediaUrl;
             }
-
             await _CFS.SaveChangesAsync();
             return (true, "Campaign saved successfully.");
         }
@@ -206,5 +216,61 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         {
             return await _CFS.CreatorApplications.FirstOrDefaultAsync(c => c.ApplicationId == id);
         }
+
+
+        // Fetch all campaigns with creator username
+        public List<Campaign> ShowCampaignCases()
+        {
+            return _CFS.Campaigns
+                .Include(c => c.Creator)  // Include creator details
+                .Select(c => new Campaign
+                {
+                    CampaignId = c.CampaignId,
+                    Title = c.Title,
+                    Description = c.Description,
+                    Requirement = c.Requirement,
+                    RaisedAmount = c.RaisedAmount,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    MediaUrl = c.MediaUrl,
+                    Status = c.Status,
+                    CreatorId = c.CreatorId,
+                    Creator = new User
+                    {
+                        UserId = c.CreatorId,
+                        FirstName = c.Creator.FirstName // Only include username
+                    }
+                })
+                .ToList();
+        }
+
+        // Fetch a specific campaign by ID
+        public Campaign DetailCampaignCases(int campaignId)
+        {
+            return _CFS.Campaigns
+                .Include(c => c.Creator)  // Include creator details    
+                .Where(c => c.CampaignId == campaignId)
+                .Select(c => new Campaign
+                {
+                    CampaignId = c.CampaignId,
+                    Title = c.Title,
+                    Description = c.Description,
+                    Requirement = c.Requirement,
+                    RaisedAmount = c.RaisedAmount,
+                    StartDate = c.StartDate,
+                    EndDate = c.EndDate,
+                    MediaUrl = c.MediaUrl,
+                    Status = c.Status,
+                    CreatorId = c.CreatorId,
+                    Creator = new User
+                    {
+                        UserId = c.CreatorId,
+                        FirstName = c.Creator.FirstName  // Include only username areyyy bc 
+                    }
+                })
+                .FirstOrDefault();
+        }
+
+
     }
 }

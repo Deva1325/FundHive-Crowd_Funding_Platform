@@ -38,7 +38,7 @@ public partial class User
     [NotMapped]
     public FormFile? ImageFile { get; set; }
 
-    public string? FirstName { get; set; }
+    public string FirstName { get; set; }
 
     public string? LastName { get; set; }
 
