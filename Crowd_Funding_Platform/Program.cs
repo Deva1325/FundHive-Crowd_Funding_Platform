@@ -14,6 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddSingleton<IEmailSenderRepos, EmailSenderRepos>(); // Email service interface and implementation
 
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+//    });
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IAccountRepos, AccountClassRepos>();
@@ -27,6 +33,7 @@ builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
 
 builder.Services.AddDbContext<DbMain_CFS>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 builder.Services.AddSession(options =>
 {

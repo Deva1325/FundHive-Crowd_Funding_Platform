@@ -45,15 +45,32 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
         //    }
         //}
 
-
         public async Task<bool> SaveCategory(Category category)
         {
             try
             {
+                if (category == null) return false;
+
                 if (category.CategoryId == 0)
-                    await _db.Categories.AddAsync(category); // Add New
+                {
+                    await _db.Categories.AddAsync(category); // Add new
+                }
                 else
-                    _db.Categories.Update(category); // Update Existing
+                {
+                    var existingCategory = await _db.Categories.FindAsync(category.CategoryId);
+
+                    if (existingCategory != null)
+                    {
+                        existingCategory.Name = category.Name;
+                        existingCategory.Description = category.Description;
+
+                        _db.Categories.Update(existingCategory);
+                    }
+                    else
+                    {
+                        return false;  // Return false if no category found to update
+                    }
+                }
 
                 await _db.SaveChangesAsync();
                 return true;
@@ -63,6 +80,43 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
                 return false;
             }
         }
+
+        //Current
+        //public async Task<bool> SaveCategory(Category category)
+        //{
+        //    try
+        //    {
+        //        if (category.CategoryId == 0)
+        //            await _db.Categories.AddAsync(category); // Add New
+        //        else
+        //            _db.Categories.Update(category); // Update Existing
+
+        //        await _db.SaveChangesAsync();
+        //        return true;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        //public async Task<bool> DeleteCategory(int categoryId)
+        //{
+        //    try
+        //    {
+        //        var category = await _db.Categories.FindAsync(categoryId);
+        //        if (category == null) return false;
+
+        //        _db.Categories.Remove(category);
+        //        await _db.SaveChangesAsync();
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error: {ex.Message}"); // For debugging
+        //        return false;
+        //    }
+        //}
 
         public async Task<bool> DeleteCategory(int categoryId)
         {
@@ -80,6 +134,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
                 return false;
             }
         }
+
 
     }
 }

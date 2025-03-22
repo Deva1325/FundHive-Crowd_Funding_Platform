@@ -33,5 +33,39 @@ namespace Crowd_Funding_Platform.Controllers
         {
             return View();
         }
+
+
+
+        [HttpGet, ActionName("DeleteCreator")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deltCam = await _user.GetCreatorsById(id);
+            return View(deltCam);
+        }
+
+        [HttpPost, ActionName("DeleteCreator")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var DelCam = await _user.DeleteCreator(id);
+
+                return RedirectToAction("CreatorsList", "Users");
+                //return View(DelCam);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Delete failed", ex);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreatorsDetails(int id)
+        {
+            var campaign = await _user.GetCreatorsById(id);
+            return View(campaign);
+        }
+
+
     }
 }

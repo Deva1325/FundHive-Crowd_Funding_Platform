@@ -264,7 +264,7 @@ namespace Crowd_Funding_Platform.Controllers
             return Json(new { success = result.success, message = result.message });
         }
 
-        [HttpGet]
+        [HttpGet,ActionName("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var deltCam = await _campaign.GetCampaignById(id);
@@ -286,6 +286,14 @@ namespace Crowd_Funding_Platform.Controllers
                 throw new Exception("Delete failed", ex);
             }
         }
+
+        [HttpGet, ActionName("Details")]
+        public async Task<IActionResult> CampaignDetails(int id)
+        {
+            var campaign = await _campaign.GetCampaignById(id);
+            return View(campaign);
+        }
+
 
         [HttpGet, ActionName("PendingCampaignsDetails")]
         public async Task<IActionResult> Details(int id)

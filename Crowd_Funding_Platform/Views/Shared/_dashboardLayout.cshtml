@@ -82,7 +82,7 @@
         }
     </style> 
 </head>
-<body>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
 
     <div class="container-scroller">
         <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row" style="font-family: 'Material Design Icons';">
@@ -306,7 +306,7 @@
 
 
             </nav>
-            <div class="main-panel">
+            <div class="main-panel" style="flex: 1;">
                 <div class="content-wrapper">
                     @RenderBody()
                 </div>

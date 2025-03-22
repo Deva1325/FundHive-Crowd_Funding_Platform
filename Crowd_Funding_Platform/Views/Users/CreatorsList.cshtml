@@ -80,13 +80,11 @@
 
                    <!-- Actions (Icons Only) -->
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.ApplicationId" class="btn btn-sm text-primary">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a asp-action="Details" asp-route-id="@item.ApplicationId" class="btn btn-sm text-secondary">
+
+                        <a asp-action="CreatorsDetails" asp-route-id="@item.ApplicationId" class="btn btn-sm text-secondary">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a asp-action="Delete" asp-route-id="@item.ApplicationId" class="btn btn-sm text-danger">
+                        <a asp-action="DeleteCreator" asp-route-id="@item.ApplicationId" class="btn btn-sm text-danger">
                             <i class="fas fa-trash"></i>
                         </a>
                     </td>

@@ -1,6 +1,161 @@
 ﻿@model Crowd_Funding_Platform.Models.Campaign
 
 @{
+    ViewData["Title"] = "Campaign Details";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Campaign Details</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Title:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Title)</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Description:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Description)</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Requirement:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Requirement)</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Raised Amount:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.RaisedAmount)</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Start Date:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.StartDate)</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>End Date:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.EndDate)</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Status:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Status)</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Category:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Category.CategoryId)</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Creator:</strong>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Creator.UserId)</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>Media:</strong>
+                    <div>
+                        @if (!string.IsNullOrEmpty(Model.MediaUrl))
+                        {
+                            <img src="@Model.MediaUrl" alt="Campaign Media" class="img-fluid rounded shadow-sm" style="max-width: 100%; height: auto;" />
+                        }
+                        else
+                        {
+                            <p class="text-muted">No media available</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-end">
+            <a asp-action="SaveCampaigns" asp-route-id="@Model?.CampaignId" class="btn btn-warning me-2">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="CampaignsList" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Container and Card Styling */
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .card {
+        transition: 0.3s;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Card header styling */
+    .card-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* Card body styling */
+    .card-body p {
+        font-size: 16px;
+        color: #495057;
+        line-height: 1.6;
+    }
+
+    /* Image styling */
+    .img-fluid {
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .img-fluid:hover {
+            transform: scale(1.05);
+        }
+
+    /* Button Styling */
+    .btn {
+        padding: 10px 25px;
+        font-size: 16px;
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Icon styling */
+        .btn i {
+            margin-right: 8px;
+        }
+
+</style>
+
+@* @model Crowd_Funding_Platform.Models.Campaign
+
+@{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
@@ -76,3 +231,4 @@
     <a asp-action="SaveCampaigns" asp-route-id="@Model?.CampaignId">Edit</a> |
     <a asp-action="CampaignsList">Back to List</a>
 </div>
+ *@

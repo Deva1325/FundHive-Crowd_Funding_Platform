@@ -1,0 +1,48 @@
+﻿@model Crowd_Funding_Platform.Models.Campaign
+
+@{
+    ViewData["Title"] = "Campaign Details";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2>@Model.Title</h2>
+        </div>
+
+        <div class="card-body">
+            <!-- Image -->
+            <div class="text-center">
+                <img src="@Model.MediaUrl" alt="Campaign Image" class="img-fluid" style="max-height: 400px; object-fit: cover;">
+            </div>
+
+            <hr />
+
+            <!-- Campaign Details -->
+            <p class="lead">@Model.Description</p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Goal Amount: ₹@Model.Requirement</h4>
+                    <h4>Raised Amount: ₹@Model.RaisedAmount</h4>
+                </div>
+                <div class="col-md-6">
+                    <h4>Start Date: @Model.StartDate.ToShortDateString()</h4>
+                    <h4>End Date: @Model.EndDate.ToShortDateString()</h4>
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Creator Info -->
+            <div class="mt-4">
+                <h5>Created by: <strong>@Model.Creator.FirstName</strong></h5>
+            </div>
+
+            <a href="@Url.Action("ShowCampaignCases", "ManageCampaigns")" class="btn btn-secondary mt-3">
+                Back to List
+            </a>
+        </div>
+    </div>
+</div>

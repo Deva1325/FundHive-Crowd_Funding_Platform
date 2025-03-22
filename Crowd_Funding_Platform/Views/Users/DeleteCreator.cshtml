@@ -1,0 +1,61 @@
+﻿@model Crowd_Funding_Platform.Models.CreatorApplication
+
+@{
+    ViewData["Title"] = "Delete Creator";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="card shadow-lg rounded-lg border-0">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="mdi mdi-delete-alert"></i> Delete Creator Application</h4>
+    </div>
+
+    <div class="card-body">
+        <h5 class="text-danger">Are you sure you want to delete this?</h5>
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-4 text-secondary">Document Type:</dt>
+            <dd class="col-sm-8 fw-bold">@Html.DisplayFor(Model => Model.DocumentType)</dd>
+
+            <dt class="col-sm-4 text-secondary">Document Path:</dt>
+            <dd class="col-sm-8">
+                <a href="@Url.Content(Model.DocumentPath)" target="_blank" class="btn btn-info btn-sm">
+                    <i class="mdi mdi-file-document-outline"></i> View Document
+                </a>
+            </dd>
+
+            <dt class="col-sm-4 text-secondary">Status:</dt>
+            <dd class="col-sm-8">
+                <span class="badge @(Model.Status == "Approved" ? "bg-success" : "bg-warning")">
+                    @Html.DisplayFor(Model => Model.Status)
+                </span>
+            </dd>
+
+            <dt class="col-sm-4 text-secondary">Submission Date:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(Model => Model.SubmissionDate)</dd>
+
+            <dt class="col-sm-4 text-secondary">Status Updated Date:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(Model => Model.StatusUpdatedDate)</dd>
+
+            <dt class="col-sm-4 text-secondary">Admin Remarks:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(Model => Model.AdminRemarks)</dd>
+
+            <dt class="col-sm-4 text-secondary">User ID:</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(Model => Model.User.UserId)</dd>
+        </dl>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <form asp-action="DeleteCreator" method="post" class="d-inline">
+            <input type="hidden" asp-for="ApplicationId" />
+            <button type="submit" class="btn btn-danger">
+                <i class="mdi mdi-trash-can-outline"></i> Delete
+            </button>
+        </form>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="mdi mdi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

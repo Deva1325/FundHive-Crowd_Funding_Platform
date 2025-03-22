@@ -48,6 +48,7 @@
                                    id="StartDate" />
                         }
                     </div> *@
+                    
                     <div class="form-group mb-3">
                         <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
                         <input asp-for="StartDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" id="StartDate" />
@@ -69,10 +70,24 @@
 @*                         <span class="text-danger" asp-validation-for="CategoryId"></span>*@  
                     </div>
 
-                    <div class="form-group mb-3">
+                    @* <div class="form-group mb-3">
                         <label class="form-label fw-bold">Upload Media</label>
                         <input name="ImageFile" type="file" class="form-control" id="MediaFile" accept="image/*,video/*" />
                         <span class="text-danger" id="imageError"></span>
+                    </div> *@
+
+                    <div class="form-group">
+                        <label for="Image">Campaign Image</label>
+                        <input type="file" id="Image" name="Image" class="form-control" accept="image/*" onchange="previewImage(event)" />
+
+                        @if (!string.IsNullOrEmpty(Model?.MediaUrl))
+                        {
+                            <img id="existingImage" src="@Model.ImageFile" alt="Campaign Image" class="mt-2" style="max-width: 200px; display: block;" />
+                        }
+                        else
+                        {
+                            <img id="existingImage" src="#" alt="Preview Image" class="mt-2" style="max-width: 200px; display: none;" />
+                        }
                     </div>
 
                     <div class="form-group mb-3">
