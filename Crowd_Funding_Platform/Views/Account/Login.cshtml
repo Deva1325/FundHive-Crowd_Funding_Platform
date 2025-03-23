@@ -16,6 +16,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/~/Authentication_T/app-assets/images/ico/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,600%7CIBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
 
+
     <!-- BEGIN: Vendor CSS-->
     <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/vendors/css/vendors.min.css">
     <!-- END: Vendor CSS-->
@@ -34,6 +35,9 @@
     <!-- BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="~/Authentication_T/assets/css/style.css">
     <!-- END: Custom CSS-->
+
+    @* add the reCAPTCHA script and widget. *@
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcsmP0qAAAAAIMqJepe1XNbiGei8UhTu_Tm5vNH"></script>
 
     <style>
         .form-group {
@@ -96,6 +100,10 @@
                                                 </div>
                                             </div>
                                             <form id="loginForm" method="post">
+
+                                                @* ✅ Add a hidden input field to send the token to the server: *@
+                                                <input type="hidden" id="ReCAPTCHAToken" name="ReCAPTCHAToken" />
+
                                                 <div class="form-group mb-50">
                                                     <label class="text-bold-600" asp-for="EmailOrUsername">Email address</label>
                                                     <input type="email" asp-for="EmailOrUsername" class="form-control" placeholder="Email address">
@@ -180,16 +188,25 @@
 
 
     <!-- External Scripts -->
-    <script src="https://www.google.com/recaptcha/api.js">async defer</script>
+    @* <script src="https://www.google.com/recaptcha/api.js">async defer</script> *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
     <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha384-...your-hash..."
-            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- Custom Scripts -->
+
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6LcsmP0qAAAAAIMqJepe1XNbiGei8UhTu_Tm5vNH', { action: 'login' }).then(function (token) {
+                document.getElementById("ReCAPTCHAToken").value = token;
+            });
+        });
+    </script>
+
+
     <script src="~/js/Login.js"></script>
 
   

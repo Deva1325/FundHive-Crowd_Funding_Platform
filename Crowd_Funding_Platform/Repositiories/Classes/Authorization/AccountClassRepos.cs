@@ -79,18 +79,13 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 
         public async Task<string> fetchEmail(string cred)
         {
-            return await _dbMain_CFS.Users
-                .Where(u => u.Email == cred || u.Username == cred)
-                .Select(u => u.Email)
-                .FirstOrDefaultAsync();
+            return await _dbMain_CFS.Users.Where(u => u.Email == cred || u.Username == cred).Select(u => u.Email).FirstOrDefaultAsync();
         }
 
         public async Task<User> GetUserDataByEmail(string email)
         {
-            return await _dbMain_CFS.Users
-                .FirstOrDefaultAsync(x => x.Email == email);
+            return await _dbMain_CFS.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
-
 
 
         public async Task<int?> GetUserIdByEmail(string email)
@@ -122,14 +117,19 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
         public async Task<object> updateStatus(string Email)
         {
             var user = await _dbMain_CFS.Users.FirstOrDefaultAsync(u => u.Email == Email);
-            if (user != null)
+
+            if (user != null)  // Check for null before accessing properties
             {
                 user.EmailVerified = true;
                 await _dbMain_CFS.SaveChangesAsync();
                 return new { success = true, message = "Email verified successfully" };
             }
-
-            return new { success = false, message = "Email not found" };
+            else
+            {
+                // Return a message if the email is not found
+                return new { success = false, message = "Email not found" };
+            }
         }
+
     }
 }

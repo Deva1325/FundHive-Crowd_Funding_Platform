@@ -7,6 +7,7 @@ using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
+using Crowd_Funding_Platform.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -14,11 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddSingleton<IEmailSenderRepos, EmailSenderRepos>(); // Email service interface and implementation
 
-//builder.Services.AddControllers()
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-//    });
+builder.Services.AddHttpClient<GoogleReCAPTCHAService>();//Register the Google-ReCAPTCHA Service
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
