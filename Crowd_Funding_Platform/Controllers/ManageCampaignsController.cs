@@ -79,7 +79,7 @@ namespace Crowd_Funding_Platform.Controllers
 
             if (!isCreatorApproved)
             {
-                return RedirectToAction("SaveCampaigns", "ManageCampaigns");
+                return RedirectToAction("ApplyForCreator", "Campaign");
             }
 
             return View(campaign);

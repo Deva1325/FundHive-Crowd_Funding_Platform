@@ -13,7 +13,7 @@
     <meta name="author" content="PIXINVENT">
     <title>Login Page - Frest - Bootstrap HTML admin template</title>
     <link rel="apple-touch-icon" href="~/Authentication_T/app-assets/images/ico/apple-icon-120.html">
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/~/Authentication_T/app-assets/images/ico/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/Authentication_T/app-assets/images/ico/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,600%7CIBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
 
 
@@ -36,8 +36,25 @@
     <link rel="stylesheet" type="text/css" href="~/Authentication_T/assets/css/style.css">
     <!-- END: Custom CSS-->
 
-    @* add the reCAPTCHA script and widget. *@
-    <script src="https://www.google.com/recaptcha/api.js?render=6LcsmP0qAAAAAIMqJepe1XNbiGei8UhTu_Tm5vNH"></script>
+    <!-- ✅ reCAPTCHA Script -->
+@*         <script src="https://www.google.com/recaptcha/api.js" async defer></script> 
+ *@
+
+        @* <script type="text/javascript" >
+                var onloadCallback = function () {
+            grecaptcha.render('html_element', {
+                'sitekey': '6LdlM_4qAAAAAD6vBYVZQXwbSJ6Uqh_FrH4va-_4'
+            });
+        };
+
+            function onSubmit(event) {
+            var token = grecaptcha.getResponse();
+            } 
+        // function enableSubmitButton() {
+        //     document.getElementById("btnLogin").disabled = false;
+    // }
+    </script>*@
+
 
     <style>
         .form-group {
@@ -101,9 +118,7 @@
                                             </div>
                                             <form id="loginForm" method="post">
 
-                                                @* ✅ Add a hidden input field to send the token to the server: *@
-                                                <input type="hidden" id="ReCAPTCHAToken" name="ReCAPTCHAToken" />
-
+                                               
                                                 <div class="form-group mb-50">
                                                     <label class="text-bold-600" asp-for="EmailOrUsername">Email address</label>
                                                     <input type="email" asp-for="EmailOrUsername" class="form-control" placeholder="Email address">
@@ -116,6 +131,9 @@
                                                     </button>
                                                 </div>
 
+                                               @*  <!-- ✅ reCAPTCHA v2 -->
+                                                <div class="g-recaptcha" data-sitekey="6LdlM_4qAAAAAD6vBYVZQXwbSJ6Uqh_FrH4va-_4" data-callback="enableSubmitButton();"></div>
+ *@
                                                 <div class="form-group d-flex flex-md-row flex-column justify-content-between align-items-center">
                                                     <div class="text-left">
                                                         <div class="checkbox checkbox-sm">
@@ -132,7 +150,7 @@
                                                         <a href="~/Account/ForgotPassword" class="card-link"><small>Forgot Password?</small></a>
                                                     </div>
                                                 </div>
-                                                <button type="submit" id="btnLogin" class="btn btn-primary glow w-100 position-relative">
+                                                <button type="submit" id="btnLogin"class="btn btn-primary glow w-100 position-relative">
                                                     <span id="btnLoader" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                                                     <span>Login</span>
                                                     <i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
@@ -173,8 +191,6 @@
     <!-- Load Vendors (Ensure jQuery is not duplicated inside) -->
     <script src="~/Authentication_T/app-assets/vendors/js/vendors.min.js"></script>
 
-    <!-- Load Unison (If needed) -->
-    <script src="~/Authentication_T/app-assets/vendors/js/extensions/unison.min.js"></script>
 
     <!-- Load jQuery Validation Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
@@ -185,11 +201,14 @@
     <script src="~/Authentication_T/app-assets/js/scripts/components.min.js"></script>
     <script src="~/Authentication_T/app-assets/js/scripts/footer.min.js"></script>
 
+   @*  <script src="https://www.google.com/recaptcha/api.js" async defer></script> *@
 
 
     <!-- External Scripts -->
     @* <script src="https://www.google.com/recaptcha/api.js">async defer</script> *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    @*  Load Unison *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/unison/1.0.0/unison.min.js"></script>
 
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
@@ -198,14 +217,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- Custom Scripts -->
 
-    <script>
-        grecaptcha.ready(function () {
-            grecaptcha.execute('6LcsmP0qAAAAAIMqJepe1XNbiGei8UhTu_Tm5vNH', { action: 'login' }).then(function (token) {
-                document.getElementById("ReCAPTCHAToken").value = token;
-            });
-        });
-    </script>
 
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+            async defer>
+    </script>
+    
 
     <script src="~/js/Login.js"></script>
 

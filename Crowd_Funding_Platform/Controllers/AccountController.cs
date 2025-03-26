@@ -1,6 +1,7 @@
 ﻿using Crowd_Funding_Platform.Models;
+using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
-using Crowd_Funding_Platform.Services;
+//using Crowd_Funding_Platform.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,15 +10,15 @@ namespace Crowd_Funding_Platform.Controllers
 {
     public class AccountController : Controller
     {
+        //private readonly IGoogleReCAPTCHAService _reCAPTCHAService;
         private readonly IAccountRepos _acc;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<AccountController> _logger;
         private readonly DbMain_CFS _dbMain;
         private readonly ILoginRepos _loginRepos;
         private readonly IEmailSenderRepos _emailSender;
-        private readonly GoogleReCAPTCHAService _captchaService;
 
-        public AccountController(IAccountRepos accountRepos, IEmailSenderRepos emailSender, IMemoryCache memoryCache, ILogger<AccountController> logger, ILoginRepos loginRepos, DbMain_CFS dbMain, GoogleReCAPTCHAService captchaService)
+        public AccountController(IAccountRepos accountRepos, IEmailSenderRepos emailSender, IMemoryCache memoryCache, ILogger<AccountController> logger, ILoginRepos loginRepos, DbMain_CFS dbMain)
         {
             _acc = accountRepos;
             _memoryCache = memoryCache;
@@ -25,7 +26,7 @@ namespace Crowd_Funding_Platform.Controllers
             _dbMain = dbMain;
             _loginRepos = loginRepos;
             _emailSender = emailSender;
-            _captchaService = captchaService;  // reCAPTCHA service injected
+            //_reCAPTCHAService = reCAPTCHAService;
         }
 
         public async Task<IActionResult> Index()
@@ -213,27 +214,31 @@ namespace Crowd_Funding_Platform.Controllers
             var attemptKey = $"LoginAttempts_{login.EmailOrUsername}";
             var lockoutKey = $"Lockout_{login.EmailOrUsername}";
 
-            // Validate reCAPTCHA token
-            string reCaptchaToken = Request.Form["ReCAPTCHAToken"];
-
-            if (string.IsNullOrEmpty(reCaptchaToken))
-            {
-                return Json(new { success = false, message = "Captcha verification failed. Try again!" });
-            }
-
-            bool isCaptchaValid = await _captchaService.VerifyReCAPTCHA(reCaptchaToken);
-
-            if (!isCaptchaValid)
-            {
-                return Json(new { success = false, message = "Captcha verification failed. Try again!" });
-            }
-
-
             if (_memoryCache.TryGetValue(lockoutKey, out DateTime lockoutEndTime) && lockoutEndTime > DateTime.Now)
             {
                 var remainingTime = (int)(lockoutEndTime - DateTime.Now).TotalSeconds;
                 return Json(new { success = false, message = $"Account is locked. Try again in {remainingTime} seconds." });
             }
+
+
+            ////current code to be kept 
+            //var token = HttpContext.Request.Form["g-recaptcha-response"];
+
+            //Console.WriteLine($"Received Token: {token}");
+
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return Json(new { success = false, message = "reCAPTCHA token is missing or invalid." });
+            //}
+
+            //// ✅ Verify reCAPTCHA token
+            //var isCaptchaValid = await _reCAPTCHAService.VerifyToken(token);
+
+            //if (!isCaptchaValid)
+            //{
+            //    return Json(new { success = false, message = "reCAPTCHA verification failed. Please try again." });
+            //}
+
 
             var result = await _loginRepos.AuthenticateUser(login.EmailOrUsername, login.Password);
 

@@ -1,4 +1,12 @@
-﻿$(document).ready(function () {
+﻿//window.onload = () => {
+//    if (typeof grecaptcha !== "undefined") {
+//        console.log("✅ reCAPTCHA is loaded.");
+//    } else {
+//        console.error("❌ reCAPTCHA failed to load.");
+//    }
+//};
+
+$(document).ready(function () {
     console.log("Login JS Loaded");
 
     // ================================
@@ -118,6 +126,14 @@
     // ================================
     // 🔑 Login Form Validation & Submission
     // ================================
+    // ✅ Function to Reset reCAPTCHA on Expiry
+
+
+    //function resetReCAPTCHA() {
+    //    grecaptcha.reset();
+    //}
+
+    // ✅ Add reCAPTCHA token handling
     $("#loginForm").validate({
         errorClass: "text-danger fw-bold",
         rules: {
@@ -138,9 +154,13 @@
                 minlength: "Password must be at least 6 characters."
             }
         },
-        errorPlacement: function (error, element) {
-            error.insertAfter(element);
-        },
+
+        // onloadCallback: function () {
+        //    grecaptcha.render('html_element', {
+        //        'sitekey': '6LdlM_4qAAAAAD6vBYVZQXwbSJ6Uqh_FrH4va-_4'
+        //    });
+        //},
+
         submitHandler: function (form, event) {
             event.preventDefault();
 
@@ -159,33 +179,102 @@
                 contentType: false,
                 data: formData,
                 success: function (result) {
-                    console.log("Login Response:", result);
-
                     if (result.success) {
-                        showToast("success", "Login Successful!");
+                        toastr.success("Login Successful!");
 
                         setTimeout(() => {
                             if (result.redirectUrl) {
-                                window.location.assign(result.redirectUrl);
+                                window.location.href = result.redirectUrl;
                             } else {
-                                showToast("error", "Redirect URL is missing!");
+                                toastr.error("Redirect URL is missing!");
                             }
                         }, 1500);
+
                     } else {
-                        showToast("error", result.message || "Login Failed! Please check your credentials.");
+                        toastr.error(result.message || "Login Failed! Please check your credentials.");
                     }
                 },
-                error: function () {
-                    showToast("error", "An error occurred. Please try again.");
+                error: function (xhr) {
+                    console.error("Error:", xhr);
+                    toastr.error("An error occurred. Please try again.");
                 },
+
                 complete: function () {
                     btnLogin.prop("disabled", false);
                     btnLoader.addClass("d-none").removeClass("d-inline-block");
                 }
+
             });
         }
     });
 
+    //    submitHandler: function (form, event) {
+    //        event.preventDefault();
+
+    //        const btnLogin = $("#btnLogin");
+    //        const btnLoader = $("#btnLoader");
+
+    //        btnLogin.prop("disabled", true);
+    //        btnLoader.removeClass("d-none").addClass("d-inline-block me-2");
+
+
+
+    //        //// ✅ Get reCAPTCHA v2 response token
+    //        //const recaptchaResponse = grecaptcha.getResponse();
+
+    //        //// ✅ Check if reCAPTCHA is completed
+    //        //if (!recaptchaResponse) {
+    //        //    toastr.error("Please complete the reCAPTCHA.");
+    //        //    btnLogin.prop("disabled", false);
+    //        //    btnLoader.addClass("d-none").removeClass("d-inline-block");
+    //        //    return;
+    //        //}
+
+    //        const formData = new FormData(form);
+    //        //formData.append('g-recaptcha-response', recaptchaResponse);
+
+    //        $.ajax({
+    //            url: "/Account/Login",
+    //            type: "POST",
+    //            processData: false,
+    //            contentType: false,
+    //            data: formData,
+    //            success: function (result) {
+    //                if (result.success) {
+    //                    toastr.success("Login Successful!");
+
+    //                    setTimeout(() => {
+    //                        if (result.redirectUrl) {
+    //                            window.location.href = result.redirectUrl;
+    //                        } else {
+    //                            toastr.error("Redirect URL is missing!");
+    //                        }
+    //                    }, 1500);
+    //                } else {
+    //                    toastr.error(result.message || "Login Failed! Please check your credentials.");
+
+    //                    //// ✅ Reset reCAPTCHA if failed
+    //                    //resetReCAPTCHA();
+    //                }
+    //            },
+    //            error: function (xhr) {
+    //                console.error("Error:", xhr);
+    //                toastr.error("An error occurred. Please try again.");
+
+    //                //// ✅ Reset reCAPTCHA on error
+    //                //resetReCAPTCHA();
+    //            },
+    //            complete: function () {
+    //                btnLogin.prop("disabled", false);
+    //                btnLoader.addClass("d-none").removeClass("d-inline-block");
+    //            }
+    //        });
+    //    }
+    //});
+
+       
+
+ 
     // ================================
     // 📧 Forgot Password Validation & Submission
     // ================================
@@ -296,6 +385,7 @@
     });
 
 });
+
 
 //    // ================================
 //    // 🔒 Reset Password Validation & Submission

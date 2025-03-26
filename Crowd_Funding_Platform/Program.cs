@@ -7,7 +7,7 @@ using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
-using Crowd_Funding_Platform.Services;
+//using Crowd_Funding_Platform.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -15,8 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddSingleton<IEmailSenderRepos, EmailSenderRepos>(); // Email service interface and implementation
 
-builder.Services.AddHttpClient<GoogleReCAPTCHAService>();//Register the Google-ReCAPTCHA Service
 
+//// Register Google reCAPTCHA settings
+//builder.Services.Configure<GoogleReCAPTCHA>(builder.Configuration.GetSection("GoogleReCAPTCHA"));
+
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -28,6 +31,7 @@ builder.Services.AddScoped<ICampaignsRepos, CampaignsClassRepos>();
 builder.Services.AddScoped<IProfileRepos, ProfileClassRepos>();
 builder.Services.AddScoped<IUser, UserClassRepos>();
 builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
+//builder.Services.AddScoped<IGoogleReCAPTCHAService, GoogleReCAPTCHAService>();
 
 builder.Services.AddDbContext<DbMain_CFS>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -59,6 +63,14 @@ else
 app.UseHttpsRedirection();
 
 app.UseSession();
+
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers.Add("Content-Security-Policy",
+//        "default-src 'self'; script-src 'self' https://www.google.com https://www.gstatic.com; connect-src 'self' https://www.google.com;");
+//    await next();
+//});
+
 
 app.UseStaticFiles();
 
