@@ -63,8 +63,8 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveCategories(Category category)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 bool isNew = category.CategoryId == 0;  // Check if it's a new category
 
                 // ✅ Ensure ID is properly passed and checked
@@ -80,9 +80,9 @@ namespace Crowd_Funding_Platform.Controllers
                 }
 
                 return Json(new { success = false, message = "Failed to save category!" });
-            }
+            //}
 
-            return Json(new { success = false, message = "Validation failed! Please check your inputs." });
+            //return Json(new { success = false, message = "Validation failed! Please check your inputs." });
         }
 
 

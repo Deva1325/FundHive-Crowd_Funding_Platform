@@ -1,0 +1,142 @@
+﻿@model Crowd_Funding_Platform.Models.Reward
+
+@{
+    ViewData["Title"] = "Save Rewards";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-lg" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header bg-purple text-white text-center">
+            <h3 class="mb-0">Create Reward</h3>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="SaveRewards" method="post" id="rewardForm" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+
+                <!-- ✅ Reward Batch -->
+                <div class="mb-3">
+                    <label asp-for="RewardBatch" class="form-label">Reward Batch</label>
+                    <input asp-for="RewardBatch" class="form-control" placeholder="Enter Reward Batch" />
+                </div>
+
+                <!-- ✅ Required Amount -->
+                <div class="mb-3">
+                    <label asp-for="RequiredAmount" class="form-label">Required Amount</label>
+                    <input asp-for="RequiredAmount" class="form-control" placeholder="Enter Amount" />
+                </div>
+
+                <!-- ✅ Reward Description -->
+                <div class="mb-3">
+                    <label asp-for="RewardDescription" class="form-label">Reward Description</label>
+                    <textarea asp-for="RewardDescription" class="form-control" rows="3" placeholder="Enter Description"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="RewardsList" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                    <button type="submit" class="btn btn-purple text-white">
+                        <i class="fas fa-save"></i> Save Reward
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Toastr Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- ✅ Toastr, jQuery Validation, and Rewards.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="~/js/Rewards.js"></script>
+
+    <style>
+        /* ✅ Purple Free Template Styling */
+        .btn-purple {
+            background-color: #6f42c1;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-purple:hover {
+                background-color: #5a32a3;
+            }
+
+        .card-header.bg-purple {
+            background-color: #6f42c1 !important;
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            transition: 0.3s;
+        }
+
+            .form-control:focus {
+                border-color: #6f42c1;
+                box-shadow: 0 0 8px #6f42c1;
+            }
+    </style>
+}
+
+
+
+@* @model Crowd_Funding_Platform.Models.Reward
+
+@{
+    ViewData["Title"] = "SaveRewards";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<h1>SaveRewards</h1>
+
+<h4>Reward</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveRewards" method="post" id="rewardForm" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RewardBatch" class="control-label"></label>
+                <input asp-for="RewardBatch" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="RequiredAmount" class="control-label"></label>
+                <input asp-for="RequiredAmount" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="RewardDescription" class="control-label"></label>
+                <input asp-for="RewardDescription" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="RewardsList">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <!-- ✅ Toastr and jQuery Validation Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="~/js/Rewards.js"></script>
+}
+ *@

@@ -36,12 +36,12 @@
         let description = $("#Description").val().trim();
 
         if (name === "") {
-            $("#Name").next(".text-danger").text("Name is required.");
+            $("#Name").next(".text-danger").text("Please enter the category.");
             isValid = false;
         }
 
         if (description === "") {
-            $("#Description").next(".text-danger").text("Description is required.");
+            $("#Description").next(".text-danger").text("Please enter the category description.");
             isValid = false;
         }
 
@@ -64,6 +64,6 @@
         let toastElement = new bootstrap.Toast(document.getElementById(toastId));
         toastElement.show();
 
-        setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 3000);
+        setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 2000);
     }
 });

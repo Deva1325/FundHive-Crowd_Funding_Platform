@@ -31,6 +31,7 @@ builder.Services.AddScoped<ICampaignsRepos, CampaignsClassRepos>();
 builder.Services.AddScoped<IProfileRepos, ProfileClassRepos>();
 builder.Services.AddScoped<IUser, UserClassRepos>();
 builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
+builder.Services.AddScoped<IRewards, RewardsClassRepos>();
 //builder.Services.AddScoped<IGoogleReCAPTCHAService, GoogleReCAPTCHAService>();
 
 builder.Services.AddDbContext<DbMain_CFS>(options =>

@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Crowd_Funding_Platform.Models.Reward>
+
+@{
+    ViewData["Title"] = "Rewards List";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header bg-purple text-white text-center">
+            <h3 class="mb-0">Rewards List</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- ✅ Create New Button -->
+            <div class="d-flex justify-content-between mb-4">
+                <a asp-action="SaveRewards" class="btn btn-purple text-white">
+                    <i class="fas fa-plus"></i> Create New Reward
+                </a>
+                <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- ✅ Responsive Table -->
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="bg-purple text-white">
+                        <tr>
+                            <th>Batch</th>
+                            <th>Required Amount</th>
+                            <th>Description</th>
+                            <th>Created On</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.RewardBatch</td>
+                                <td>₹ @item.RequiredAmount.ToString("N2")</td>
+                                <td>@item.RewardDescription</td>
+                                <td>@(item.Timestamp?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                <td class="text-center">
+                                    <a asp-action="SaveRewards" asp-route-id="@item.RewardId"
+                                       class="btn btn-sm btn-warning text-white me-1">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+
+                                    <a asp-action="Details" asp-route-id="@item.RewardId"
+                                       class="btn btn-sm btn-info text-white me-1">
+                                        <i class="fas fa-eye"></i> Details
+                                    </a>
+
+                                    <a asp-action="Delete" asp-route-id="@item.RewardId"
+                                       class="btn btn-sm btn-danger text-white"
+                                       onclick="return confirm('Are you sure you want to delete this reward?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* ✅ Purple Free Template Styling */
+        .btn-purple {
+            background-color: #6f42c1;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-purple:hover {
+                background-color: #5a32a3;
+            }
+
+        .card-header.bg-purple {
+            background-color: #6f42c1 !important;
+        }
+
+        .table thead {
+            background-color: #6f42c1;
+            color: #fff;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .btn {
+            transition: all 0.3s;
+        }
+
+            .btn:hover {
+                transform: scale(1.05);
+            }
+    </style>
+}

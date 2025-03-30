@@ -115,6 +115,6 @@ $(document).ready(function () {
         let toastElement = new bootstrap.Toast(document.getElementById(toastId));
         toastElement.show();
 
-        setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 3000);
+        setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 2000);
     }
 });

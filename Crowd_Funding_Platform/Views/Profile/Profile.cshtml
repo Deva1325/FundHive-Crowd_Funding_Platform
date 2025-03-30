@@ -40,8 +40,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="info-box"><label>First Name</label><p>@Model.FirstName</p></div>
-                                <div class="info-box"><label>Email</label><p>@Model.Email</p></div>
-                                <div class="info-box"><label>Joined Date</label><p>@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
+                                <div class="info-box"><label>Email</label><p id="VerifyEmailHere">@Model.Email</p></div>
+                                <div class="info-box"><label>Joined Date</label><p >@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
                                 <div class="info-box"><label>Profile Bio</label><p>@Model.ProfileBio</p></div>
                                 <div class="info-box"><label>Website</label><p><a href="@Model.Website" target="_blank">@Model.Website</a></p></div>
                             </div>
@@ -52,16 +52,42 @@
                                 <div class="info-box"><label>Address</label><p>@Model.Address</p></div>
                                 <div class="info-box"><label>Instagram</label><p><a href="@Model.InstagramLink" target="_blank">@Model.InstagramLink</a></p></div>
                                 <div class="info-box"><label>Facebook</label><p><a href="@Model.FaceBookLink" target="_blank">@Model.FaceBookLink</a></p></div>
-                                <div class="info-box">
-                                    <label>Email Status</label>
-                                    <span class="badge @(Model.EmailVerified.GetValueOrDefault() ? "badge-success" : "badge-danger")">
-                                        @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
-                                    </span>
-                                </div>
+
+                                @* <div class="info-box">
+                                <label>Email Status</label>
+                                <span class="badge @(Model.EmailVerified.GetValueOrDefault() ? "badge-success" : "badge-danger")">
+                                @(Model.EmailVerified.GetValueOrDefault() ? "Verified" : "Not Verified")
+                                </span>
+                                </div> *@
+
+                                <form id="Verification" role="form">
+                                    <div class="info-box">
+                                        <label class="form-label fw-bold text-dark">Email Verification Status</label>
+                                        @if (Model.EmailVerified.GetValueOrDefault())
+                                        {
+                                            <span class="badge bg-success text-light border px-3 py-2 fw-semibold">
+                                                <i class="fas fa-check-circle me-1"></i> Verified
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center alert alert-warning p-2 rounded">
+                                                <span class="text-danger fw-bold me-3">
+                                                    <i class="bi bi-exclamation-triangle-fill"></i> OOPS! NOT VERIFIED.
+                                                </span>
+                                                <button type="submit" id="btnUpdateEmail" class="btn btn-primary d-flex align-items-center justify-content-center"
+                                                        style="padding-inline: 12px; height: 33px; font-size: 13px; font-weight: 580;">
+                                                    <span class="spinner-border spinner-border-sm d-none me-2" id="btnLoader" role="status" aria-hidden="true"></span>
+                                                    Verify Now!!
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                </form>
+
+
                             </div>
                         </div>
-
-                        
 
                         <div class="text-center mt-4">
                             <a asp-action="EditProfile" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg">
@@ -156,3 +182,74 @@
             text-decoration: underline;
         }
 </style>
+
+@section Scripts {
+
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+    $("#Verification").validate({
+        submitHandler: function (form, event) {
+            event.preventDefault();
+
+            const btnUpdateEmail = $("#btnUpdateEmail");
+            const btnLoader = $("#btnLoader");
+            
+            btnUpdateEmail.prop("disabled", true);
+            btnLoader.removeClass("d-none");
+
+            let email = document.getElementById("VerifyEmailHere").textContent;
+
+            //const email = ("#").val(); // Fetch email from Razor Model
+            console.log("Sending email for verification:", email);
+
+            $.ajax({
+                url: '/Profile/UpdateEmailVerification',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ Email: email }), // Send correct format
+                success: function (result) {
+                    if (result.success) {
+                        showToast("success", "OTP sent to email!");
+
+                        // Ensure redirection works properly
+                        setTimeout(() => {
+                            window.location.href = '/Profile/ProfileOTP';
+                        }, 2000);
+                    } else {
+                        showToast("error", result.message);
+                    }
+                },
+                error: function (xhr) {
+                    showToast("error", "An error occurred: " + xhr.responseText);
+                },
+                complete: function () {
+                    btnUpdateEmail.prop("disabled", false);
+                    btnLoader.addClass("d-none");
+                }
+            });
+        }
+    });
+
+    });
+
+        function showToast(type, message) {
+            if (type === "success") {
+                toastr.success(message);
+            } else if (type === "error") {
+                toastr.error(message);
+            } else {
+                console.warn("Unknown toast type:", type);
+            }
+        }
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+                    }

@@ -18,14 +18,14 @@
                 <div class="mb-3">
                     <label asp-for="Name" class="form-label fw-bold text-primary">Category Name</label>
                     <input asp-for="Name" id="Name" class="form-control border-primary" placeholder="Enter category name" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+@*                     <span asp-validation-for="Name" class="text-danger"></span>
+ *@                </div>
 
                 <div class="mb-3">
                     <label asp-for="Description" class="form-label fw-bold text-primary">Description</label>
                     <textarea asp-for="Description" id="Description" class="form-control border-primary" rows="3" placeholder="Enter category description"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+@*                     <span asp-validation-for="Description" class="text-danger"></span>
+ *@                </div>
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary fw-bold">Save Category</button>

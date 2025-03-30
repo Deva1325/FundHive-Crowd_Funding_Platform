@@ -7,6 +7,9 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile
     {
         Task<User> GetAllUsersData(int userId);
 
-        Task<object> EditProfile(User user, IFormFile? ImageFile);
+        Task<User?> EditProfile(User user, IFormFile? ImageFile);
+        Task<object> UpdateEmailVerification(User users);
+        Task<bool> OtpVerification(string Otp);
+        Task<object> updateStatus(string Email);
     }
 }
