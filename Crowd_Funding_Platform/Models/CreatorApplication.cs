@@ -27,6 +27,5 @@ public partial class CreatorApplication
 
     [NotMapped]
     public virtual User? User { get; set; }
-
-
 }
+

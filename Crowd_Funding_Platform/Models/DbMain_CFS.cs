@@ -113,13 +113,20 @@ public partial class DbMain_CFS : DbContext
         {
             entity.HasKey(e => e.ContributionId).HasName("PK__Contribu__6EDA21C48B625CEC");
 
+            entity.HasIndex(e => e.OrderId, "IDX_Contributions_OrderId");
+
+            entity.HasIndex(e => e.PaymentId, "IDX_Contributions_PaymentId");
+
             entity.HasIndex(e => e.TransactionId, "UQ__Contribu__55433A6A41D199C7").IsUnique();
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Date)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.OrderId).HasMaxLength(100);
+            entity.Property(e => e.PaymentId).HasMaxLength(100);
             entity.Property(e => e.PaymentStatus).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.TransactionId).HasMaxLength(100);
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.Contributions)
@@ -174,10 +181,12 @@ public partial class DbMain_CFS : DbContext
         {
             entity.HasKey(e => e.PaymentId).HasName("PK__PaymentD__9B556A38DDA43202");
 
+            entity.Property(e => e.OrderId).HasMaxLength(100);
             entity.Property(e => e.PaymentDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+            entity.Property(e => e.RazorpayPaymentId).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Contribution).WithMany(p => p.PaymentDetails)

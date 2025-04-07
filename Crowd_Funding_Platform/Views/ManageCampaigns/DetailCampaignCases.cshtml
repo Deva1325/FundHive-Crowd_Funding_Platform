@@ -6,43 +6,216 @@
 }
 
 <div class="container my-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <h2>@Model.Title</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h2 class="fw-bold">@Model.Title</h2>
+                    <div class="text-center">
+                        <img src="@Model.MediaUrl" alt="Campaign Image" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: cover;">
+                    </div>
+                    <hr />
+                    <div class="d-flex align-items-center">
+                        <div class="progress w-50" style="height: 20px;">
+                            @{
+                                var progressPercentage = Model.Requirement > 0 ? (Model.RaisedAmount / Model.Requirement) * 100 : 0;
+                            }
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                                @progressPercentage?.ToString("0") ?? "0"%
+                            </div>
+                        </div>
+                        <span class="ms-3 fw-bold">
+                            @progressPercentage?.ToString("0") ?? "0"% Raised
+                        </span>
+                    </div>
+                    <p class="mt-2"><strong>₹@Model.RaisedAmount</strong> of ₹@Model.Requirement</p>
+                    <hr />
+                    <p class="lead">@Model.Description</p>
+                    <p class="fw-bold">Created by: @Model.Creator.FirstName</p>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
-            <!-- Image -->
-            <div class="text-center">
-                <img src="@Model.MediaUrl" alt="Campaign Image" class="img-fluid" style="max-height: 400px; object-fit: cover;">
-            </div>
-
-            <hr />
-
-            <!-- Campaign Details -->
-            <p class="lead">@Model.Description</p>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h4>Goal Amount: ₹@Model.Requirement</h4>
-                    <h4>Raised Amount: ₹@Model.RaisedAmount</h4>
-                </div>
-                <div class="col-md-6">
-                    <h4>Start Date: @Model.StartDate.ToShortDateString()</h4>
-                    <h4>End Date: @Model.EndDate.ToShortDateString()</h4>
+        <div class="col-md-4">
+            <div class="position-sticky" style="top: 20px;">
+                <div class="card shadow-lg p-3">
+                    <h4 class="text-center fw-bold">Donate</h4>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-danger btn-lg w-100" data-bs-toggle="modal" data-bs-target="#donateModal">
+                            Donate Now
+                        </button>
+                    </div>
+                    <p class="text-center text-muted mt-2">Card, Netbanking, UPI</p>
+                    <hr />
                 </div>
             </div>
+        </div>
+    </div>
 
-            <hr />
-
-            <!-- Creator Info -->
-            <div class="mt-4">
-                <h5>Created by: <strong>@Model.Creator.FirstName</strong></h5>
+    <div class="mt-4">
+        <ul class="nav nav-tabs" id="campaignTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#story">Story</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#documents">Documents</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#updates">Updates</a>
+            </li>
+        </ul>
+        <div class="tab-content p-3 border">
+            <div class="tab-pane fade show active" id="story">
+                <p>@Model.Description</p>
             </div>
-
-            <a href="@Url.Action("ShowCampaignCases", "ManageCampaigns")" class="btn btn-secondary mt-3">
-                Back to List
-            </a>
+            <div class="tab-pane fade" id="documents">
+                <p>Document uploads coming soon...</p>
+            </div>
+            <div class="tab-pane fade" id="updates">
+                <p>No updates yet...</p>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Donation Modal -->
+<div class="modal fade" id="donateModal" tabindex="-1" aria-labelledby="donateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="donateModalLabel">Contribute to @Model.Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="donationForm">
+                    <input type="hidden" id="campaignId" value="@Model.CampaignId" />
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Enter Amount (INR)</label>
+                        <input type="number" class="form-control" id="amount" name="amount" min="1" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Contribute</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById("donationForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const amount = parseFloat(document.getElementById("amount").value);
+            const campaignId = parseInt(document.getElementById("campaignId").value);
+
+            fetch(`/Contributions/CreateOrder`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    campaignId: campaignId
+                })
+            })
+                .then(response => response.json())
+                .then(order => {
+                    const options = {
+                        key: "rzp_test_lP7c4T9H5YGiXt", // Replace with key from config in production
+                        amount: order.amount,
+                        currency: "INR",
+                        name: "Crowd Funding",
+                        description: "Donation",
+                        order_id: order.id,
+                        handler: function (response) {
+                            fetch(`/Contributions/VerifyAndStorePayment`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: amount,
+                                    campaignId: campaignId
+                                })
+                            })
+                                .then(res => res.json())
+                                .then(result => {
+                                    alert(result.message);
+                                    window.location.reload();
+                                })
+                                .catch(error => {
+                                    console.error("Verification failed:", error);
+                                    alert("Payment verification failed. Please try again.");
+                                });
+                        },
+                        theme: {
+                            color: "#528FF0"
+                        }
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                })
+                .catch(error => {
+                    console.error("Order creation failed:", error);
+                    alert("Failed to create payment order. Please try again.");
+                });
+        });
+    </script>
+}
+
+
+@* 
+@section Scripts {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById("donationForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const amount = document.getElementById("amount").value;
+            const campaignId = document.getElementById("campaignId").value;
+
+            fetch(`/Payment/CreateOrder?amount=${amount}&campaignId=${campaignId}`)
+                .then(response => response.json())
+                .then(order => {
+                    const options = {
+                        key: "rzp_test_lP7c4T9H5YGiXt", // Replace with actual key
+                        amount: order.amount,
+                        currency: "INR",
+                        name: "Crowd Funding",
+                        description: "Donation",
+                        order_id: order.id,
+                        handler: function (response) {
+                            fetch(`/Payment/VerifyPayment`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: amount,
+                                    campaignId: campaignId
+                                })
+                            })
+                                .then(res => res.json())
+                                .then(result => {
+                                    alert(result.message);
+                                    window.location.reload();
+                                });
+                        },
+                        theme: {
+                            color: "#528FF0"
+                        }
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                });
+        });
+    </script>
+} *@

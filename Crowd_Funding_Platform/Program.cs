@@ -34,6 +34,7 @@ builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
 builder.Services.AddScoped<IRewards, RewardsClassRepos>();
 //builder.Services.AddScoped<IGoogleReCAPTCHAService, GoogleReCAPTCHAService>();
 
+
 builder.Services.AddDbContext<DbMain_CFS>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

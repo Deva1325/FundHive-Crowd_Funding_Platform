@@ -9,7 +9,7 @@ public partial class Contribution
 
     public int CampaignId { get; set; }
 
-    public int ContributorId { get; set; }
+    public int ContributorId { get; set; }//User ID
 
     public decimal Amount { get; set; }
 
@@ -18,6 +18,12 @@ public partial class Contribution
     public string? TransactionId { get; set; }
 
     public string PaymentStatus { get; set; } = null!;
+
+    public string? PaymentId { get; set; }
+
+    public string? OrderId { get; set; }
+
+    public string? Status { get; set; }
 
     public virtual Campaign Campaign { get; set; } = null!;
 

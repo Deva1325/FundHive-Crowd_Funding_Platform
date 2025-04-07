@@ -76,8 +76,8 @@
                                 <div class="main-menu f-right d-none d-lg-block">
                                     <nav>
                                         <ul id="navigation">
-                                            <li><a href="index.html">Home</a></li>
-                                            <li><a href="cases.html">Cases</a></li>
+                                            <li><a href="Index">Home</a></li>
+                                            <li><a href="ShowCampaignCases">Cases</a></li>
                                             <li><a href="about.html">About</a></li>
                                             <li>
                                                 <a href="blog.html">Blog</a>
@@ -87,7 +87,7 @@
                                                     <li><a href="elements.html">Elements</a></li>
                                                 </ul>
                                             </li>
-                                            <li><a href="contact.html">Contact</a></li>
+                                            <li><a href="Contact">Contact</a></li>
                                             <li>
                                                 @if (Context.Session.GetString("IsCreatorApproved") == "false")
                                                 {
@@ -153,8 +153,14 @@
         </div>
     </header>
   
-    <div class="container" style="margin-top: 100px; min-height: 70vh;     margin-left: 208px;
+   @*  <div class="container" style="margin-top: 100px; min-height: 70vh;margin-left: 208px;
     margin-right: 400px;">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div> *@
+
+    <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

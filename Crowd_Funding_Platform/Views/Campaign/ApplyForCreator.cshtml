@@ -2,21 +2,267 @@
 
 @{
     ViewData["Title"] = "ApplyForCreator";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+
+<style>
+    /* General Styling */
+    .contact-title {
+        font-size: 24px;
+        font-weight: bold;
+        /* text-align: center; */
+        margin-bottom: 20px;
+    }
+
+    /* Form Styling */
+    .contact_form {
+        /* background: #fff;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    }
+
+
+    /* Form Fields */
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        height: 45px;
+        border-radius: 5px;
+    }
+
+    /* Submit Button */
+    .boxed-btn {
+        padding-inline: 34px;   
+    }
+
+
+    /* Chatbot-Style Guidance */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Speech Bubble Style */
+    .chat-bubble {
+        background: #fff;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        max-width: 100%;
+    }
+
+        /* Speech Bubble Tail */
+        .chat-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+
+        /* Chat Title */
+        .chat-bubble h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #8a1c7c;
+        }
+
+        /* Chat Text */
+        .chat-bubble p {
+            font-size: 15px;
+            color: #444;
+        }
+
+    /* Chatbot Step-by-Step Flow */
+    .chat-flow {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Individual Steps */
+    .chat-step {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease-in-out;
+    }
+
+        /* Step Hover Effect */
+        .chat-step:hover {
+            transform: translateX(5px);
+        }
+
+    /* Step Number Styling */
+    .step-number {
+        background: #8a1c7c;
+        color: #fff;
+        font-weight: bold;
+        width: 28px;
+        height: 28px;
+        text-align: center;
+        line-height: 28px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+
+
+</style>
+
+<main>
+    <!-- Hero area Start-->
+    <div class="slider-area">
+        <div class="slider-height2 slider-bg4 hero-overly d-flex align-items-center">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-xl-5 col-lg-6 col-md-6">
+                        <div class="hero-caption hero-caption2">
+                            <h2>Apply For Creator</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hero area End -->
+    <!-- Contact Area Start -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div style="background: #fff;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);height: 530px;">
+                        <h2 class="text-center text-dark fw-bold mb-4" style="    margin-top: 30px;">📜 Submit Your Application</h2>
+
+                        <form class="form-contact contact_form" method="post" id="applyForCreatorForm" enctype="multipart/form-data" asp-action="ApplyForCreator" asp-controller="Campaign">
+
+                            <!-- Document Type Selection -->
+                            <div class="form-group mb-3" style="margin-top: 50px;">
+                                <label class="fw-bold" style="margin-top: 18px;padding-left: 9px;">📁 Document Type</label>
+                                <select asp-for="DocumentType" style="margin-top: 6px;border-radius: 11px; !important;" class="form-control" id="ddl_DocType" required>
+                                    <option value="" style="border-radius: 11px;">Select Document Type</option>
+                                    @foreach (var docType in ViewBag.DocumentTypes)
+                                    {
+                                        <option value="@docType">@docType</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="form-group mb-3">
+                                <label class="fw-bold" style="margin-top: 17px;padding-left: 9px;">📤 Upload Document</label>
+                                <div class="">
+                                    <input type="file" name="ImageFile" style="margin-top: 6px;margin-bottom: 11px;border-radius: 11px" class="form-control" id="documentFile" accept=".pdf, .jpg, .png" required />
+                                </div>
+                                <small class="text-muted">Allowed formats: PDF, JPG, PNG (Max: 5 MB)</small>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="button button-contactForm boxed-btn" style="margin-top: 39px;">
+                                    🚀 Submit Application
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Chatbot Speech Bubble Container -->
+                    <div class="chat-container">
+                        <div class="chat-bubble">
+                            <h3><i class="ti-gift"></i> Want to Become a Creator? 🎉</h3>
+                            <p>🚀 Raise funds, access a large donor community & track your campaign with ease!</p>
+                        </div>
+
+                        <div class="chat-bubble">
+                            <h3><i class="ti-direction-alt"></i> How to Apply?</h3>
+                            <div class="chat-flow">
+                                <div class="chat-step">
+                                    <span class="step-number">1</span>
+                                    <p>📜 Select a document type</p>
+                                </div>
+                                <div class="chat-step">
+                                    <span class="step-number">2</span>
+                                    <p>📤 Upload your verification document</p>
+                                </div>
+                                <div class="chat-step">
+                                    <span class="step-number">3</span>
+                                    <p>✅ Submit your application</p>
+                                </div>
+                                <div class="chat-step">
+                                    <span class="step-number">4</span>
+                                    <p>⏳ Wait for admin approval</p>
+                                </div>
+                                <div class="chat-step">
+                                    <span class="step-number">5</span>
+                                    <p>🎯 Start your campaign & make an impact!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </section>
+    <!-- Contact Area End -->
+</main>
+
+
+<!-- ✅ Toastr Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- ✅ jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- ✅ jQuery Validate -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+    <!-- ✅ Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- ✅ Your Script -->
+    <script src="~/js/CampaignCreator.js"></script>
+
+}
+
+
+
+@* @model Crowd_Funding_Platform.Models.CreatorApplication
+
+@{
+    ViewData["Title"] = "ApplyForCreator";
     Layout = "~/Views/Shared/_mainLayout.cshtml";
 }
 
 <h4>Apply For Creator</h4>
 <hr />
-@* 
-<!-- Toast Notification -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
-    <div class="toast align-items-center text-white" id="responseToast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div id="toastMessage" class="toast-body"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div> *@
 
 <div class="row">
     <div class="col-md-4">
@@ -47,46 +293,7 @@
     </div>
 </div> 
 
-@* //old code *@
-
-@* <div class="row">
-    <div class="col-md-4">
-        <form method="post" id="applyForCreatorForm" enctype="multipart/form-data" asp-action="ApplyForCreator" asp-controller="Campaign">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label>Document Type:</label>
-                <select asp-for="DocumentType" class="form-control" id="ddl_DocType">
-                    <option value="">Select Document Type</option>
-                    @foreach (var docType in ViewBag.DocumentTypes)
-                    {
-                        <option value="@docType">@docType</option>
-                    }
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Upload Document:</label>
-
-                <!-- ✅ Use 'name' instead of 'asp-for' -->
-                <input type="file" name="ImageFile" class="form-control" id="documentFile" accept=".pdf, .jpg, .png" required />
-                <small class="text-muted">Allowed formats: PDF, JPG, PNG</small>
-
-                @* <input asp-for="ImageFile" class="form-control" id="documentFile" accept=".pdf, .jpg, .png" />
-                <small class="text-muted">Allowed formats: PDF, JPG, PNG</small> *@
-          @*  </div>
-
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>  
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
- *@
+ 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -94,3 +301,7 @@
     <script src="~/js/CampaignCreator.js"></script>
 
 }
+ *@
+
+
+

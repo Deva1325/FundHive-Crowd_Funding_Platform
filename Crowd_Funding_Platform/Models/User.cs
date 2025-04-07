@@ -51,7 +51,6 @@ public partial class User
     public string? InstagramLink { get; set; }
 
     public string? FaceBookLink { get; set; }
-
     public virtual ICollection<AdminLog> AdminLogs { get; set; } = new List<AdminLog>();
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();

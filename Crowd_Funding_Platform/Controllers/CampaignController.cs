@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Crowd_Funding_Platform.Controllers
-{
+{//bs toh pchiii
     public class CampaignController : Controller
     {
         private readonly ICreatorApplicationRepos _creatorAppInterface;
@@ -32,39 +32,48 @@ namespace Crowd_Funding_Platform.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp, IFormFile? ImageFile)
         {
             try
             {
-                string SesEmail = HttpContext.Session.GetString("LoginCred");
+                string? SesEmail = HttpContext.Session.GetString("LoginCred");
+
+                // Check if session is available
                 if (string.IsNullOrEmpty(SesEmail))
                 {
                     return Json(new { success = false, message = "Session expired. Please log in again." });
                 }
 
+                // Fetch User Details
                 var user = await _dbMain1.Users.FirstOrDefaultAsync(u => u.Email == SesEmail);
                 if (user == null)
                 {
                     return Json(new { success = false, message = "User not found." });
                 }
 
+                // Assign UserId from session user
                 creatorApp.UserId = user.UserId;
-                var result = await _creatorAppInterface.ApplyForCreator(creatorApp,ImageFile);
 
-                return Ok(result);
+                // Call service method and ensure it returns a valid JSON response
+                var result = await _creatorAppInterface.ApplyForCreator(creatorApp, ImageFile);
+                if (result == null)
+                {
+                    return Json(new { success = false, message = "Application submission failed. Please try again later." });
+                }
+
+                return Json(new { success = true, message = "Application submitted successfully!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
         }
 
 
-
-
         //[HttpPost]
-        //public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp)
+        //public async Task<IActionResult> ApplyForCreator(CreatorApplication creatorApp, IFormFile? ImageFile)
         //{
         //    try
         //    {
@@ -81,15 +90,16 @@ namespace Crowd_Funding_Platform.Controllers
         //        }
 
         //        creatorApp.UserId = user.UserId;
-        //        var result = await _creatorAppInterface.ApplyForCreator(creatorApp);
+        //        var result = await _creatorAppInterface.ApplyForCreator(creatorApp,ImageFile);
 
-        //        return Ok(result);
+        //        return Json(result); // ✅ THIS FIXES THE ISSUE
         //    }
         //    catch (Exception ex)
         //    {
         //        return Json(new { success = false, message = ex.Message });
         //    }
         //}
+
 
 
 

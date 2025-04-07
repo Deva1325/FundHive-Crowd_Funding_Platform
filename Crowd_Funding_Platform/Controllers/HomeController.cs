@@ -19,6 +19,11 @@ namespace Crowd_Funding_Platform.Controllers
         {
             return View();
         }
+        
+        public IActionResult Contact()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {

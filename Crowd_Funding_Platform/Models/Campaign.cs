@@ -37,5 +37,5 @@ public partial class Campaign
 
     public virtual ICollection<Contribution> Contributions { get; set; } = new List<Contribution>();
 
-    public virtual User Creator { get; set; } = null!; //Fetching user table as Creator   
+    public virtual User Creator { get; set; } = null!;
 }

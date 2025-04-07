@@ -11,5 +11,6 @@ public partial class Category
 
     public string? Description { get; set; }
 
+
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 }

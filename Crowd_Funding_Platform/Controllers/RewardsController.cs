@@ -67,7 +67,7 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteReward(int id)
         {
             var result = await _rewards.DeleteReward(id);
             return Json(new
@@ -75,6 +75,14 @@ namespace Crowd_Funding_Platform.Controllers
                 success = result,
                 message = result ? "Reward deleted successfully!" : "Failed to delete Reward."
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var reward = await _rewards.GetRewardById(id);
+            return View(reward);
+
         }
     }
 }
