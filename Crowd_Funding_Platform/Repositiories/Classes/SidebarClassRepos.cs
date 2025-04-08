@@ -15,11 +15,14 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
         }
 
 
-        public async Task<List<SidebarModel>> GetTabsByRoleIdAsync(int roleId)
+        public async Task<List<SidebarModel>> GetTabsByRoleIdAsync(int roleId, string isAdmin)
         {
+
+            bool isAdminBool = isAdmin == "true";
+
             var tabs = await (from t in _CFS.TblTabs
                               join p in _CFS.Permissions on t.TabId equals p.Tabid
-                              where p.Isadmin == true || p.Iscreatorapproved == true // Fetch only for admin or approved creator
+                              where (isAdminBool && p.Isadmin == true) || p.Iscreatorapproved == true // Fetch only for admin or approved creator
                               orderby t.SortOrder
                               select new SidebarModel
                               {

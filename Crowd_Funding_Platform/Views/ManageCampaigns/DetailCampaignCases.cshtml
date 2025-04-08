@@ -41,7 +41,10 @@
                 <div class="card shadow-lg p-3">
                     <h4 class="text-center fw-bold">Donate</h4>
                     <div class="text-center mt-3">
-                        <button class="btn btn-danger btn-lg w-100" data-bs-toggle="modal" data-bs-target="#donateModal">
+                        @* <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()" data-bs-toggle="modal" data-bs-target="#donateModal">
+                            Donate Now
+                        </button>  *@
+                        <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()">
                             Donate Now
                         </button>
                     </div>
@@ -100,10 +103,27 @@
     </div>
 </div>
 
-
+@{
+    var userId = Context.Session.GetInt32("UserId_ses");
+}
+<script>
+    const isLoggedIn = @(userId != null ? "true" : "false");
+</script>
 @section Scripts {
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
+
+        function handleDonateClick() {
+            if (!isLoggedIn) {
+                alert("Please login first to donate.");
+                window.location.href = "/Account/Login"; // Adjust path as needed
+            } else {
+                const donateModal = new bootstrap.Modal(document.getElementById('donateModal'));
+                donateModal.show();
+            }
+        }
+
+
         document.getElementById("donationForm").addEventListener("submit", function (e) {
             e.preventDefault();
 

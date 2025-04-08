@@ -4,7 +4,7 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
 {
     public interface ISidebarRepos
     {
-        Task<List<SidebarModel>> GetTabsByRoleIdAsync(int roleId);
+        Task<List<SidebarModel>> GetTabsByRoleIdAsync(int roleId, string isAdmin);
 
     }
 }

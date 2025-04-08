@@ -1,5 +1,6 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Helpers;
+using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Razorpay.Api;
@@ -20,9 +21,8 @@ namespace Crowd_Funding_Platform.Controllers
         private readonly IConfiguration _config;
         private readonly string _razorpayKey;
         private readonly string _razorpaySecret;
-        private readonly IEmailSender _emailSender;
-        
-        public ContributionsController(DbMain_CFS cFS, IConfiguration config,IEmailSender emailSender)
+        private readonly IEmailSenderRepos _emailSender;      
+        public ContributionsController(DbMain_CFS cFS, IConfiguration config, IEmailSenderRepos emailSender)
         {
             _context = cFS;
             _config = config;
@@ -123,6 +123,8 @@ namespace Crowd_Funding_Platform.Controllers
                 await _context.SaveChangesAsync();
 
                 // Update Contribution
+                contribution.PaymentId=data.razorpay_payment_id;
+                contribution.OrderId = data.razorpay_order_id;
                 contribution.PaymentStatus = "Success";
                 contribution.Status = "Confirmed";
                 _context.Contributions.Update(contribution);
@@ -138,16 +140,38 @@ namespace Crowd_Funding_Platform.Controllers
                 await _context.SaveChangesAsync();
 
                 // ✅ Step: Send Thank You Email with PDF Receipt
-
                 var user = await _context.Users.FindAsync(userId.Value);
                 var receiptPdf = PdfHelper.GenerateReceipt(user.Username, campaign.Title, data.amount, transactionId);
-                //EmailHelper.SendThankYouEmail(user.Email, user.Username, campaign.Title, data.amount, receiptPdf);
-                await _emailSender.SendEmailAsync(
-                user.Email,
-                user.Username,
-                "Thank You for Your Contribution!",
-                receiptPdf, // This is the HTML string of the PDF
-                "ThankYou");
+
+                // Convert PDF to Base64
+                string base64Pdf = PdfHelper.GenerateReceiptBase64(
+                    user.Username,
+                    campaign.Title,
+                    data.amount,
+                    contribution.TransactionId
+                );
+
+                string emailBodyWithPdf = $@"
+                <p>Dear {user.Username},</p>
+                <p>Thank you for your contribution!</p>
+                <p><strong                   <strong>Transaction ID:</strong> {contribution.TransactionId}</p>
+>Campaign:</strong> {campaign.Title}<br>
+                   <strong>Amount:</strong> ₹{data.amount}<br>
+                <p>We’ve also attached your official receipt (PDF) for your records.</p>
+                <!-- PDF-ATTACHMENT:{base64Pdf} -->";
+
+                //string emailBodyWithPdf = $@"
+                //<p>Dear {user.Username},</p>
+                //<p>Thank you for your contribution!</p>
+                //<p><strong>Campaign:</strong> {campaign.Title}<br>
+                //   <strong>Amount:</strong> ₹{data.amount}<br>
+                //   <strong>Transaction ID:</strong> {contribution.TransactionId}</p>
+                //<p>We’ve also attached your official receipt (PDF) for your records.</p>
+                //PDF:{base64Pdf}";
+                //<p>© 2025 FundHive. All rights reserved.</p>";
+
+
+               await _emailSender.SendEmailAsync(user.Email, user.Username, "Thank You for Your Contribution!", emailBodyWithPdf, "Contribution");
 
                 return Json(new { success = true, message = "Payment verified & receipt emailed!" });
             }

@@ -5,6 +5,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using static System.Net.WebRequestMethods;
+using System.Text.RegularExpressions;
 
 namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 {
@@ -128,7 +129,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
                                 <p>We have successfully received your contribution. Thank you for supporting this campaign and making an impact!</p>
                                 <p><span class='highlight'>Receipt Details:</span></p>
                                 {body}
-                                <p>We’ve also attached your official receipt (PDF) for your records.</p>
+                               
                             </div>
                             <div class='footer'>
                                 &copy; {DateTime.Now.Year} FundHive. All rights reserved.
@@ -141,14 +142,31 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
                 var builder = new BodyBuilder();
                 builder.HtmlBody = emailBody;
 
-                // Optional: attach PDF if it's a contribution email
-                if (emailType == "Contribution" && body.Contains("PDF:")) // basic check, you can improve it
+                //// Optional: attach PDF if it's a contribution email
+                if (emailType == "Contribution")
                 {
-                    string base64Pdf = body.Split("PDF:")[1].Trim();
-                    byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
+                    var match = Regex.Match(body, @"<!--\s*PDF-ATTACHMENT:(.+?)\s*-->", RegexOptions.Singleline);
+                    if (match.Success)
+                    {
+                        string base64Pdf = match.Groups[1].Value.Trim();
+                        byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
+                        builder.Attachments.Add("FundHive_Receipt.pdf", pdfBytes, new ContentType("application", "pdf"));
 
-                    builder.Attachments.Add("FundHive_Receipt.pdf", pdfBytes, new ContentType("application", "pdf"));
+                        // Optionally remove the placeholder from the email body
+                        body = Regex.Replace(body, @"<!--\s*PDF-ATTACHMENT:(.+?)\s*-->", "");
+                    }
                 }
+
+                //if (emailType == "Contribution")
+                //{
+                //    var base64Match = Regex.Match(body, @"PDF:(.+)$");
+                //    if (base64Match.Success)
+                //    {
+                //        string base64Pdf = base64Match.Groups[1].Value.Trim();
+                //        byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
+                //        builder.Attachments.Add("FundHive_Receipt.pdf", pdfBytes, new ContentType("application", "pdf"));
+                //    }
+                //}
 
                 message.Body = builder.ToMessageBody();
 

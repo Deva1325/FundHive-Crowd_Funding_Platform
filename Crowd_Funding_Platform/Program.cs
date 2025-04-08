@@ -7,6 +7,10 @@ using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+using Microsoft.AspNetCore.Authentication.Google;
+
 //using Crowd_Funding_Platform.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -20,6 +24,19 @@ builder.Services.AddSingleton<IEmailSenderRepos, EmailSenderRepos>(); // Email s
 //builder.Services.Configure<GoogleReCAPTCHA>(builder.Configuration.GetSection("GoogleReCAPTCHA"));
 
 builder.Services.AddHttpClient();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = "1029890984360-j36jn12qf57suputfthmpm9fvmsd0hhi.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+    options.CallbackPath = "/signin-google"; // or whatever you’ve set
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
