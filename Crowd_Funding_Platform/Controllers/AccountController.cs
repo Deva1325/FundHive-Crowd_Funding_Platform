@@ -1,10 +1,16 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+
+using Microsoft.AspNetCore.Authentication;
+
 //using Crowd_Funding_Platform.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -360,16 +366,151 @@ namespace Crowd_Funding_Platform.Controllers
 
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            string email = HttpContext.Session.GetString("LoginCred");
-            if (!string.IsNullOrEmpty(email))
-            {
-                var result = await _loginRepos.LogoutUser(email); // Optional logging
-            }
+            //string email = HttpContext.Session.GetString("LoginCred");
+            //if (!string.IsNullOrEmpty(email))
+            //{
+            //    var result = await _loginRepos.LogoutUser(email); // Optional logging
+            //}
             HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account");
         }
+
+        public IActionResult GoogleDetails(string email)
+        {
+            //bool emailExists = _context.TblUsers.Any(u => u.Email == email);
+            //if(emailExists)
+            //{
+
+            //}
+
+            var model = new GoogleSignupModel { Email = email };
+            return View(model);
+        }
+
+        [HttpGet("login-google")]
+        public IActionResult LoginWithGoogle()
+        {
+            var redirectUrl = Url.Action("GoogleCallback", "Account");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+
+        [HttpGet("Account/google-callback-view")]
+        public IActionResult GoogleCallback()
+        {
+            return View("GoogleCallback", new object()); // This is your Razor view with JS
+        }
+
+        [HttpGet("Account/google-callback")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded || result.Principal == null)
+            {
+                return Json(new { success = false, message = "Google authentication failed. Please try again." });
+            }
+
+            var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            var name = result.Principal.Identity.Name;
+
+            var user = await _dbMain.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user != null && user.IsGoogleAccount == false)
+            {
+                return Json(new { success = false, message = "This email is already registered manually. Use Email/Password to login." });
+            }
+
+            if (user != null && user.IsGoogleAccount == true)
+            {
+                //var info = await _db.TblAdminInfos.FirstOrDefaultAsync(u => u.AdminId == user.UserId);
+                //TblShop shopData = new TblShop();
+
+                //if (user.RoleId <= 2)
+                //    shopData = _db.TblShops.FirstOrDefault(x => x.AdminId == user.UserId);
+                //else
+                //    shopData = _db.TblShops.FirstOrDefault(x => x.AdminId == user.AdminRef);
+
+                //if (shopData != null)
+                //    HttpContext.Session.SetInt32("ShopId", shopData.ShopId);
+
+                HttpContext.Session.SetInt32("UserId", user.UserId);
+                //HttpContext.Session.SetInt32("UserRoleId", user.Role);
+                HttpContext.Session.SetString("UserEmail", email);
+
+
+                // Check conditions and return messages accordingly
+                //if (user.RoleId == 2)
+                //{
+                //    if (!await _users.hasShopDetails(user.UserId))
+                //        return Json(new { success = false, message = "Shop details are missing. Please complete you shop details.", redirect = Url.Action("ShopDetails", "Auth") });
+
+                //    if (!await _users.hasAdminDoc(user.UserId))
+                //        return Json(new { success = false, message = "Documents are not uploaded yet.", redirect = Url.Action("AdminDoc", "Auth") });
+                //}
+
+                //if (info != null)
+                //{
+                //    if (user.VerificationStatus == "Rejected")
+                //        return Json(new { success = false, message = "Your account is rejected. Contact support." });
+
+                //    if (user.VerificationStatus == "Pending")
+                //        return Json(new { success = false, message = "Your account is pending verification." });
+                //}
+
+                return Json(new { success = true, message = "Login successful!", redirect = Url.Action("", "Dashboard") });
+            }
+
+            // New Google user
+            return Json(new
+            {
+                success = true,
+                message = "Google account not found. Please complete your details.",
+                redirect = Url.Action("GoogleDetails", "Account", new { email })
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GoogleDetails(GoogleSignupModel model)
+        {
+            // Check if username already exists
+            bool usernameExists = _dbMain.Users.Any(u => u.Username == model.Username);
+            if (usernameExists)
+            {
+                return Json(new { success = false, message = "Username Already Exists" });
+            }
+
+            // Create temp password
+            string tempPassword = Guid.NewGuid().ToString();
+
+            // Create user
+            var user = new User
+            {
+                Email = model.Email,
+                Username = model.Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword),
+                IsGoogleAccount = true,
+                EmailVerified = true,
+                DateCreated = DateTime.UtcNow
+                //VerificationStatus = "Pending"
+            };
+
+            HttpContext.Session.SetString("UserEmail", model.Email);
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            //HttpContext.Session.SetInt32("UserRoleId", user.Role);
+
+
+            _dbMain.Users.Add(user);
+            await _dbMain.SaveChangesAsync();
+            TempData["google-toast"] = "Account Created Successfully using Google!";
+            TempData["google-toastType"] = "success";
+
+            return Json(new { success = true, message = "Account Created Successfully" });
+        }
+
+
     }
 }

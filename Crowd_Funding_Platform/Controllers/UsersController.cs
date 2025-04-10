@@ -34,8 +34,6 @@ namespace Crowd_Funding_Platform.Controllers
             return View();
         }
 
-
-
         [HttpGet, ActionName("DeleteCreator")]
         public async Task<IActionResult> Delete(int id)
         {

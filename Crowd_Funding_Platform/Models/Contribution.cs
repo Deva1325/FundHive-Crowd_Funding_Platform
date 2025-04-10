@@ -9,7 +9,7 @@ public partial class Contribution
 
     public int CampaignId { get; set; }
 
-    public int ContributorId { get; set; }//User ID
+    public int ContributorId { get; set; }
 
     public decimal Amount { get; set; }
 

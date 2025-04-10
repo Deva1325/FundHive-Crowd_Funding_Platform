@@ -18,6 +18,7 @@ public partial class PaymentDetail
 
     public string? OrderId { get; set; }
 
+
     [NotMapped]
     public string? Signature { get; set; } // ✅ Add this property
     public string? RazorpayPaymentId { get; set; }

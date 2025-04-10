@@ -65,108 +65,206 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             }
         }
 
-        /// <summary>
-        /// Saves a campaign after verifying user eligibility.
-        /// </summary>
-        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ImageFile)
+
+        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ThumbnailImage, List<IFormFile>? GalleryImages)
         {
             var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
-            {
                 return (false, "User not found.");
-            }
 
             if (!(user.IsCreatorApproved ?? false))
             {
                 var creatorApplication = await _CFS.CreatorApplications.FirstOrDefaultAsync(ca => ca.UserId == userId);
                 if (creatorApplication == null)
-                {
                     return (false, "Please fill out the document form to request campaign creation.");
-                }
+
                 if (creatorApplication.Status == "Pending")
-                {
                     return (false, "Your request is pending. Please wait for admin approval.");
-                }
             }
 
-            string newFilePath = null; // Store new image path if uploaded
-            if (ImageFile != null && ImageFile.Length > 0)
+            string thumbnailPath = null;
+
+            // 🖼️ Save Thumbnail
+            if (ThumbnailImage != null && ThumbnailImage.Length > 0)
             {
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                string uniqueFileName = Guid.NewGuid() + Path.GetExtension(ThumbnailImage.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await ImageFile.CopyToAsync(fileStream);
+                    await ThumbnailImage.CopyToAsync(stream);
                 }
-                newFilePath = "/Campaign_Media/" + uniqueFileName;
+                thumbnailPath = "/Campaign_Media/" + uniqueFileName;
             }
 
             if (campaign.CampaignId == 0)
             {
                 campaign.CreatorId = userId;
-                campaign.MediaUrl = newFilePath;
-                DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-                if (campaign.StartDate > today)
-                {
-                    campaign.Status = "Upcoming";
-                }
-                else if (campaign.StartDate <= today && campaign.EndDate >= today)
-                {
-                    campaign.Status = "Ongoing";
-                }
-                else if (campaign.EndDate < today)
-                {
-                    campaign.Status = "Completed";
-                }
+                campaign.MediaUrl = thumbnailPath;
                 _CFS.Campaigns.Add(campaign);
             }
             else
             {
                 var existingCampaign = await _CFS.Campaigns.FindAsync(campaign.CampaignId);
                 if (existingCampaign == null)
-                {
                     return (false, "Campaign not found.");
-                }
 
-                //// Validate date only if changed
-                //if (campaign.StartDate != existingCampaign.StartDate || campaign.EndDate != existingCampaign.EndDate)
-                //{
-                //    if (campaign.EndDate < campaign.StartDate)
-                //    {
-                //        return (false, "End date cannot be before start date.");
-                //    }
-                //}
-
-                if (!string.IsNullOrEmpty(newFilePath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
+                if (!string.IsNullOrEmpty(thumbnailPath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
                 {
                     string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingCampaign.MediaUrl.TrimStart('/'));
                     if (System.IO.File.Exists(oldFilePath))
-                    {
                         System.IO.File.Delete(oldFilePath);
-                    }
                 }
+
                 existingCampaign.Title = campaign.Title;
                 existingCampaign.Description = campaign.Description;
                 existingCampaign.Requirement = campaign.Requirement;
                 existingCampaign.StartDate = campaign.StartDate;
                 existingCampaign.EndDate = campaign.EndDate;
                 existingCampaign.CategoryId = campaign.CategoryId;
-                existingCampaign.MediaUrl = newFilePath ?? existingCampaign.MediaUrl;
+                existingCampaign.MediaUrl = thumbnailPath ?? existingCampaign.MediaUrl;
             }
+
             await _CFS.SaveChangesAsync();
+
+            // ✅ Save Gallery Images
+            if (GalleryImages != null && GalleryImages.Count > 0)
+            {
+                foreach (var image in GalleryImages)
+                {
+                    if (image.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
+                        string uniqueFileName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+
+                        _CFS.CampaignImages.Add(new CampaignImage
+                        {
+                            CampaignId = campaign.CampaignId,
+                            ImageUrl = "/Campaign_Media/" + uniqueFileName
+                        });
+                    }
+                }
+
+                await _CFS.SaveChangesAsync();
+            }
+
             return (true, "Campaign saved successfully.");
         }
+
+
+
+        //Old Code
+
+        /// <summary>
+        /// Saves a campaign after verifying user eligibility.
+        /// </summary>
+        //public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ImageFile)
+        //{
+        //    var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        //    if (user == null)
+        //    {
+        //        return (false, "User not found.");
+        //    }
+
+        //    if (!(user.IsCreatorApproved ?? false))
+        //    {
+        //        var creatorApplication = await _CFS.CreatorApplications.FirstOrDefaultAsync(ca => ca.UserId == userId);
+        //        if (creatorApplication == null)
+        //        {
+        //            return (false, "Please fill out the document form to request campaign creation.");
+        //        }
+        //        if (creatorApplication.Status == "Pending")
+        //        {
+        //            return (false, "Your request is pending. Please wait for admin approval.");
+        //        }
+        //    }
+
+        //    string newFilePath = null; // Store new image path if uploaded
+        //    if (ImageFile != null && ImageFile.Length > 0)
+        //    {
+        //        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
+        //        if (!Directory.Exists(uploadsFolder))
+        //        {
+        //            Directory.CreateDirectory(uploadsFolder);
+        //        }
+        //        string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+        //        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await ImageFile.CopyToAsync(fileStream);
+        //        }
+        //        newFilePath = "/Campaign_Media/" + uniqueFileName;
+        //    }
+
+        //    if (campaign.CampaignId == 0)
+        //    {
+        //        campaign.CreatorId = userId;
+        //        campaign.MediaUrl = newFilePath;
+        //        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+        //        if (campaign.StartDate > today)
+        //        {
+        //            campaign.Status = "Upcoming";
+        //        }
+        //        else if (campaign.StartDate <= today && campaign.EndDate >= today)
+        //        {
+        //            campaign.Status = "Ongoing";
+        //        }
+        //        else if (campaign.EndDate < today)
+        //        {
+        //            campaign.Status = "Completed";
+        //        }
+        //        _CFS.Campaigns.Add(campaign);
+        //    }
+        //    else
+        //    {
+        //        var existingCampaign = await _CFS.Campaigns.FindAsync(campaign.CampaignId);
+        //        if (existingCampaign == null)
+        //        {
+        //            return (false, "Campaign not found.");
+        //        }
+
+        //        //// Validate date only if changed
+        //        //if (campaign.StartDate != existingCampaign.StartDate || campaign.EndDate != existingCampaign.EndDate)
+        //        //{
+        //        //    if (campaign.EndDate < campaign.StartDate)
+        //        //    {
+        //        //        return (false, "End date cannot be before start date.");
+        //        //    }
+        //        //}
+
+        //        if (!string.IsNullOrEmpty(newFilePath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
+        //        {
+        //            string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingCampaign.MediaUrl.TrimStart('/'));
+        //            if (System.IO.File.Exists(oldFilePath))
+        //            {
+        //                System.IO.File.Delete(oldFilePath);
+        //            }
+        //        }
+        //        existingCampaign.Title = campaign.Title;
+        //        existingCampaign.Description = campaign.Description;
+        //        existingCampaign.Requirement = campaign.Requirement;
+        //        existingCampaign.StartDate = campaign.StartDate;
+        //        existingCampaign.EndDate = campaign.EndDate;
+        //        existingCampaign.CategoryId = campaign.CategoryId;
+        //        existingCampaign.MediaUrl = newFilePath ?? existingCampaign.MediaUrl;
+        //    }
+        //    await _CFS.SaveChangesAsync();
+        //    return (true, "Campaign saved successfully.");
+        //}
 
 
         public async Task<Campaign?> GetCampaignById(int id)
         {
             return await _CFS.Campaigns.FirstOrDefaultAsync(c => c.CampaignId == id);
         }
+
 
         public async Task<bool> DeleteCampaign(int id)
         {
@@ -272,5 +370,78 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         }
 
 
+
+
+        public async Task<List<Campaign>> GetCampaignsByCreator(int creatorId)
+        {
+            return await _CFS.Campaigns
+                .Where(c => c.CreatorId == creatorId)
+                .OrderByDescending(c => c.StartDate)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetTotalContributors(int campaignId)
+        {
+            return await _CFS.Contributions
+                                 .Where(c => c.CampaignId == campaignId && c.Status == "Confirmed") // optional: status filter
+                                 .Select(c => c.ContributorId)
+                                 .Distinct()
+                                 .CountAsync();
+        }
+
+        //Get All contributors according to particular campaign
+        //public async Task<List<Contribution>> GetContributorsByCampaignId(int campaignId)
+        //{   
+        //    return await _CFS.Contributions
+        //        .Where(c => c.CampaignId == campaignId)
+        //        .OrderByDescending(c => c.Date)
+        //        .ToListAsync();
+        //}
+
+        public async Task<List<Contribution>> GetContributorsByCampaignId(int campaignId)
+        {
+            var contributors = await (
+                from c in _CFS.Contributions
+                join u in _CFS.Users on c.ContributorId equals u.UserId
+                join camp in _CFS.Campaigns on c.CampaignId equals camp.CampaignId
+                where c.CampaignId == campaignId
+                orderby c.Date descending
+                select new Contribution
+                {
+                    ContributionId = c.ContributionId,
+                    CampaignId = c.CampaignId,
+                    ContributorId = c.ContributorId,
+                    Amount = c.Amount,
+                    Date = c.Date,
+                    TransactionId = c.TransactionId,
+                    PaymentStatus = c.PaymentStatus,
+                    Status = c.Status,
+                    OrderId = c.OrderId,
+                    PaymentId = c.PaymentId,
+
+                    // Injecting contributor (User) data
+                    Contributor = new User
+                    {
+                        UserId = u.UserId,
+                        Username = u.Username,
+                        Email = u.Email,
+                        PhoneNumber = u.PhoneNumber,
+                        ProfilePicture = u.ProfilePicture
+                    },
+
+                    // Optional: Include campaign data if needed
+                    Campaign = new Campaign
+                    {
+                        CampaignId = camp.CampaignId,
+                        Title = camp.Title,
+                        MediaUrl = camp.MediaUrl,
+                        Requirement = camp.Requirement,
+                        RaisedAmount = camp.RaisedAmount
+                    }
+                }).ToListAsync();
+
+            return contributors;
+        }
+ 
     }
 }

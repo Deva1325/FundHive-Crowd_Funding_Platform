@@ -83,6 +83,12 @@
 
             const formData = new FormData(form);
 
+            // ✅ Handle multiple files manually
+            const galleryFiles = $('#GalleryImages')[0].files;
+            for (let i = 0; i < galleryFiles.length; i++) {
+                formData.append('GalleryImages', galleryFiles[i]); // 'GalleryImages' must match your action method parameter
+            }
+
             $.ajax({
                 url: '/ManageCampaigns/SaveCampaigns',   // Ensure correct controller route
                 type: 'POST',
@@ -90,6 +96,7 @@
                 processData: false,
                 contentType: false,
                 success: function (result) {
+
                     if (result.success) {
                         toastr.success(result.message);
 

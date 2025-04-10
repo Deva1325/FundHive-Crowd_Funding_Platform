@@ -24,8 +24,5 @@ public partial class CreatorApplication
 
     [NotMapped]
     public IFormFile? ImageFile { get; set; }
-
-    [NotMapped]
     public virtual User? User { get; set; }
 }
-

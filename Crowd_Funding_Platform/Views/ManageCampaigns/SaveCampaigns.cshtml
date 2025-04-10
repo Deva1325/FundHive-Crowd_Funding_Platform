@@ -1,9 +1,12 @@
 ﻿@model Crowd_Funding_Platform.Models.Campaign
 @{
     ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
+
     // bool isEditMode = Model.CampaignId > 0;  // Check if it's edit mode
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -76,19 +79,32 @@
                         <span class="text-danger" id="imageError"></span>
                     </div> *@
 
-                    <div class="form-group">
+
+                    <div class="mb-3">
+                        <label for="ThumbnailImage" class="form-label">Thumbnail Image</label>
+                        <input type="file" class="form-control" name="ThumbnailImage" id="ThumbnailImage" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="GalleryImages" class="form-label">Upload Gallery Images</label>
+                        <input type="file" asp-for="CampaignImages" name="GalleryImages" id="GalleryImages" class="form-control" multiple />
+
+                       @*  <input type="file" class="form-control" name="GalleryImages" id="GalleryImages" multiple /> *@
+                    </div>
+
+                   @*  <div class="form-group">
                         <label for="Image">Campaign Image</label>
                         <input type="file" id="MediaFile" name="ImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
 
                         @if (!string.IsNullOrEmpty(Model?.MediaUrl))
                         {
-                            <img id="existingImage" src="@Model.ImageFile" alt="Campaign Image" class="mt-2" style="max-width: 200px; display: block;" />
+                            <img id="existingImage" src="@Model.MediaUrl" alt="Campaign Image" class="mt-2" style="max-width: 200px; display: block;" />
                         }
                         else
                         {
-                            <img id="existingImage" src="#" alt="Preview Image" class="mt-2" style="max-width: 200px; display: none;" />
+                            <img id="existingImage" src="@Model.MediaUrl" alt="Preview Image" class="mt-2" style="max-width: 200px; display: none;" />
                         }
-                    </div>
+                    </div> *@
 
                     <div class="form-group mb-3">
                         <label asp-for="Description" class="form-label fw-bold">Description</label>
@@ -114,9 +130,30 @@
     <!-- ✅ Toastr and jQuery Validation Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Toastr CSS -->
 
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="~/js/SaveCampaignForm.js"></script>
+
+    <script>
+        function previewImage(event) {
+            var input = event.target;
+            var preview = document.getElementById('existingImage');
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
 }
 
 

@@ -6,7 +6,8 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign
     {
         Task<List<CreatorApplication>> GetPendingCampaigns(); // Add this method
                                                               //Task<object> SaveCampaigns(Campaign campaign);
-        Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId,IFormFile? ImageFile); // Modified to include userId
+        //Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId,IFormFile? ImageFile); // Modified to include userId
+        Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ThumbnailImage, List<IFormFile>? GalleryImages); // Modified to include userId
 
         Task<List<Campaign>> GetAllCampaigns();
 
@@ -21,5 +22,13 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign
 
         List<Campaign> ShowCampaignCases(); //Get All Campaign 
         Campaign DetailCampaignCases(int campaignId); //BY ID
+
+        Task<List<Campaign>> GetCampaignsByCreator(int creatorId);
+
+        Task<int> GetTotalContributors(int campaignId);
+        Task<List<Contribution>> GetContributorsByCampaignId(int campaignId);
+
+
+
     }
 }

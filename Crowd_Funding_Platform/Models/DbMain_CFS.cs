@@ -21,6 +21,8 @@ public partial class DbMain_CFS : DbContext
 
     public virtual DbSet<CampaignAnalytic> CampaignAnalytics { get; set; }
 
+    public virtual DbSet<CampaignImage> CampaignImages { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Contribution> Contributions { get; set; }
@@ -98,6 +100,23 @@ public partial class DbMain_CFS : DbContext
                 .HasForeignKey(d => d.CampaignId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CampaignA__Campa__5EBF139D");
+        });
+
+        modelBuilder.Entity<CampaignImage>(entity =>
+        {
+            entity.HasKey(e => e.ImageId).HasName("PK__Campaign__7516F70CA6A3D3DE");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.IsThumbnail).HasDefaultValue(false);
+            entity.Property(e => e.SortOrder).HasDefaultValue(0);
+            entity.Property(e => e.UploadedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignImages)
+                .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CampaignI__Campa__19DFD96B");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -258,6 +277,7 @@ public partial class DbMain_CFS : DbContext
             entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.IsAdmin).HasDefaultValue(false);
             entity.Property(e => e.IsCreatorApproved).HasDefaultValue(false);
+            entity.Property(e => e.IsGoogleAccount).HasDefaultValue(false);
             entity.Property(e => e.LastName).HasMaxLength(100);
             entity.Property(e => e.Otp)
                 .HasMaxLength(6)

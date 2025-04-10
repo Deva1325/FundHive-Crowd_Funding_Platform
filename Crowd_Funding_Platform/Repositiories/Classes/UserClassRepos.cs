@@ -13,12 +13,35 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             _CFS = CFS;            
         }
 
-       
+        //public async Task<List<Contribution>> GetAllContributorsAsync()
+        //{
+        //    var contributor = await (
+        //                 from co in _CFS.Contributions
+        //                 join u in _CFS.Users on co.ContributorId equals u.UserId
+        //                 select new Contribution
+        //                 {
+        //                     ContributionId=co.ContributionId,
 
-        public Task<List<Contribution>> GetAllContributorsAsync()
-        {
-            throw new NotImplementedException();
-        }
+
+
+        //                     ApplicationId = ca.ApplicationId,
+        //                     Status = ca.Status,
+        //                     SubmissionDate = ca.SubmissionDate,
+        //                     AdminRemarks = ca.AdminRemarks,
+        //                     DocumentType = ca.DocumentType,
+        //                     DocumentPath = ca.DocumentPath,
+        //                     User = new User
+        //                     {
+        //                         UserId = u.UserId,
+        //                         ProfilePicture = u.ProfilePicture,
+        //                         Username = u.Username,
+        //                         Email = u.Email,
+        //                         PhoneNumber = u.PhoneNumber
+        //                     }
+        //                 }).ToListAsync();
+
+        //    return creators;
+        //}
 
         public async Task<List<CreatorApplication>> GetAllCreatorsAsync()
         {

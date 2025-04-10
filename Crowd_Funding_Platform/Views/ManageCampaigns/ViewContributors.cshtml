@@ -1,0 +1,153 @@
+﻿@model List<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "View Contributors";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-3">Contributors for: <span class="text-dark">@ViewBag.CampaignTitle</span></h2>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive shadow p-4 bg-white rounded border">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Contributor</th>
+                        <th>Email</th>
+                        <th>Transaction ID</th>
+                        <th>Amount (₹)</th>
+                        <th>Contributed On</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="align-middle text-center">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(item.Contributor.ProfilePicture))
+                                    {
+                                        <img src="@item.Contributor.ProfilePicture" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                            <span>@item.Contributor.Username?[0]</span>
+                                        </div>
+                                    }
+                                    <span class="fw-semibold">@item.Contributor.Username</span>
+                                </div>
+                            </td>
+                            <td>@item.Contributor.Email</td>
+                            <td>@item.TransactionId</td>
+                            <td><strong>₹@item.Amount</strong></td>
+                            <td>@item.Date?.ToString("dd MMM yyyy hh:mm tt")</td>
+                            <td>
+                                <span class="badge rounded-pill @(item.Status == "Confirmed" ? "bg-success" : "bg-warning text-dark")">
+                                    @item.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info shadow-sm">
+            No contributors found for this campaign.
+        </div>
+    }
+</div>
+
+
+@* @model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "ViewContributors";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<h1>ViewContributors</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransactionId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Campaign)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contributor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            hi
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Campaign.CampaignId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Contributor.UserId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ContributionId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ContributionId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ContributionId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+ *@

@@ -16,6 +16,21 @@ namespace Crowd_Funding_Platform.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+            int? userid = HttpContext.Session.GetInt32("UserId_ses");
+
+            //if (userid>0)
+            //{
+            //    context.Result = new RedirectToActionResult("Login", "Account", null);
+            //    return;
+            //}
+
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("LoginCred")) && (userid == 0 || userid == null))
+            {
+                context.Result = new RedirectToActionResult("Login", "Account",null);
+                return;
+                // return RedirectToAction("Login", "Account");
+            }
+
             //int roleId = HttpContext.Session.GetInt32("UserRoleId") ?? 0;
             string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
             int roleId = 4;
