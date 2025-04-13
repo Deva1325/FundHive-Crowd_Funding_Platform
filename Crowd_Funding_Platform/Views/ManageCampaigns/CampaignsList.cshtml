@@ -1,4 +1,6 @@
-﻿@model IEnumerable<Crowd_Funding_Platform.Models.Campaign>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.Campaign>
 
 @{
     ViewData["Title"] = "CampaignsList";
@@ -23,89 +25,186 @@
 </style>
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-primary">Campaigns List</h2>
-        <a asp-action="SaveCampaigns" class="btn btn-success"><i class="fas fa-plus-circle"></i> Create New</a>
-    </div>
+     @if (Model != null && Model.Any())
+    {  
+    <div id="campaignContainer">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-primary">Campaigns List</h2>
+            <a asp-action="SaveCampaigns" class="btn btn-success"><i class="fas fa-plus-circle"></i> Create New</a>
+        </div>
+       
+        <div class="col-md-3">
+            <input type="text" name="searchTerm" class="form-control" id="searchTerm" placeholder="Search by title..." />
+        </div> 
+        <div class="col-md-6">
+            <select id="categoryInput" name="categoryFilter" class="form-select rounded-pill shadow-sm">
+                <option value="">🎯 All Categories</option>
+                    @foreach (var cat in ViewBag.Categories as List<SelectListItem>)
+                    {
+                        var selected = Context.Request.Query["category"] == cat ? "selected" : "";
+                        <option value="@cat.Value" selected="@(ViewBag.SelectedCategory == cat.Value ? "selected" : null)">
+                            @cat.Text
+                        </option>
+                    }
+            </select>
+        </div>
+       
+        <div class="col-md-2">
+        <input type="date" name="startDate" class="form-control" id="startDate" placeholder="From Date" />
+        </div>
 
-    <div class="table-responsive rounded shadow-sm bg-white p-3">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Requirement Amount</th>
-                    <th>Raised Amount</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Total Contributors</th>
-                    <th>Status</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <div class="col-md-2">
+        <input type="date" name="endDate" class="form-control" id="endDate" placeholder="To Date" />
+        </div>
+
+        <div class="table-responsive rounded shadow-sm bg-white p-3" id="campaignTable">
+            <table class="table table-hover">
+                <thead class="thead-dark">
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                        @* <td>@Html.DisplayFor(modelItem => item.Description)</td> *@
-                        <td>@Html.DisplayFor(modelItem => item.Requirement)</td>
-                        <td>@Html.DisplayFor(modelItem => item.RaisedAmount)</td>
-                        <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
-                        <td>@Html.DisplayFor(modelItem => item.TotalContributors)</td>                     
-                        @* <td>
-                            <img src="@Url.Content(item.MediaUrl)" alt="Campaign Image" class="img-thumbnail" style="max-width: 80px; height: auto;">
-                        </td> *@
-
-                        <td>
-                            @{
-                                string badgeClass = item.Status switch
-                                {
-                                    "Upcoming" => "badge badge-pink",
-                                    "Ongoing" => "badge badge-yellow",
-                                    "Completed" => "badge badge-green",
-                                    _ => "badge badge-secondary"
-                                };
-                            }
-                            <span class="@badgeClass">@item.Status</span>
-                        </td>
-
-                        @* <td>
-                            <span class="badge @(item.Status == "Active" ? "badge-success" : "badge-danger")">
-                                @Html.DisplayFor(modelItem => item.Status)
-                            </span>
-                        </td> *@
-                       @*  <td>@Html.DisplayFor(modelItem => item.Category.CategoryId)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Creator.UserId)</td> *@
-                        <td class="text-center">
-                            @* <a asp-action="SaveCampaigns" asp-route-id="@item.CampaignId" class="btn btn-primary btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a> *@
-
-                        @* <td> *@
-                                @if (item.Status == "Upcoming")
-                                {
-                                <a href="@Url.Action("SaveCampaigns", new { id = item.CampaignId })" class="btn btn-primary btn-sm">Edit</a>
-                                }
-                                else
-                                {
-                                <button class="btn btn-secondary btn-sm" disabled>Edit</button>
-                                }
-                        @* </td> *@
-                            <a asp-action="Details" asp-route-id="@item.CampaignId" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i> Details
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.CampaignId" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this campaign?');">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </a>
-                            <a asp-action="ViewContributors" asp-route-campaignId="@item.CampaignId" class="btn btn-warning btn-sm">
-                                <i class="fas fa-users"></i> View Contributors
-                            </a>
-                        </td>
+                        <th>Title</th>
+                        <th>Requirement Amount</th>
+                        <th>Raised Amount</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Total Contributors</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            @* <td>@Html.DisplayFor(modelItem => item.Description)</td> *@
+                            <td>@Html.DisplayFor(modelItem => item.Requirement)</td>
+                            <td>@Html.DisplayFor(modelItem => item.RaisedAmount)</td>
+                            <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
+                            <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
+                            <td>@Html.DisplayFor(modelItem => item.TotalContributors)</td>                     
+                            @* <td>
+                                <img src="@Url.Content(item.MediaUrl)" alt="Campaign Image" class="img-thumbnail" style="max-width: 80px; height: auto;">
+                            </td> *@
+
+                            <td>
+                                @{
+                                    string badgeClass = item.Status switch
+                                    {
+                                        "Upcoming" => "badge badge-pink",
+                                        "Ongoing" => "badge badge-yellow",
+                                        "Completed" => "badge badge-green",
+                                        _ => "badge badge-secondary"
+                                    };
+                                }
+                                <span class="@badgeClass">@item.Status</span>
+                            </td>                          
+                            <td class="text-center">
+                               
+                                    @if (item.Status == "Upcoming")
+                                    {
+                                    <a href="@Url.Action("SaveCampaigns", new { id = item.CampaignId })" class="btn btn-primary btn-sm">Edit</a>
+                                    }
+                                    else
+                                    {
+                                    <button class="btn btn-secondary btn-sm" disabled>Edit</button>
+                                    }
+                           
+                                <a asp-action="Details" asp-route-id="@item.CampaignId" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Details
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.CampaignId" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this campaign?');">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                                <a asp-action="ViewContributors" asp-route-campaignId="@item.CampaignId" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-users"></i> View Contributors
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-center mt-4">
+                    @Html.PagedListPager(Model, page => Url.Action("CampaignsList", new
+                {
+                    page,
+                    searchTerm = ViewBag.SearchTerm,
+                    categoryFilter = ViewBag.SelectedCategory,
+                    startDate=ViewBag.StartDate,
+                    endDate = ViewBag.EndDate
+                }), new PagedListRenderOptions
+                   {
+                       DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                       DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                       DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                       DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                       DisplayLinkToIndividualPages = true,
+                       DisplayPageCountAndCurrentLocation = false,
+                       MaximumPageNumbersToDisplay = 5,
+                       LiElementClasses = new[] { "page-item" },
+                       PageClasses = new[] { "page-link" }
+                   })
+            </div>
+
+        </div>
+
     </div>
+
+    }
+    else
+    {
+        <div class="alert alert-info shadow-sm">
+            No contributors found for this campaign.
+        </div>
+    }
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            function debounce(func, delay) {
+                let timer;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            function loadCampaigns(url) {
+                $.get(url, function (data) {
+                    const newContent = $(data).find("#campaignTable").html();
+                    $("#campaignTable").html(newContent);
+                });
+            }
+
+            function fetchFilteredResults() {
+                const search = $("#searchTerm").val();
+                const category = $("#categoryInput").val();
+                const start = $("#startDate").val();
+                const end = $("#endDate").val();
+
+                const url = `/ManageCampaigns/CampaignsList?searchTerm=${encodeURIComponent(search)}&categoryFilter=${encodeURIComponent(category)}&startDate=${start}&endDate=${end}`;
+                loadCampaigns(url);
+            }
+
+            $("#searchTerm").on("input", debounce(fetchFilteredResults, 500));
+            $("#categoryInput, #startDate, #endDate").on("change", fetchFilteredResults);
+
+            $(document).on("click", ".pagination a", function (e) {
+                e.preventDefault();
+                const url = $(this).attr("href");
+                loadCampaigns(url);
+            });
+        });
+    </script>
+}
+
+}
+   

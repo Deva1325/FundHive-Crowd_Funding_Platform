@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
+using X.PagedList.Extensions;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -244,13 +245,16 @@ namespace Crowd_Funding_Platform.Controllers
         //}
 
 
-        [HttpGet]
-        public async Task<IActionResult> CampaignsList()
+        [HttpGet, ActionName("CampaignsList")]
+        public async Task<IActionResult> CampaignsList(string searchTerm, string categoryFilter, DateOnly? startDate, DateOnly? endDate, int? page)
         {
             try
             {
                 int? userId = HttpContext.Session.GetInt32("UserId_ses");
                 string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+                if (userId == null && isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
 
                 List<Campaign> campaigns;
 
@@ -273,9 +277,72 @@ namespace Crowd_Funding_Platform.Controllers
 
                     // Add total contributors
                     campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId);
+                    //campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId) ?? 0;
+
                 }
 
-                return View(campaigns);
+                // Filter: Search by title
+                //if (!string.IsNullOrEmpty(searchTerm))
+                //{
+                //    campaigns = campaigns.Where(c => c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                //}
+
+
+                // Search filter
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    campaigns = campaigns
+                        .Where(c => c.Title != null &&
+                                    c.Title.ToLower().Contains(searchTerm.ToLower()))
+                        .ToList();
+                }
+
+
+                // Filter: Date Range
+                if (startDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.StartDate >= startDate.Value).ToList();
+                }
+
+                if (endDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.EndDate <= endDate.Value).ToList();
+                }
+
+                // Fetch all categories with ID and Name (for dropdown)
+                var allCategories = await _CFS.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CategoryId.ToString(),
+                        Text = c.Name
+                    })
+                    .ToListAsync();
+
+                ViewBag.Categories = allCategories;
+
+                // Category filter using ID (match with stored CategoryId in Campaign)
+                if (!string.IsNullOrEmpty(categoryFilter) && int.TryParse(categoryFilter, out int categoryId))
+                {
+                    campaigns = campaigns
+                        .Where(c => c.CategoryId == categoryId)
+                        .ToList();
+                }
+
+                // Pass selected category back to view
+                ViewBag.SelectedCategoryId = categoryFilter;
+
+                // Pagination
+                int pageSize = 5;
+                int pageNumber = page ?? 1;
+                var pagedCampaigns = campaigns.ToPagedList(pageNumber, pageSize);
+
+                ViewBag.SearchTerm = searchTerm;
+                ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+                ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+                return View(pagedCampaigns);
+
+                //return View(campaigns);
             }
             catch (Exception ex)
             {
@@ -283,13 +350,11 @@ namespace Crowd_Funding_Platform.Controllers
             }
         }
 
-
         //[HttpGet]
-        //public async Task<IActionResult> CampaignsList()
+        //public async Task<IActionResult> CampaignsList(string searchTerm, string statusFilter, string categoryFilter, DateOnly? startDate, DateOnly? endDate, int? page)
         //{
         //    try
         //    {
-        //        // var campaigns = await _campaign.GetAllCampaigns();
         //        int? userId = HttpContext.Session.GetInt32("UserId_ses");
         //        string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
 
@@ -300,13 +365,84 @@ namespace Crowd_Funding_Platform.Controllers
         //        else
         //            campaigns = await _campaign.GetCampaignsByCreator(userId.Value);
 
-        //        // Add total contributors for each campaign
+        //        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
         //        foreach (var campaign in campaigns)
         //        {
+        //            // Set status based on StartDate and EndDate
+        //            if (campaign.StartDate > today)
+        //                campaign.Status = "Upcoming";
+        //            else if (campaign.StartDate <= today && campaign.EndDate >= today)
+        //                campaign.Status = "Ongoing";
+        //            else if (campaign.EndDate < today)
+        //                campaign.Status = "Completed";
+
+        //            // Add total contributors
         //            campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId);
+        //            //campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId) ?? 0;
+
         //        }
 
-        //        return View(campaigns);
+        //        // Filter: Search by title
+        //        if (!string.IsNullOrEmpty(searchTerm))
+        //        {
+        //            campaigns = campaigns.Where(c => c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        //        }
+
+        //        // Filter: Status
+        //        if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
+        //        {
+        //            campaigns = campaigns.Where(c => c.Status.Equals(statusFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+        //        }
+
+        //        // Filter: Date Range
+        //        if (startDate.HasValue)
+        //        {
+        //            campaigns = campaigns.Where(c => c.StartDate >= startDate.Value).ToList();
+        //        }
+
+        //        if (endDate.HasValue)
+        //        {
+        //            campaigns = campaigns.Where(c => c.EndDate <= endDate.Value).ToList();
+        //        }
+
+        //        // Fetch all categories with ID and Name (for dropdown)
+        //        var allCategories = await _CFS.Categories
+        //            .Select(c => new SelectListItem
+        //            {
+        //                Value = c.CategoryId.ToString(),
+        //                Text = c.Name
+        //            })
+        //            .ToListAsync();
+
+        //        ViewBag.Categories = allCategories;
+
+        //        // Category filter using ID (match with stored CategoryId in Campaign)
+        //        if (!string.IsNullOrEmpty(categoryFilter) && int.TryParse(categoryFilter, out int categoryId))
+        //        {
+        //            campaigns = campaigns
+        //                .Where(c => c.CategoryId == categoryId)
+        //                .ToList();
+        //        }
+
+        //        // Pass selected category back to view
+        //        ViewBag.SelectedCategoryId = categoryFilter;
+
+        //        // Pagination
+        //        int pageSize = 5;
+        //        int pageNumber = page ?? 1;
+        //        var pagedCampaigns = campaigns.ToPagedList(pageNumber, pageSize);
+
+        //        ViewBag.SearchTerm = searchTerm;
+        //        ViewBag.StatusFilter = statusFilter;
+        //        // ViewBag.CategoryFilter = categoryFilter;
+        //        ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+        //        ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+        //        //ViewBag.Categories = new SelectList(allCategories);
+
+        //        return View(pagedCampaigns);
+
+        //        //return View(campaigns);
         //    }
         //    catch (Exception ex)
         //    {
@@ -314,20 +450,6 @@ namespace Crowd_Funding_Platform.Controllers
         //    }
         //}
 
-
-        //[HttpGet]
-        //public async Task<IActionResult> CampaignsList()
-        //{
-        //    try
-        //    {
-        //        var campaigns = await _campaign.GetAllCampaigns();
-        //        return View(campaigns);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
-        //    }
-        //}
 
         [HttpGet]
         public async Task<IActionResult> ViewCreatorDocument(int id)

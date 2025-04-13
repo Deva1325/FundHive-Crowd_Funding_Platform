@@ -60,14 +60,17 @@ namespace Crowd_Funding_Platform.Controllers
                     .ToList();
             }
 
+            // Default page = 1, pageSize = 10
             int pageSize = 5;
             int pageNumber = page ?? 1;
+
+            var pagedContributors = contributors.ToPagedList(pageNumber, pageSize);
 
             ViewBag.CurrentFilter = searchString;
             ViewBag.SelectedCategory = category;
             ViewBag.Categories = categories;
 
-            return View(contributors.ToPagedList(pageNumber, pageSize));
+            return View(pagedContributors);
         }
 
         //[HttpGet]

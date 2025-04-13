@@ -7,106 +7,162 @@
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">All Contributors</h2>
+<style>
+    .search-container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+        margin-bottom: 25px;
+    }
 
+    .table-wrapper {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .custom-table th {
+        background-color: #0d6efd;
+        color: #ffffff;
+        text-align: center;
+        vertical-align: middle;
+        border: none;
+    }
+
+    .custom-table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background 0.3s ease;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+    }
+
+    .contributor-avatar {
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .avatar-placeholder {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #6c757d;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+
+
+<div class="container mt-4">   
     @if (Model != null && Model.Any())
-    {
+    {       
         <div id="contributorsContainer">
-            <form asp-action="ContributorsList" method="get" class="mb-3 row">
-                <div class="col-md-4">
-                    <input type="text" id="searchInput" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Search by Contributor Name" />
+            <div class="search-container row g-3 align-items-center" style="    margin-top: -34px;">
+                <h2 class="mb-4 text-primary fw-bold" style="    margin-top: 1px; font-size: 22px;">🌟 All Contributors</h2>
+                <div class="col-md-6">
+                    <input type="text" id="searchInput" style="    margin-top: -28px;
+    padding-block: 14px;" class="form-control rounded-pill shadow-sm" placeholder="🔍 Search by Contributor Name..." />
                 </div>
-                <div class="col-md-4">
-                    <select name="category" class="form-control" id="categoryInput">
-                        <option value="">All Categories</option>
+                <div class="col-md-6">
+                    <select id="categoryInput" class="form-select rounded-pill shadow-sm" style="margin-top: -29px;
+    padding-block: 10px;">
+                        <option value="">🎯 All Categories</option>
                         @foreach (var cat in ViewBag.Categories as List<string>)
                         {
                             var selected = Context.Request.Query["category"] == cat ? "selected" : "";
                             <option value="@cat" selected="@(ViewBag.SelectedCategory == cat ? "selected" : null)">
                                 @cat
                             </option>
+
                         }
                     </select>
                 </div>
-            
-            </form>
-
-            <div id="contributorsTable"><!-- Added this wrapper -->
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th>Contributor</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Campaign</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Transaction ID</th>
-                        <th>Payment Status</th>
-                        @* <th>Campaign Image</th> *@
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+            </div>
+            <div class="table-wrapper mt-4" id="contributorsTable">
+                <table class="table table-bordered table-hover custom-table">
+                    <thead class="text-center">
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    @if (!string.IsNullOrEmpty(item.Contributor.ProfilePicture))
-                                    {
-                                        <img src="@item.Contributor.ProfilePicture" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
-                                            <span>@item.Contributor.Username?[0]</span>
-                                        </div>
-                                    }
-                                    <span class="fw-semibold">@item.Contributor.Username</span>
-                                </div>
-                            </td>
-                            <td>@item.Contributor?.Email</td>
-                            <td>@item.Contributor?.PhoneNumber</td>
-                            <td>@item.Campaign?.Title</td>
-                            <td>₹@item.Amount</td>
-                            <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "")</td>
-                            <td>@item.TransactionId</td>
-                            <td>
-                                <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
-                                    @item.PaymentStatus
-                                </span>
-                            </td>
-                            @* <td>
-                                @if (!string.IsNullOrEmpty(item.Campaign?.MediaUrl))
-                                {
-                                    <img src="@item.Campaign.MediaUrl" alt="Campaign Image" style="height: 50px; width: 80px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <span class="text-muted">No Image</span>
-                                }
-                            </td> *@
+                            <th>Contributor</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Payment Status</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-                <div class="d-flex justify-content-center mt-4">
-                    @Html.PagedListPager(Model, page => Url.Action("ContributorsList", new { page, searchString = ViewBag.CurrentFilter, category = ViewBag.SelectedCategory }),
-                             new PagedListRenderOptions
-                {
-                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                    UlElementClasses = new[] { "pagination" },
-                    LiElementClasses = new[] { "page-item" },
-                    PageClasses = new[] { "page-link" }
-                })
-                </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2 justify-content-center">
+                                        @if (!string.IsNullOrEmpty(item.Contributor.ProfilePicture))
+                                        {
+                                            <img src="@item.Contributor.ProfilePicture" alt="Profile" class="contributor-avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-placeholder">
+                                                @item.Contributor.Username?[0]
+                                            </div>
+                                        }
+                                        <span class="fw-semibold">@item.Contributor.Username</span>
+                                    </div>
+                                </td>
+                                <td>@item.Contributor?.Email</td>
+                                <td>@item.Contributor?.PhoneNumber</td>
+                                <td>@item.Campaign.Category.Name</td>
+                                <td class="text-success fw-bold">₹@item.Amount</td>
+                                <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "")</td>
+                                <td>@item.TransactionId</td>
+                                <td>
+                                    <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
+                                        @item.PaymentStatus
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
 
-            </div> <!-- Closing the wrapper -->
+                <div class="d-flex justify-content-center mt-4">
+                    @Html.PagedListPager(Model, page => Url.Action("ContributorsList", new
+                        {
+                            page,
+                            searchString = ViewBag.CurrentFilter,
+                            category = ViewBag.SelectedCategory
+                        }), new PagedListRenderOptions
+                        {
+                            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            DisplayLinkToIndividualPages = true,
+                            DisplayPageCountAndCurrentLocation = false,
+                            MaximumPageNumbersToDisplay = 5,
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" }
+                        })
+                </div>
+            </div>
         </div>
+        
     }else
         {
             <div class="alert alert-info shadow-sm">
@@ -122,31 +178,67 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            $("#searchInput, #categoryInput").on("input", function () {
-                var search = $("#searchInput").val();
-                var category = $("#categoryInput").val();
 
-                $.get("/Users/ContributorsList", { searchString: search, category: category }, function (data) {
-                    // Replace only the table portion
-                    var newTable = $(data).find("#contributorsTable").html();
-                    $("#contributorsTable").html(newTable);
+            // Debounce utility function
+            function debounce(func, delay) {
+                let timer;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            function loadContributors(url) {
+                $.get(url, function (data) {
+                    const newContent = $(data).find("#contributorsTable").html();
+                    $("#contributorsTable").html(newContent);
                 });
+            }
+
+            function fetchFilteredResults() {
+                const search = $("#searchInput").val();
+                const category = $("#categoryInput").val();
+
+                const url = `/Users/ContributorsList?searchString=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
+                loadContributors(url);
+            }
+
+            // Use debounce on input filters
+            $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
+            $("#categoryInput").on("change", fetchFilteredResults); // dropdown doesn't need debounce
+
+            // AJAX pagination click
+            $(document).on("click", ".pagination a", function (e) {
+                e.preventDefault();
+                const url = $(this).attr("href");
+                loadContributors(url);
             });
         });
-
-        $(document).on("click", ".pagination a", function (e) {
-            e.preventDefault();
-
-            var url = $(this).attr("href");
-
-            $.get(url, function (data) {
-                var newContent = $(data).find("#contributorsContainer").html();
-                $("#contributorsContainer").html(newContent);
-            });
-        });
-
     </script>
 }
+
+
+
+@* 
+<div class="mb-3 row">
+    <div class="col-md-4">
+        <input type="text" id="searchInput" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Search by Contributor Name" />
+    </div>
+    <div class="col-md-4">
+        <select name="category" class="form-control" id="categoryInput">
+            <option value="">All Categories</option>
+            @foreach (var cat in ViewBag.Categories as List<string>)
+            {
+                var selected = Context.Request.Query["category"] == cat ? "selected" : "";
+                <option value="@cat" selected="@(ViewBag.SelectedCategory == cat ? "selected" : null)">
+                    @cat
+                </option>
+            }
+        </select>
+    </div>
+</div> *@
 
 @* @model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
 
