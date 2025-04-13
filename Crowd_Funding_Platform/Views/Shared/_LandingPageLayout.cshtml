@@ -1,4 +1,13 @@
-﻿<!doctype html>
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    HttpContextAccessor.HttpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    HttpContextAccessor.HttpContext.Response.Headers["Pragma"] = "no-cache";
+    HttpContextAccessor.HttpContext.Response.Headers["Expires"] = "0";
+}
+
+
+<!doctype html>
 <html class="no-js" lang="zxx">
 
 <!-- Mirrored from preview.colorlib.com/theme/chariter/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jan 2025 12:00:10 GMT -->

@@ -1,10 +1,50 @@
 ﻿$(document).ready(function () {
+
+    // ================================
+    // 🔥 Toastr Configuration
+    // ================================
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
     $("#OtpCheck").submit(function (event) {
         event.preventDefault()
 
+        // Collect OTP from individual boxes
+        let otp = '';
+        let allFilled = true;
+
+        $(".otp-box").each(function () {
+            if ($(this).val() === '') {
+                allFilled = false;
+            }
+            otp += $(this).val();
+        });
+
+        if (!allFilled) {
+            toastr.error("Please enter all 6 digits of the OTP.");
+            return; // Stop the AJAX call
+        }
+
+        // Assign the combined OTP to the hidden field
+        $("#hiddenOtpInput").val(otp);
+
         const formData = {
             Email: $('#Email').val(),
-            Otp: $('#Otp').val()
+            Otp: $('#hiddenOtpInput').val()
         }
 
         console.log(formData.Email)
@@ -15,15 +55,23 @@
             type: 'POST',
             data: formData,
             success: function (result) {
-                alert(result.message);
+
                 if (result.success) {
-                    
-                    alert('Otp Verified Successfully');
-                    window.location.href = '/Account/Login';
+                    toastr.success("Login Successful!");
+
+                    setTimeout(() => {                       
+                            //toastr.success("'Otp Verified Successfully");
+                            window.location.href = '/Account/Login';                     
+                    }, 1500);
+
+                } else {
+                    toastr.error(result.message || "Unable to verify OTP.");
                 }
+   
             },
             error: function () {
-                alert('Unable to verify OTP');
+                toastr.error(result.message || "Unable to verify OTP.");
+                //alert('Unable to verify OTP');
             }
         });
     })
@@ -56,18 +104,21 @@
             method: "GET",
             success: function (data) {
                 if (data.success) {
-                    alert("OTP has been resent to your email.");
+                   // alert("OTP has been resent to your email.");
+                    toastr.success("OTP has been resent to your email.");
                     timeRemaining = duration; // Reset the timer
                     resendSection.hide(); // Hide the resend button
                     timerElement.text("Time remaining: 01:00"); // Reset the timer text
                     setInterval(interval); // Restart the interval
                 } else {
-                    alert("Failed to resend OTP. Please try again.");
+                    toastr.error("Failed to resend OTP. Please try again.");
+                    //alert("Failed to resend OTP. Please try again.");
                 }
             },
             error: function (xhr, status, error) {
                 console.error("Error resending OTP:", error);
-                alert("An error occurred. Please try again.");
+                toastr.error("An error occurred. Please try again.");
+                //alert("An error occurred. Please try again.");
             }
         });
     });

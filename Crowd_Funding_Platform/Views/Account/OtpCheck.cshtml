@@ -1,5 +1,199 @@
 ﻿@model Crowd_Funding_Platform.Models.User
 
+<!DOCTYPE html>
+
+<html class="loading" lang="en" data-textdirection="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="Frest admin is super flexible, powerful, clean &amp; modern responsive bootstrap 4 admin template with unlimited possibilities.">
+    <meta name="keywords" content="admin template, Frest admin template, dashboard template, flat admin template, responsive admin template, web app">
+    <meta name="author" content="PIXINVENT">
+    <title>Login Page - Frest - Bootstrap HTML admin template</title>
+    <link rel="apple-touch-icon" href="~/Authentication_T/app-assets/images/ico/apple-icon-120.html">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/~/Authentication_T/app-assets/images/ico/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,500,600%7CIBM+Plex+Sans:300,400,500,600,700" rel="stylesheet">
+
+    <!-- BEGIN: Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/vendors/css/vendors.min.css">
+    <!-- END: Vendor CSS-->
+    <!-- BEGIN: Theme CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/bootstrap-extended.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/colors.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/components.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/dark-layout.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/themes/semi-dark-layout.min.css">
+    <!-- END: Theme CSS-->
+    <!-- BEGIN: Page CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/core/menu/menu-types/vertical-menu.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/app-assets/css/pages/authentication.css">
+    <!-- END: Page CSS-->
+    <!-- BEGIN: Custom CSS-->
+    <link rel="stylesheet" type="text/css" href="~/Authentication_T/assets/css/style.css">
+    <!-- END: Custom CSS-->
+
+    <style>
+        .otp-input .otp-box {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .otp-input .otp-box:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0,123,255,0.5);
+        }
+
+    </style>
+
+
+</head>
+
+<body class="vertical-layout vertical-menu-modern boxicon-layout no-card-shadow 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
+    <!-- BEGIN: Content-->
+    <div class="app-content content">
+        <div class="content-overlay"></div>
+        <div class="content-wrapper">
+            <div class="content-header row">
+            </div>
+            <div class="content-body">
+                <!-- reset password start -->
+                <section class="row flexbox-container">
+                    <div class="col-xl-7 col-10">
+                        <div class="card bg-authentication mb-0">
+                            <div class="row m-0">
+                                <!-- left section-login -->
+                                <div class="col-md-6 col-12 px-0">
+                                    <div class="card disable-rounded-right d-flex justify-content-center mb-0 p-2 h-100">
+                                        <div class="card-header pb-1">
+                                            <div class="card-title">
+                                                <h4 class="text-center mb-2">Otp Verification</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <form class="mb-2" id="OtpCheck" method="post">
+                                                <div class="form-group">
+                                                    <label class="text-bold-600" asp-for="Email">Email</label>
+                                                    <input class="form-control" asp-for="Email" value="@Context.Session.GetString("UserEmail")" readonly>                                              
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="text-bold-600" asp-for="Otp">OTP</label>
+                                                    <div class="otp-input d-flex justify-content-between">
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp"/>
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp" />
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp" />
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp" />
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp" />
+                                                        <input type="text" class="otp-box" maxlength="1" asp-for="Otp" />
+                                                    </div>
+                                                    <input type="hidden" name="Otp" id="hiddenOtpInput" />
+                                                </div>
+                                                <div class="form-group">
+                                                <p id="timer" style="font-size: 14px; color: gray;">Time remaining: 01:00</p> <!-- Timer Display -->
+                                                </div>
+                                                <div class="form-group">
+                                                    <button type="submit" id="btnNext" class="btn btn-primary glow position-relative w-100">Next</button>
+                                                </div>
+                                                <div id="resend-section" style="display: none; margin-top: 10px;">
+                                                    <button id="resend-btn" class="btn btn-primary glow position-relative w-100">
+                                                        Resend OTP<i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
+                                                    </button>
+                                                    </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- right section image -->
+                                <div class="col-md-6 d-md-block d-none text-center align-self-center p-3">
+                                    <img class="img-fluid" src="/Authentication_T/app-assets/images/pages/Mypassword-pana.png" alt="branding logo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- reset password ends -->
+
+            </div>
+        </div>
+    </div>
+    <!-- Load jQuery First -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap Bundle (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Load Vendors (Ensure jQuery is not duplicated inside) -->
+    <script src="~/Authentication_T/app-assets/vendors/js/vendors.min.js"></script>
+    @*
+    <!-- Load Unison (If needed) -->
+    <script src="~/Authentication_T/app-assets/vendors/js/extensions/unison.min.js"></script>
+    *@
+    <!-- Load jQuery Validation Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+    <!-- Load Theme Scripts -->
+    <script src="~/Authentication_T/app-assets/js/core/app-menu.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/core/app.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/scripts/components.min.js"></script>
+    <script src="~/Authentication_T/app-assets/js/scripts/footer.min.js"></script>
+
+    <!-- External Scripts -->
+    <script src="https://www.google.com/recaptcha/api.js">async defer</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+    <!-- Include jQuery UI for better styling (Optional) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        const inputs = document.querySelectorAll('.otp-box');
+        const form = document.getElementById('ResetPassword');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('keyup', function (e) {
+                if (e.key >= 0 && e.key <= 9) {
+                    if (index < inputs.length - 1 && input.value !== "") {
+                        inputs[index + 1].focus();
+                    }
+                } else if (e.key === "Backspace") {
+                    if (index > 0 && input.value === "") {
+                        inputs[index - 1].focus();
+                    }
+                }
+            });
+        });
+
+    </script>
+
+    <!-- Custom Scripts -->
+    <script src="~/js/OtpCheck.js"></script>
+
+
+
+
+</body>
+
+</html>
+
+
+
+@* @model Crowd_Funding_Platform.Models.User
+
 @{
     ViewData["Title"] = "OTP Verification";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,7 +212,6 @@
         <label>Email</label>
         <div class="form-addons">
             <input asp-for="Email" value="@Context.Session.GetString("UserEmail")" readonly />
-            @*  <input asp-for="Email" value="@Model.Email" readonly /> *@
         </div>
     </div>
     <div class="form-login">
@@ -44,3 +237,4 @@
     }
     <script src="~/js/OtpCheck.js"></script>
 }
+ *@

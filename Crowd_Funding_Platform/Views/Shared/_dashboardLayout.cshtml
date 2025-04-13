@@ -1,6 +1,13 @@
 ﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
+    HttpContextAccessor.HttpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    HttpContextAccessor.HttpContext.Response.Headers["Pragma"] = "no-cache";
+    HttpContextAccessor.HttpContext.Response.Headers["Expires"] = "0";
+}
+
+
+@{
     var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
     var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
     var userImage = HttpContextAccessor.HttpContext?.Session.GetString("UserImage");

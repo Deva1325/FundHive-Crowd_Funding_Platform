@@ -331,6 +331,16 @@ $(document).ready(function () {
         }
     });
 
+    $('.toggle-password-btn').on('click', function () {
+        const target = $(this).data('target');
+        const input = $(target);
+        const icon = $(this).find('i');
+
+        const isPassword = input.attr('type') === 'password';
+        input.attr('type', isPassword ? 'text' : 'password');
+        icon.toggleClass('fa-eye fa-eye-slash');
+    });
+
     // ================================
     // 🔒 Reset Password Validation & Submission
     // ================================
@@ -361,6 +371,13 @@ $(document).ready(function () {
         },
         submitHandler: function (form, event) {
             event.preventDefault();
+
+            const btnReset = $("#btnReset");
+            const btnLoader = $("#btnLoaderForgot");
+
+            btnReset.prop("disabled", true);
+            btnLoader.removeClass("d-none").addClass("d-inline-block me-2");
+
             const formData = new FormData(form);
 
             $.ajax({
@@ -371,14 +388,30 @@ $(document).ready(function () {
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        showToast("success", result.message);
-                        window.location.href = '/Account/Login';
+                        toastr.success("Password Changed Successfully");
+
+                        setTimeout(() => {
+                            window.location.href = '/Account/Login';
+                        }, 1500);
+
                     } else {
-                        showToast("error", result.message || "Failed to reset password.");
+                        toastr.error(result.message || "Failed to reset password.");
                     }
+                    //if (result.success) {
+                    //    toastr.success("Password Changed Successfully");
+                    //    //showToast("success", result.message);
+                    //    window.location.href = '/Account/Login';
+                    //} else {
+                    //    toastr.error("Failed to reset password.");
+                       
+                    //}
                 },
                 error: function () {
-                    showToast("error", "An error occurred while resetting the password.");
+                    toastr.error("An error occurred while resetting the password.");
+                },
+                complete: function () {
+                    btnReset.prop("disabled", false);
+                    btnLoader.addClass("d-none").removeClass("d-inline-block");
                 }
             });
         }

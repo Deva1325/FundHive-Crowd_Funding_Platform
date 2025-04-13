@@ -1,0 +1,206 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "Contributors List";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">All Contributors</h2>
+
+    @if (Model != null && Model.Any())
+    {
+        <div id="contributorsContainer">
+            <form asp-action="ContributorsList" method="get" class="mb-3 row">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" name="searchString" value="@ViewBag.CurrentFilter" class="form-control" placeholder="Search by Contributor Name" />
+                </div>
+                <div class="col-md-4">
+                    <select name="category" class="form-control" id="categoryInput">
+                        <option value="">All Categories</option>
+                        @foreach (var cat in ViewBag.Categories as List<string>)
+                        {
+                            var selected = Context.Request.Query["category"] == cat ? "selected" : "";
+                            <option value="@cat" selected="@(ViewBag.SelectedCategory == cat ? "selected" : null)">
+                                @cat
+                            </option>
+                        }
+                    </select>
+                </div>
+            
+            </form>
+
+            <div id="contributorsTable"><!-- Added this wrapper -->
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Contributor</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Campaign</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Transaction ID</th>
+                        <th>Payment Status</th>
+                        @* <th>Campaign Image</th> *@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(item.Contributor.ProfilePicture))
+                                    {
+                                        <img src="@item.Contributor.ProfilePicture" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                            <span>@item.Contributor.Username?[0]</span>
+                                        </div>
+                                    }
+                                    <span class="fw-semibold">@item.Contributor.Username</span>
+                                </div>
+                            </td>
+                            <td>@item.Contributor?.Email</td>
+                            <td>@item.Contributor?.PhoneNumber</td>
+                            <td>@item.Campaign?.Title</td>
+                            <td>₹@item.Amount</td>
+                            <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "")</td>
+                            <td>@item.TransactionId</td>
+                            <td>
+                                <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
+                                    @item.PaymentStatus
+                                </span>
+                            </td>
+                            @* <td>
+                                @if (!string.IsNullOrEmpty(item.Campaign?.MediaUrl))
+                                {
+                                    <img src="@item.Campaign.MediaUrl" alt="Campaign Image" style="height: 50px; width: 80px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Image</span>
+                                }
+                            </td> *@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+                <div class="d-flex justify-content-center mt-4">
+                    @Html.PagedListPager(Model, page => Url.Action("ContributorsList", new { page, searchString = ViewBag.CurrentFilter, category = ViewBag.SelectedCategory }),
+                             new PagedListRenderOptions
+                {
+                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+                </div>
+
+            </div> <!-- Closing the wrapper -->
+        </div>
+    }else
+        {
+            <div class="alert alert-info shadow-sm">
+                No contributors found for this campaign.
+            </div>
+        }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#searchInput, #categoryInput").on("input", function () {
+                var search = $("#searchInput").val();
+                var category = $("#categoryInput").val();
+
+                $.get("/Users/ContributorsList", { searchString: search, category: category }, function (data) {
+                    // Replace only the table portion
+                    var newTable = $(data).find("#contributorsTable").html();
+                    $("#contributorsTable").html(newTable);
+                });
+            });
+        });
+
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+
+            var url = $(this).attr("href");
+
+            $.get(url, function (data) {
+                var newContent = $(data).find("#contributorsContainer").html();
+                $("#contributorsContainer").html(newContent);
+            });
+        });
+
+    </script>
+}
+
+@* @model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "Contributors List";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">All Contributors</h2>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Contributor</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Campaign</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Transaction ID</th>
+                <th>Payment Status</th>
+                <th>Campaign Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Contributor?.Username</td>
+                    <td>@item.Contributor?.Email</td>
+                    <td>@item.Contributor?.PhoneNumber</td>
+                    <td>@item.Campaign?.Title</td>
+                    <td>₹@item.Amount</td>
+                    <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "")</td>
+                    <td>@item.TransactionId</td>
+                    <td>
+                        <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
+                            @item.PaymentStatus
+                        </span>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Campaign?.MediaUrl))
+                        {
+                            <img src="@item.Campaign.MediaUrl" alt="Campaign Image" style="height: 50px; width: 80px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">No Image</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+ *@

@@ -18,8 +18,7 @@ public partial class CampaignImage
 
     public DateTime? UploadedDate { get; set; }
 
-    [NotMapped]
-    public List<IFormFile> GalleryImages { get; set; }
+   
 
 
     public virtual Campaign Campaign { get; set; } = null!;

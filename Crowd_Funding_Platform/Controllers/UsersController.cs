@@ -2,6 +2,9 @@
 using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList;
+using X.PagedList.Extensions;
+
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -29,10 +32,50 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpGet]
-        public IActionResult ContributorsList()
+        public async Task<IActionResult> ContributorsList(string searchString, string category, int? page)
         {
-            return View();
+            var contributors = await _user.GetAllContributorsAsync();
+
+            // Get unique categories
+            var categories = contributors
+                             .Where(c => c.Campaign?.Category != null && !string.IsNullOrEmpty(c.Campaign.Category.Name))
+                             .Select(c => c.Campaign.Category.Name)
+                             .Distinct()
+                             .ToList();
+
+            // Search filter
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                contributors = contributors
+                    .Where(c => c.Contributor?.Username != null &&
+                                c.Contributor.Username.ToLower().Contains(searchString.ToLower()))
+                    .ToList();
+            }
+
+            // Category filter
+            if (!string.IsNullOrEmpty(category))
+            {
+                contributors = contributors
+                    .Where(c => c.Campaign?.Category?.Name == category)
+                    .ToList();
+            }
+
+            int pageSize = 5;
+            int pageNumber = page ?? 1;
+
+            ViewBag.CurrentFilter = searchString;
+            ViewBag.SelectedCategory = category;
+            ViewBag.Categories = categories;
+
+            return View(contributors.ToPagedList(pageNumber, pageSize));
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> ContributorsList()
+        //{
+        //    List<Contribution> contributions= await _user.GetAllContributorsAsync();
+        //    return View(contributions);
+        //}
 
         [HttpGet, ActionName("DeleteCreator")]
         public async Task<IActionResult> Delete(int id)

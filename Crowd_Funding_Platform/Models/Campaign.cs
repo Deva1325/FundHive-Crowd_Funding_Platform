@@ -34,6 +34,8 @@ public partial class Campaign
     [NotMapped]
     public int TotalContributors { get; set; }
 
+    [NotMapped]
+    public List<IFormFile>? GalleryImages { get; set; }
     public virtual ICollection<CampaignAnalytic> CampaignAnalytics { get; set; } = new List<CampaignAnalytic>();
 
     public virtual ICollection<CampaignImage> CampaignImages { get; set; } = new List<CampaignImage>();

@@ -87,7 +87,7 @@ namespace Crowd_Funding_Platform.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> SaveCampaigns(Campaign campaign, IFormFile? ThumbnailImage, List<IFormFile>? GalleryImages)
+        public async Task<IActionResult> SaveCampaigns(Campaign campaign, IFormFile? ImageFile, List<IFormFile>? GalleryImages)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace Crowd_Funding_Platform.Controllers
 
                 DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
-                // Validate for edit mode
+                // ✅ Prevent editing campaigns that are not 'Upcoming'
                 if (campaign.CampaignId != 0)
                 {
                     var existing = await _campaign.GetCampaignById(campaign.CampaignId);
@@ -108,41 +108,58 @@ namespace Crowd_Funding_Platform.Controllers
                         return Json(new { success = false, message = "Only 'Upcoming' campaigns can be edited." });
                     }
                 }
+                
 
-                // Date validations
+                // ✅ Validate only if dates are modified
                 if (campaign.StartDate < today)
+                {
                     return Json(new { success = false, message = "Start date cannot be before today." });
+                }
 
                 if (campaign.EndDate < today)
+                {
                     return Json(new { success = false, message = "End date cannot be before today." });
+                }
 
                 if (campaign.EndDate < campaign.StartDate)
+                {
                     return Json(new { success = false, message = "End date cannot be before start date." });
+                }
 
-                // Set campaign status
+
+                // Set campaign status based on dates
                 if (campaign.StartDate > today)
+                {
                     campaign.Status = "Upcoming";
+                }
                 else if (campaign.StartDate <= today && campaign.EndDate >= today)
+                {
                     campaign.Status = "Ongoing";
-                else
+                }
+                else if (campaign.EndDate < today)
+                {
                     campaign.Status = "Completed";
+                }
 
-                var result = await _campaign.SaveCampaigns(campaign, userId.Value, ThumbnailImage, GalleryImages);
+                // Pass the file parameter (now named ImageFile) to the repository method
+                var result = await _campaign.SaveCampaigns(campaign, userId.Value, ImageFile,GalleryImages);
 
                 if (!result.success)
+                {
                     return Json(new { success = false, message = result.message });
+                }
 
-                return Json(new { success = true, message = result.message });
+                return Json(new { success = true, message = "Campaign saved successfully!" });
             }
             catch (Exception ex)
             {
+                Console.Write(ex.Message);
                 return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
             }
         }
 
 
-
-        //Old Code
+        // Old Code
 
         //[HttpPost]
         //public async Task<IActionResult> SaveCampaigns(Campaign campaign, IFormFile? ImageFile)

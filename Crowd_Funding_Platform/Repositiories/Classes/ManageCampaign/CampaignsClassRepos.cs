@@ -66,90 +66,120 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         }
 
 
-        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ThumbnailImage, List<IFormFile>? GalleryImages)
+        public async Task<(bool success, string message)> SaveCampaigns(Campaign campaign, int userId, IFormFile? ImageFile, List<IFormFile>? GalleryImages)
         {
             var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
+            {
                 return (false, "User not found.");
+            }
 
             if (!(user.IsCreatorApproved ?? false))
             {
                 var creatorApplication = await _CFS.CreatorApplications.FirstOrDefaultAsync(ca => ca.UserId == userId);
                 if (creatorApplication == null)
+                {
                     return (false, "Please fill out the document form to request campaign creation.");
-
+                }
                 if (creatorApplication.Status == "Pending")
+                {
                     return (false, "Your request is pending. Please wait for admin approval.");
+                }
             }
 
-            string thumbnailPath = null;
-
-            // 🖼️ Save Thumbnail
-            if (ThumbnailImage != null && ThumbnailImage.Length > 0)
+            string newFilePath = null; // Store new image path if uploaded
+            if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-                string uniqueFileName = Guid.NewGuid() + Path.GetExtension(ThumbnailImage.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (!Directory.Exists(uploadsFolder))
                 {
-                    await ThumbnailImage.CopyToAsync(stream);
+                    Directory.CreateDirectory(uploadsFolder);
                 }
-                thumbnailPath = "/Campaign_Media/" + uniqueFileName;
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+                newFilePath = "/Campaign_Media/" + uniqueFileName;
             }
 
             if (campaign.CampaignId == 0)
             {
                 campaign.CreatorId = userId;
-                campaign.MediaUrl = thumbnailPath;
+                campaign.MediaUrl = newFilePath;
+                DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+                if (campaign.StartDate > today)
+                {
+                    campaign.Status = "Upcoming";
+                }
+                else if (campaign.StartDate <= today && campaign.EndDate >= today)
+                {
+                    campaign.Status = "Ongoing";
+                }
+                else if (campaign.EndDate < today)
+                {
+                    campaign.Status = "Completed";
+                }
                 _CFS.Campaigns.Add(campaign);
             }
             else
             {
                 var existingCampaign = await _CFS.Campaigns.FindAsync(campaign.CampaignId);
                 if (existingCampaign == null)
+                {
                     return (false, "Campaign not found.");
+                }
+               
 
-                if (!string.IsNullOrEmpty(thumbnailPath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
+                if (!string.IsNullOrEmpty(newFilePath) && !string.IsNullOrEmpty(existingCampaign.MediaUrl))
                 {
                     string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingCampaign.MediaUrl.TrimStart('/'));
                     if (System.IO.File.Exists(oldFilePath))
+                    {
                         System.IO.File.Delete(oldFilePath);
+                    }
                 }
-
                 existingCampaign.Title = campaign.Title;
                 existingCampaign.Description = campaign.Description;
                 existingCampaign.Requirement = campaign.Requirement;
                 existingCampaign.StartDate = campaign.StartDate;
                 existingCampaign.EndDate = campaign.EndDate;
                 existingCampaign.CategoryId = campaign.CategoryId;
-                existingCampaign.MediaUrl = thumbnailPath ?? existingCampaign.MediaUrl;
+                existingCampaign.MediaUrl = newFilePath ?? existingCampaign.MediaUrl;
             }
-
             await _CFS.SaveChangesAsync();
 
-            // ✅ Save Gallery Images
-            if (GalleryImages != null && GalleryImages.Count > 0)
+            // Save Gallery Images
+            if (GalleryImages != null && GalleryImages.Any())
             {
+                string galleryFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Gallery");
+                Directory.CreateDirectory(galleryFolder);
+
+                int sortOrder = 1;
+                bool isThumbnailSet = string.IsNullOrEmpty(campaign.MediaUrl); // true if no main image
+
                 foreach (var image in GalleryImages)
                 {
-                    if (image.Length > 0)
-                    {
-                        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Campaign_Media");
-                        string uniqueFileName = Guid.NewGuid() + Path.GetExtension(image.FileName);
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await image.CopyToAsync(stream);
-                        }
+                    string uniqueFile = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                    string filePath = Path.Combine(galleryFolder, uniqueFile);
 
-                        _CFS.CampaignImages.Add(new CampaignImage
-                        {
-                            CampaignId = campaign.CampaignId,
-                            ImageUrl = "/Campaign_Media/" + uniqueFileName
-                        });
+                    using (var fs = new FileStream(filePath, FileMode.Create))
+                    {
+                        await image.CopyToAsync(fs);
                     }
+
+                    var campaignImage = new CampaignImage
+                    {
+                        CampaignId = campaign.CampaignId,
+                        ImageUrl = "/Campaign_Gallery/" + uniqueFile,
+                        IsThumbnail = isThumbnailSet,
+                        SortOrder = sortOrder++,
+                        UploadedDate = DateTime.Now
+                    };
+                    isThumbnailSet = false; // only first one will be true
+
+                    _CFS.CampaignImages.Add(campaignImage);
                 }
 
                 await _CFS.SaveChangesAsync();
@@ -157,6 +187,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
 
             return (true, "Campaign saved successfully.");
         }
+
 
 
 
