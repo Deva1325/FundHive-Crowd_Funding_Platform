@@ -98,7 +98,7 @@
                         // ✅ Redirect to the campaign list after success
                         setTimeout(() => {
                             window.location.href = '/ManageCampaigns/CampaignsList';
-                        }, 1500);
+                        }, 3000);
                     } else {
                         toastr.error(result.message);
                     }

@@ -61,7 +61,28 @@
                     <strong>Creator:</strong>
                     <p class="text-muted">@Html.DisplayFor(model => model.Creator.UserId)</p>
                 </div>
+
+                <p class="text-muted">Images count: @Model.CampaignImages?.Count()</p>
+
                 <div class="col-md-6">
+                    <strong>Gallery:</strong>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (Model.CampaignImages != null && Model.CampaignImages.Any())
+                        {
+                            foreach (var img in Model.CampaignImages)
+                            {
+                                <img src="@img.ImageUrl" alt="Gallery Image" class="rounded border shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" />
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">No gallery images available</p>
+                        }
+                    </div>
+                </div>
+
+
+                 @* <div class="col-md-6">
                     <strong>Media:</strong>
                     <div>
                         @if (!string.IsNullOrEmpty(Model.MediaUrl))
@@ -73,7 +94,7 @@
                             <p class="text-muted">No media available</p>
                         }
                     </div>
-                </div>
+                </div>  *@
             </div>
         </div>
 

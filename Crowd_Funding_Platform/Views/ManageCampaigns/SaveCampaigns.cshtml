@@ -1,4 +1,199 @@
 ﻿@model Crowd_Funding_Platform.Models.Campaign
+
+@{
+    ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-lg p-4">
+        <h3 class="text-center text-primary mb-4">@ViewData["Title"]</h3>
+
+        <form id="campaignForm" enctype="multipart/form-data" method="post">
+            <input type="hidden" asp-for="CampaignId" />
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Campaign Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter campaign title" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Requirement" class="form-label fw-bold">Goal Amount ($)</label>
+                        <input asp-for="Requirement" type="number" step="0.01" class="form-control" placeholder="Enter goal amount" />
+                        <span asp-validation-for="Requirement" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="StartDate" class="form-label fw-bold">Start Date</label>
+                        <input asp-for="StartDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EndDate" class="form-label fw-bold">End Date</label>
+                        <input asp-for="EndDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                            <option value="">Select Category</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Thumbnail Image -->
+                    <div class="form-group mb-3">
+                        <label for="MediaUrl" class="form-label fw-bold">Main Thumbnail Image</label>
+                        <input type="file" name="ImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                        <img id="existingImage" src="@Model.MediaUrl" class="mt-2" style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.MediaUrl) ? "none" : "block")" />
+                    </div>
+
+                   @*  <!-- Gallery Images -->
+                    <!-- Multiple Attachments -->
+                    <div class="form-group mb-3">
+                        <label for="GalleryImages" class="form-label fw-bold">Attachments (Images, PDFs, Docs)</label>
+                        <input type="file" name="GalleryImages" multiple class="form-control" onchange="previewGallery(event)" />
+                        <div id="galleryPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div> *@
+                    <!-- ✅ Hidden input to send files to server -->
+                    <input type="file" id="GalleryImagesInput" name="GalleryImages" multiple hidden />
+
+                    <div class="form-group mb-3">
+                        <label for="GalleryImages" class="form-label fw-bold">Attachments (Images, PDFs, Docs)</label>
+                        <input type="file" id="GalleryImages" name="GalleryImages" multiple accept="image/*,application/pdf" class="form-control" onchange="handleGallerySelection(event)" />
+                        <div id="galleryPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+    
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your campaign"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-save me-2"></i>
+                    @((Model?.CampaignId ?? 0) > 0 ? "Edit Campaign" : "Create Campaign")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/js/SaveCampaignForm.js"></script>
+
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('existingImage');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+            let selectedFiles = [];
+
+        function handleGallerySelection(event) {
+            const newFiles = Array.from(event.target.files);
+
+            // Prevent duplicates
+            newFiles.forEach(file => {
+                if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push(file);
+                }
+            });
+
+            // Bind selectedFiles to the hidden input so they are sent on submit
+            const realInput = document.getElementById("GalleryImagesInput");
+            const dataTransfer = new DataTransfer();
+            selectedFiles.forEach(f => dataTransfer.items.add(f));
+            realInput.files = dataTransfer.files;
+
+            renderGalleryPreview();
+        }
+
+        function renderGalleryPreview() {
+            const previewDiv = document.getElementById("galleryPreview");
+            previewDiv.innerHTML = "";
+
+            selectedFiles.forEach((file, index) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "position-relative m-1";
+                wrapper.style.display = "inline-block";
+
+                const isImage = file.type.startsWith("image/");
+                const previewElement = isImage ? document.createElement("img") : document.createElement("div");
+
+                previewElement.className = "border rounded";
+                previewElement.style.width = "100px";
+                previewElement.style.height = "100px";
+                previewElement.style.objectFit = "cover";
+
+                if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewElement.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewElement.textContent = file.name;
+                    previewElement.style.display = "flex";
+                    previewElement.style.alignItems = "center";
+                    previewElement.style.justifyContent = "center";
+                    previewElement.style.background = "#f0f0f0";
+                    previewElement.style.fontSize = "12px";
+                }
+
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.innerHTML = "&times;";
+                removeBtn.className = "btn btn-danger btn-sm position-absolute top-0 end-0";
+                removeBtn.onclick = () => {
+                    selectedFiles.splice(index, 1);
+                    const dataTransfer = new DataTransfer();
+                    selectedFiles.forEach(f => dataTransfer.items.add(f));
+                    document.getElementById("GalleryImagesInput").files = dataTransfer.files;
+                    renderGalleryPreview();
+                };
+
+                wrapper.appendChild(previewElement);
+                wrapper.appendChild(removeBtn);
+                previewDiv.appendChild(wrapper);
+            });
+        }
+    
+    </script>
+}
+
+
+
+
+@* @model Crowd_Funding_Platform.Models.Campaign
 @{
     ViewData["Title"] = Model?.CampaignId > 0 ? "Edit Campaign" : "Create Campaign";
 
@@ -48,25 +243,11 @@
                         <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
                             <option value="">Select Category</option>
                         </select>
-@*                         <span class="text-danger" asp-validation-for="CategoryId"></span>*@  
                     </div>
                    
-                    <!-- Main Thumbnail Upload -->
-                    <div class="form-group mb-3">
-                        <label for="MediaFile" class="form-label fw-bold">Main Thumbnail Image</label>
-                        <input type="file" name="ImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
-                        <img id="existingImage" src="@Model.MediaUrl" class="mt-2" style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.MediaUrl) ? "none" : "block")" />
-                    </div>
+                   
 
-                    <!-- Gallery Upload -->
-                    <div class="form-group mb-3">
-                        <label for="GalleryImages" class="form-label fw-bold">Gallery Images</label>
-                        <input type="file" name="GalleryImages" multiple class="form-control" onchange="previewGallery(event)" />
-                        <div id="galleryPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
-                    </div>
-
-
-                  @*  <div class="form-group">
+                   <div class="form-group">
                         <label for="Image">Campaign Image</label>
                         <input type="file" id="MediaFile" name="ImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
 
@@ -78,7 +259,7 @@
                         {
                             <img id="existingImage" src="@Model.MediaUrl" alt="Preview Image" class="mt-2" style="max-width: 200px; display: none;" />
                         }
-                    </div>  *@
+                    </div>  
 
                     <div class="form-group mb-3">
                         <label asp-for="Description" class="form-label fw-bold">Description</label>
@@ -147,22 +328,5 @@
         }
     </script>
 }
-    @* <script>
-        function previewImage(event) {
-            var input = event.target;
-            var preview = document.getElementById('existingImage');
 
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script> *@
-
-
+ *@

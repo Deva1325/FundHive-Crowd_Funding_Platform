@@ -64,10 +64,11 @@ namespace Crowd_Funding_Platform.Controllers
             if ( id > 0)
             {
                 campaign = await _CFS.Campaigns.FirstOrDefaultAsync(c => c.CampaignId == id);
+                //campaign = campaign = await _CFS.Campaigns.Include(c => c.CampaignImages).FirstOrDefaultAsync(c => c.CampaignId == id);
             }
 
             ViewBag.Categories = new SelectList(await _CFS.Categories.ToListAsync(), "CategoryId", "Name");
-
+         
             //// Fetch roles(Users) dynamically excluding Admin (RoleId = 4)
             //ViewBag.Categories = new SelectList(await _CFS.Categories
             //    .Select(c => new { c.CategoryId, c.Name })
@@ -100,7 +101,7 @@ namespace Crowd_Funding_Platform.Controllers
 
                 DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
-                // ✅ Prevent editing campaigns that are not 'Upcoming'
+                // ✅ Prevent editing non-upcoming campaigns
                 if (campaign.CampaignId != 0)
                 {
                     var existing = await _campaign.GetCampaignById(campaign.CampaignId);
@@ -109,9 +110,8 @@ namespace Crowd_Funding_Platform.Controllers
                         return Json(new { success = false, message = "Only 'Upcoming' campaigns can be edited." });
                     }
                 }
-                
 
-                // ✅ Validate only if dates are modified
+                // ✅ Validate campaign dates
                 if (campaign.StartDate < today)
                 {
                     return Json(new { success = false, message = "Start date cannot be before today." });
@@ -127,8 +127,7 @@ namespace Crowd_Funding_Platform.Controllers
                     return Json(new { success = false, message = "End date cannot be before start date." });
                 }
 
-
-                // Set campaign status based on dates
+                // ✅ Determine status based on start/end date
                 if (campaign.StartDate > today)
                 {
                     campaign.Status = "Upcoming";
@@ -142,19 +141,19 @@ namespace Crowd_Funding_Platform.Controllers
                     campaign.Status = "Completed";
                 }
 
-                // Pass the file parameter (now named ImageFile) to the repository method
-                var result = await _campaign.SaveCampaigns(campaign, userId.Value, ImageFile,GalleryImages);
+                // ✅ Call repository to save
+                var result = await _campaign.SaveCampaigns(campaign, userId.Value, ImageFile, GalleryImages);
 
-                if (!result.success)
-                {
-                    return Json(new { success = false, message = result.message });
-                }
+                //if (!result.success)
+                //{
+                //    return Json(new { success = false, message = result.message });
+                //}
 
                 return Json(new { success = true, message = "Campaign saved successfully!" });
             }
             catch (Exception ex)
             {
-                Console.Write(ex.Message);
+                Console.WriteLine(ex); // or log it properly
                 return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -502,7 +501,8 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet, ActionName("Details")]
         public async Task<IActionResult> CampaignDetails(int id)
         {
-            var campaign = await _campaign.GetCampaignById(id);
+            //var campaign = await _campaign.GetCampaignById(id);
+            var campaign = await _CFS.Campaigns.Include(c => c.CampaignImages).FirstOrDefaultAsync(c => c.CampaignId == id);
             return View(campaign);
         }
 
