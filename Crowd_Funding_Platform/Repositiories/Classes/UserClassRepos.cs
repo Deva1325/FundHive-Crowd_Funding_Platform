@@ -107,8 +107,13 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             return true;
         }
 
+        //My Contributions 
 
-        
+        //public async Task<List<Contribution>> GetMyContributions()
+        //{
+            
+        //}
+
 
     }
 }

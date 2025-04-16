@@ -20,7 +20,6 @@ namespace Crowd_Funding_Platform.Controllers
             _campaign = campaign;
             _CFS= dbMain_CFS;
         }
-
         public IActionResult Index()
         {
             return View();

@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Crowd_Funding_Platform.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
 
-        public HomeController(ILogger<HomeController> logger, ISidebarRepos sidebar) : base(sidebar) 
+        public HomeController(ILogger<HomeController> logger) 
         {
             _logger = logger;
         }

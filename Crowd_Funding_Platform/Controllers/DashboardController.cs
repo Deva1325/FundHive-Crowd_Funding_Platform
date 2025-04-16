@@ -14,6 +14,8 @@ namespace Crowd_Funding_Platform.Controllers
         [ActionName("Dashboard")]
         public IActionResult Index()
         {
+            if (!MainCheck())
+                return RedirectToAction("Login","Account");
             return View();
         }
     }

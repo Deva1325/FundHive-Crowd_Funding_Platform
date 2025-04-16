@@ -54,16 +54,19 @@ $(document).ready(function () {
             input.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
         } else {
-            input.attr('type', 'password');
+            input.attr('type','password');
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
     });
+
 
     // ================================
     // 🔥 Password Strength Indicator (Text-based Only)
     // ================================
     const passwordInput = $("#PasswordHash");
-    const strengthText = $("<small id='password-strength-text' class='form-text mt-1'></small>").insertAfter(passwordInput);
+   const strengthText = $("<small id='password-strength-text' class='form-text mt-1'></small>").insertAfter(passwordInput);
+    //const strengthText = $("#password-strength-text");
+
 
     passwordInput.on("input", function () {
         const password = $(this).val();

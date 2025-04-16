@@ -1,0 +1,326 @@
+﻿@model Crowd_Funding_Platform.Models.User
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+<style>
+    /* ✅ Dropdown Menu Styling */
+    .dropdown-menu {
+        min-width: 200px;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* ✅ Dropdown Animation */
+    .animate-slide-in {
+        animation: slideIn 0.4s ease forwards;
+    }
+
+    @@keyframes slideIn {
+        0% {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+
+    /* ✅ Dropdown Items Styling */
+    .dropdown-item {
+        font-size: 14px;
+        color: #343a40;
+        padding: 10px 15px;
+        transition: all 0.3s;
+    }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: #007bff;
+        }
+
+    /* ✅ Profile Image Styling */
+    .profile-img {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .profile-img:hover {
+            transform: scale(1.05);
+        }
+
+    /* ✅ Dropdown Trigger Button Styling */
+    .btn-outline-light {
+        transition: all 0.3s;
+    }
+
+        .btn-outline-light:hover {
+            background: #0056b3;
+            color: white;
+        }
+</style>
+
+<div class="container my-5 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg border-0 rounded-lg" style="wiSdth: 80%; max-width: 1100px;">
+        <div class="card-header text-center bg-primary text-white">
+            <h3 class="mb-0">Update Your Information</h3>
+        </div>
+
+        <div class="card-body p-5">
+
+            <form asp-action="ContributorEditProfile" enctype="multipart/form-data" method="post">
+                <input type="hidden" asp-for="UserId" />
+
+                <!-- Profile Image Section (Inside Form) -->
+                <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                        <!-- Profile Image -->
+                        <img id="profilePreview"
+                             src="@(!string.IsNullOrEmpty(Model.ProfilePicture) ? Model.ProfilePicture : "/images/default-profile.png")"
+                             class="rounded-circle border profile-img shadow-sm"
+                             alt="Profile Picture"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                        @*   <div class="position-relative d-inline-block">
+                        <img id="profilePreview"
+                        src="@(!string.IsNullOrEmpty(Model.ProfilePicture) ? Model.ProfilePicture : "/images/default-profile.png")"
+                        class="rounded-circle border profile-img"
+                        alt="Profile Picture">
+
+                        <label for="ProfilePicture"
+                        class="edit-profile-icon position-absolute bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                        style="cursor: pointer;">
+                        <i class="fas fa-pencil-alt"></i>
+                        </label>
+                        class="btn btn-outline-light rounded-circle shadow-sm d-flex justify-content-center align-items-center dropdown-toggle"
+                        *@
+
+                        <!-- Pencil Icon Trigger with Dropdown -->
+                        <div class="dropdown position-absolute bottom-0 end-0">
+                            <button class="edit-profile-icon position-absolute text-white rounded-circle d-flex justify-content-center align-items-center"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="width: 34px;height: 33px;background: #8A2BE2;border: none;margin-bottom: -13px;">
+                                <i class="fas fa-pencil-alt text-white"></i>
+                            </button>
+
+                            <ul class="dropdown-menu shadow border-0 animate-slide-in">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" onclick="openFileUpload()">
+                                        <i class="fas fa-folder-open me-2 text-primary" style="color: #8A2BE2;"></i> Choose from Library
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#" onclick="setDefaultProfile()">
+                                        <i class="fas fa-user-check me-2 text-success" style="color: #28a745;"></i>  Set Default Picture
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <input type="file" id="ProfilePicture" name="ImageFile" class="d-none" accept="image/*" onchange="previewImage(event)" />
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Form Fields -->
+                <div class="row">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="control-label"></label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Username" class="control-label"></label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PhoneNumber" class="control-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ProfileBio" class="control-label"></label>
+                            <textarea asp-for="ProfileBio" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="ProfileBio" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="LastName" class="control-label"></label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Email" class="control-label"></label>
+                            <input asp-for="Email" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Address" class="control-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Website" class="control-label"></label>
+                            <input asp-for="Website" class="form-control" />
+                            <span asp-validation-for="Website" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <p><a href="~/Account/ForgotPassword" class="hover-a">Want to reset your password?</a></p>
+                    </div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a asp-action="ContributorProfile" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Container and Card Styling */
+    .container {
+        max-width: 1200px;
+    }
+
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+
+    /* Profile Image */
+    .profile-img {
+        width: 150px;
+        height: 150px;
+        border: 5px solid #ffffff;
+        object-fit: cover;
+        transition: 0.3s ease-in-out;
+    }
+
+        .profile-img:hover {
+            transform: scale(1.1);
+        }
+
+    .edit-profile-icon {
+        bottom: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Form Styling */
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+
+    /* Buttons */
+    .btn-lg {
+        padding: 10px 30px;
+        font-size: 18px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+        .btn-lg:hover {
+            transform: translateY(-2px);
+        }
+</style>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Profile Image Preview
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('profilePreview').src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('profilePreview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // Opens the file upload dialog
+        function openFileUpload() {
+            document.getElementById('ProfilePicture').click();
+        }
+
+        // Set Default Picture (You can update this logic to generate initials later)
+        function setDefaultProfile() {
+            const userName = '@Model.Username'; // Replace or fetch dynamically
+            const firstLetter = userName.charAt(0).toUpperCase();
+            const defaultImageUrl = "/images/default - profile.png"; // Optional: generate initial avatar
+
+            // Optional: Generate dynamic letter-based image if needed
+            document.getElementById('profilePreview').src = defaultImageUrl;
+        }
+
+        function setDefaultProfile() {
+            $.ajax({
+                url: '/Profile/GenerateDefaultProfile',
+                type: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        $('#profilePreview').attr('src', response.imagePath);
+                        Swal.fire('Default Picture Set!', '', 'success');
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'Something went wrong.', 'error');
+                }
+            });
+        }
+
+    </script>
+}

@@ -110,6 +110,47 @@ namespace Crowd_Funding_Platform.Controllers
             return View(campaign);
         }
 
+        //[HttpGet]
+        //public async Task<IActionResult> MyContributions(string searchString, string category, int? page)
+        //{
+        //    var contributors = await _user.GetAllContributorsAsync();
+
+        //    // Get unique categories
+        //    var categories = contributors
+        //                     .Where(c => c.Campaign?.Category != null && !string.IsNullOrEmpty(c.Campaign.Category.Name))
+        //                     .Select(c => c.Campaign.Category.Name)
+        //                     .Distinct()
+        //                     .ToList();
+
+        //    // Search filter
+        //    if (!string.IsNullOrEmpty(searchString))
+        //    {
+        //        contributors = contributors
+        //            .Where(c => c.Contributor?.Username != null &&
+        //                        c.Contributor.Username.ToLower().Contains(searchString.ToLower()))
+        //            .ToList();
+        //    }
+
+        //    // Category filter
+        //    if (!string.IsNullOrEmpty(category))
+        //    {
+        //        contributors = contributors
+        //            .Where(c => c.Campaign?.Category?.Name == category)
+        //            .ToList();
+        //    }
+
+        //    // Default page = 1, pageSize = 10
+        //    int pageSize = 5;
+        //    int pageNumber = page ?? 1;
+
+        //    var pagedContributors = contributors.ToPagedList(pageNumber, pageSize);
+
+        //    ViewBag.CurrentFilter = searchString;
+        //    ViewBag.SelectedCategory = category;
+        //    ViewBag.Categories = categories;
+
+        //    return View(pagedContributors);
+        //}
 
     }
 }

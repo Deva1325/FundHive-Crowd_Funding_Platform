@@ -5,6 +5,8 @@
     Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
 }
 
+<link rel="stylesheet" type="text/css" href="~/Authentication_T/aapp-assets/vendors/css/extensions/sweetalert2.min.css">
+
 <div class="container my-5">
     <div class="row">
         <div class="col-md-8">
@@ -44,9 +46,22 @@
                         @* <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()" data-bs-toggle="modal" data-bs-target="#donateModal">
                             Donate Now
                         </button>  *@
-                        <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()">
+
+                        <a href="javascript:void(0);"
+                           onclick="checkLoginAndNavigate({
+       url: '/Contributions/Donate?campaignId=@Model.CampaignId',
+       title: 'Want to help this campaign?',
+       text: 'Login or register to contribute and make a change.',
+       btnText: 'Login to Donate'
+   })"
+                           class="btn btn-danger btn-lg w-100">
                             Donate Now
-                        </button>
+                        </a>
+
+                       @*  <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()">
+                            Donate Now
+                        </button> *@
+
                     </div>
                     <p class="text-center text-muted mt-2">Card, Netbanking, UPI</p>
                     <hr />
@@ -111,6 +126,8 @@
 </script>
 @section Scripts {
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <script src="~/authentication_t/app-assets/vendors/js/extensions/sweetalert2.all.min.js"></script>
     <script>
 
         function handleDonateClick() {
@@ -185,6 +202,31 @@
                     alert("Failed to create payment order. Please try again.");
                 });
         });
+
+
+        function checkLoginAndNavigate({ url, title, text, btnText }) {
+            const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
+
+            if (isLoggedIn) {
+                window.location.href = url;
+            } else {
+                Swal.fire({
+                    title: title || 'Hold on!',
+                    text: text || 'Please login or register to continue.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: btnText || 'Login',
+                    cancelButtonText: 'Maybe later',
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/Account/Login';
+                    }
+                });
+            }
+        }
+
     </script>
 }
 

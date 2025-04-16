@@ -2,11 +2,13 @@
 
 @{
     ViewData["Title"] = "Profile";
-    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
 }
+
 
 <div class="profile-container" style="font-family: 'Material Design Icons';">
     <div class="container mt-5">
+        <h2 class="text-center fw-bold mb-5 text-theme">User Profile</h2>
         <div class="row">
             <!-- Profile Section -->
             <div class="col-md-4">
@@ -41,7 +43,7 @@
                             <div class="col-md-6">
                                 <div class="info-box"><label>First Name</label><p>@Model.FirstName</p></div>
                                 <div class="info-box"><label>Email</label><p id="VerifyEmailHere">@Model.Email</p></div>
-                                <div class="info-box"><label>Joined Date</label><p >@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
+                                <div class="info-box"><label>Joined Date</label><p>@Model.DateCreated?.ToString("dd MMM yyyy")</p></div>
                                 <div class="info-box"><label>Profile Bio</label><p>@Model.ProfileBio</p></div>
                                 <div class="info-box"><label>Website</label><p><a href="@Model.Website" target="_blank">@Model.Website</a></p></div>
                             </div>
@@ -90,7 +92,7 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <a asp-action="EditProfile" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg">
+                            <a asp-action="ContributorEditProfile" asp-route-id="@Model?.UserId" class="btn btn-primary btn-lg">
                                 <i class="fas fa-edit"></i> Edit Profile
                             </a>
                         </div>
@@ -191,53 +193,53 @@
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-    $("#Verification").validate({
-        submitHandler: function (form, event) {
-            event.preventDefault();
+            $("#Verification").validate({
+                submitHandler: function (form, event) {
+                    event.preventDefault();
 
-            const btnUpdateEmail = $("#btnUpdateEmail");
-            const btnLoader = $("#btnLoader");
-            
-            btnUpdateEmail.prop("disabled", true);
-            btnLoader.removeClass("d-none");
+                    const btnUpdateEmail = $("#btnUpdateEmail");
+                    const btnLoader = $("#btnLoader");
 
-            let email = document.getElementById("VerifyEmailHere").textContent;
+                    btnUpdateEmail.prop("disabled", true);
+                    btnLoader.removeClass("d-none");
 
-            //const email = ("#").val(); // Fetch email from Razor Model
-            console.log("Sending email for verification:", email);
+                    let email = document.getElementById("VerifyEmailHere").textContent;
 
-            $.ajax({
-                url: '/Profile/UpdateEmailVerification',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ Email: email }), // Send correct format
-                success: function (result) {
-                    if (result.success) {
-                        showToast("success", "OTP sent to email!");
+                    //const email = ("#").val(); // Fetch email from Razor Model
+                    console.log("Sending email for verification:", email);
 
-                        // Ensure redirection works properly
-                        setTimeout(() => {
-                            window.location.href = '/Profile/ProfileOTP';
-                        }, 2000);
-                    } else {
-                        showToast("error", result.message);
-                    }
-                },
-                error: function (xhr) {
-                    showToast("error", "An error occurred: " + xhr.responseText);
-                },
-                complete: function () {
-                    btnUpdateEmail.prop("disabled", false);
-                    btnLoader.addClass("d-none");
+                    $.ajax({
+                        url: '/Profile/UpdateEmailVerification',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ Email: email }), // Send correct format
+                        success: function (result) {
+                            if (result.success) {
+                                showToast("success", "OTP sent to email!");
+
+                                // Ensure redirection works properly
+                                setTimeout(() => {
+                                    window.location.href = '/Profile/ProfileOTP';
+                                }, 2000);
+                            } else {
+                                showToast("error", result.message);
+                            }
+                        },
+                        error: function (xhr) {
+                            showToast("error", "An error occurred: " + xhr.responseText);
+                        },
+                        complete: function () {
+                            btnUpdateEmail.prop("disabled", false);
+                            btnLoader.addClass("d-none");
+                        }
+                    });
                 }
             });
-        }
-    });
 
-    });
+        });
 
         function showToast(type, message) {
             if (type === "success") {
@@ -248,7 +250,7 @@
                 console.warn("Unknown toast type:", type);
             }
         }
-</script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 }

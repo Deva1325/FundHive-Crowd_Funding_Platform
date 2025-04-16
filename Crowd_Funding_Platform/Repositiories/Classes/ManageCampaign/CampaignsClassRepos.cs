@@ -48,7 +48,6 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             return await _CFS.Campaigns.OrderByDescending(c => c.StartDate).ToListAsync();
         }
 
-
         // Add this method inside the repository class
         private string GetCampaignStatus(DateOnly startDate, DateOnly endDate, DateOnly today)
         {
@@ -549,9 +548,6 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
                 })
                 .FirstOrDefault();
         }
-
-
-
 
         public async Task<List<Campaign>> GetCampaignsByCreator(int creatorId)
         {

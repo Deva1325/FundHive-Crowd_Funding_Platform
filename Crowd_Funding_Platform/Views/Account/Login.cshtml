@@ -77,7 +77,6 @@
 
 <body class="vertical-layout vertical-menu-modern boxicon-layout no-card-shadow 1-column  navbar-sticky footer-static bg-full-screen-image  blank-page" data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
     <!-- BEGIN: Content-->
-
  
     <div class="app-content content">
         <div class="content-overlay"></div>
@@ -121,17 +120,15 @@
                                                 </div>
                                             </div>
                                             <form id="loginForm" method="post">
-
-                                               
                                                 <div class="form-group mb-50">
                                                     <label class="text-bold-600" asp-for="EmailOrUsername">Email address</label>
                                                     <input type="email" asp-for="EmailOrUsername" class="form-control" placeholder="Email address">
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="text-bold-600" asp-for="Password">Password</label>
-                                                    <input type="password" id="password" asp-for="Password" class="form-control" placeholder="Password">
-                                                    <button type="button" class="toggle-password-btn" data-target="#password">
-                                                        <i class="fas fa-eye" style="margin-top: 17px;"></i>
+                                                    <input type="password" id="PasswordHash" asp-for="Password" class="form-control" placeholder="Password" autocomplete="current-password">
+                                                    <button type="button" class="toggle-password-btn" data-target="#PasswordHash" style="    margin-top: 5px;">
+                                                        <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
 
@@ -154,7 +151,7 @@
                                                         <a href="~/Account/ForgotPassword" class="card-link"><small>Forgot Password?</small></a>
                                                     </div>
                                                 </div>
-                                                <button type="submit" id="btnLogin"class="btn btn-primary glow w-100 position-relative">
+                                                <button type="submit" id="btnLogin" class="btn btn-primary glow w-100 position-relative">
                                                     <span id="btnLoader" class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                                                     <span>Login</span>
                                                     <i id="icon-arrow" class="bx bx-right-arrow-alt"></i>
@@ -222,15 +219,21 @@
     <!-- Custom Scripts -->
 
 
-    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-            async defer>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer>
     </script>
-    
 
+    <script>
+        $('.toggle-password-btn').on('click', function () {
+            const target = $(this).data('target');
+            const input = $(target);
+            const icon = $(this).find('i');
+
+            const isPassword = input.attr('type') === 'password';
+            input.attr('type', isPassword ? 'text' : 'password');
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+    </script>
     <script src="~/js/Login.js"></script>
-
-  
-
 
 </body>
 

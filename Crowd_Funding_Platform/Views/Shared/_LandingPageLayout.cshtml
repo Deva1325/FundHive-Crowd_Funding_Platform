@@ -4,8 +4,15 @@
     HttpContextAccessor.HttpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
     HttpContextAccessor.HttpContext.Response.Headers["Pragma"] = "no-cache";
     HttpContextAccessor.HttpContext.Response.Headers["Expires"] = "0";
-}
 
+
+    var isLoggedIn = Context.Session.GetString("LoginCred") != null;
+    var userImage = HttpContextAccessor.HttpContext?.Session.GetString("UserImage");
+
+    var isAdmin = Context.Session.GetString("IsAdmin_ses") == "true";
+    var isCreatorApproved = Context.Session.GetString("IsCreatorApproved") == "true";
+    var profileUrl = (isAdmin || isCreatorApproved) ? Url.Content("~/Profile/Profile") : Url.Content("~/ContributorProfile/ContributorProfile");
+}
 
 <!doctype html>
 <html class="no-js" lang="zxx">
@@ -37,6 +44,55 @@
     <link rel="stylesheet" href="~/assets/css/slick.css">
     <link rel="stylesheet" href="~/assets/css/nice-select.css">
     <link rel="stylesheet" href="~/assets/css/style.css">
+
+
+    @* <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> *@
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    @* sweet alert *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .dp-img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 50% !important;
+            margin-right: .5rem !important;
+            vertical-align: middle;
+        }
+
+        .dp-dropdown {
+            min-width: 180px;
+            border-radius: 10px;
+            padding: 10px 0;
+            display: none; /* Initially hidden */
+            position: absolute;
+            background-color: white;
+            z-index: 1000;
+        }
+
+            .dp-dropdown.show {
+                display: block;
+            }
+
+            .dp-dropdown .dropdown-item {
+                padding: 8px 16px;
+                font-size: 15px;
+                color: #333;
+            }
+
+                .dp-dropdown .dropdown-item:hover {
+                    background-color: #f2f2f2;
+                    color: #000;
+                }
+
+        .dp-container {
+            position: relative;
+        }
+    </style>
 
 
 
@@ -97,8 +153,8 @@
                                                 </ul>
                                             </li>
                                             <li><a href="~/Home/Contact">Contact</a></li>
-                                            <li>
-                                                @if (Context.Session.GetString("IsCreatorApproved") == "false")
+                                            @* <li>
+                                                @if (isLoggedIn && !isCreatorApproved && !isAdmin)
                                                 {
                                                     <div class="header-right-btn f-right  ml-15">
                                                         <a asp-controller="Campaign" asp-action="ApplyForCreator" class="header-btn">Start A FundRaiser</a>
@@ -106,13 +162,29 @@
                                                 }
 
                                             </li>
+ *@
+                                            <!-- Always show "Start A Fundraiser" -->
+                                            @if (!(isCreatorApproved || isAdmin))
+                                            {
+                                                <li>
+                                                    <div class="header-right-btn f-right ml-15">
+                                                        <a href="javascript:void(0);" onclick="checkLoginAndNavigate({
+                url: '/Campaign/ApplyForCreator',
+                title: 'Start Your Fundraiser',
+                text: 'Login or register to start your own fundraising campaign.',
+                btnText: 'Login to Start'
+            })" class="btn btn-primary">Start a Fundraiser</a>
+                                                    </div>
+                                                </li>
+                                            }
+
 
                                             @if (Context.Session.GetString("LoginCred") != null)
                                             {
                                                 <li>
                                                     @if (Context.Session.GetString("IsAdmin_ses") == "true")
                                                     {
-                                                        <a href="/Admin/Dashboard" class="header-btn">Admin Dashboard</a>
+                                                        <a href="/Dashboard/Dashboard" class="header-btn">Admin Dashboard</a>
                                                     }
                                                     else if (Context.Session.GetString("IsCreatorApproved") == "true")
                                                     {
@@ -123,13 +195,13 @@
                                                 <a href="~/Dashboard/Dashboard">Contributor Dashboard</a>
                                                 } *@
                                                 </li>
-                                                <li>
+                                                @* <li>
                                                     <div class="header-right-btn f-right  ml-15">
                                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                                             <button type="submit" class="header-btn">Logout</button>
                                                         </form>
                                                     </div>
-                                                </li>
+                                                </li> *@
                                             }
                                             else
                                             {
@@ -140,7 +212,53 @@
                                                     <a asp-controller="Account" asp-action="Registration" class="header-btn">Register</a>
                                                 </li>
                                             }
+                                            @if (isLoggedIn)
+                                            {
+                                            <li class="nav-item dropdown dp-container" id="dpContainer">
+                                                <a class="nav-link d-flex align-items-center" href="#" id="dpDropdownToggle">
+                                                        <img src="@(string.IsNullOrEmpty(userImage) ? Url.Content("~/assets/img/default-user.png") : userImage)" class="dp-img" />
 
+                                                    @* <img src="@Context.Session.GetString("UserImage")" class="dp-img" /> *@
+                                                    <span class="fw-semibold">@Context.Session.GetString("UserName")</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end mt-2 dp-dropdown" id="dpDropdownMenu">
+
+                                                    <!-- ✅ View Profile -->
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center" href="@profileUrl">
+                                                            <i class="fa fa-user me-2"></i>View Profile
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- ✅ Dashboard for Admin or Creator -->
+                                                    @if (isAdmin || isCreatorApproved)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item d-flex align-items-center" href="~/Dashboard/Dashboard">
+                                                                <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+                                                            </a>
+                                                        </li>
+                                                    }
+
+                                                    <!-- ✅ My Contributions (Always Visible) -->
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center" href="~/Contributions/MyContributions">
+                                                            <i class="fa fa-donate me-2"></i>My Contributions
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- ✅ Logout -->
+                                                    <li>
+                                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                                            <button type="submit" class="dropdown-item d-flex align-items-center">
+                                                                <i class="fa fa-sign-out-alt me-2"></i>Logout
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            }
+           
                                             @* <li>
                                             <div class="header-right-btn f-right  ml-15">
 
@@ -281,6 +399,10 @@
         <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <!-- JS here -->
     <!-- Jquery, Popper, Bootstrap -->
     <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
@@ -324,6 +446,55 @@
 
         gtag('config', 'UA-23581568-13');
     </script>
+    <script>
+        const toggle = document.getElementById("dpDropdownToggle");
+        const menu = document.getElementById("dpDropdownMenu");
+        const container = document.getElementById("dpContainer");
+
+        let hoverTimeout;
+
+        container.addEventListener("mouseenter", () => {
+            clearTimeout(hoverTimeout);
+            menu.classList.add("show");
+        });
+
+        container.addEventListener("mouseleave", () => {
+            hoverTimeout = setTimeout(() => {
+                menu.classList.remove("show");
+            }, 200); // Grace period before hiding
+        });
+
+        toggle.addEventListener("click", (e) => {
+            e.preventDefault(); // Prevent default anchor behavior
+            menu.classList.toggle("show");
+        });
+
+        function checkLoginAndNavigate({ url, title, text, btnText }) {
+            const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
+
+            if (isLoggedIn) {
+                window.location.href = url;
+            } else {
+                Swal.fire({
+                    title: title || 'Hold on!',
+                    text: text || 'Please login or register to continue.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: btnText || 'Login',
+                    cancelButtonText: 'Maybe later',
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/Account/Login';
+                    }
+                });
+            }
+        }
+
+    </script>
+    
+
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"908894b04a643b0d","version":"2025.1.0","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"cd0b4b3a733644fc843ef0b185f98241","b":1}' crossorigin="anonymous"></script>
 </body>
 
