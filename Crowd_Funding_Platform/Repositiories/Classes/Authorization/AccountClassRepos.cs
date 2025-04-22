@@ -22,11 +22,35 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 
             user.DateCreated = DateTime.Now;
 
-            user.Otp = _emailSender.GenerateOtp();
-            user.Otpexpiry = DateTime.Now.AddMinutes(5);
-            user.EmailVerified = false;
-            string subj = "OTP Verification!!!";
-            await _emailSender.SendEmailAsync(user.Email,user.Username, subj, user.Otp, "Registration");
+            // ✅ Store plain password BEFORE calling AddUserAsync
+            string originalPassword = user.PasswordHash;
+
+            // Check if it's a Google user
+            if (user.IsGoogleAccount == true)
+            {
+                user.EmailVerified = true;
+
+                string userSubject = "🎉 Welcome - FundHive Login Info";
+
+                // Pass data in a delimited format like "username|email|password"
+                string userBody = $"{user.Username}|EMAIL:{user.Email}|PASSWORD:{originalPassword}";
+
+                await _emailSender.SendEmailAsync(
+                    user.Email,                   // toEmail
+                    user.Username,                // userName
+                    userSubject,                  // subject
+                    userBody,                     // body (contains all values for template)
+                    "GoogleRegistration"          // emailType
+                );
+            }
+            else
+            {
+                user.Otp = _emailSender.GenerateOtp();
+                user.Otpexpiry = DateTime.Now.AddMinutes(5);
+                user.EmailVerified = false;
+                string subj = "OTP Verification!!!";
+                await _emailSender.SendEmailAsync(user.Email, user.Username, subj, user.Otp, "Registration");
+            }
 
             if(ImageFile == null)
             {

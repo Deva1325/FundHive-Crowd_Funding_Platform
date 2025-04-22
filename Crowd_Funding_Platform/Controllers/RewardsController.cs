@@ -40,14 +40,14 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveRewards(Reward reward)
+        public async Task<IActionResult> SaveRewards(Reward reward, IFormFile? ImageFile)
         {
             try
             {
                 bool isNew = reward.RewardId == 0;  // Check if it's a new category
 
                 // ✅ Ensure ID is properly passed and checked
-                bool isSaved = await _rewards.SaveReward(reward);
+                bool isSaved = await _rewards.SaveReward(reward, ImageFile);
 
                 if (isSaved)
                 {

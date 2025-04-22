@@ -23,13 +23,15 @@ namespace Crowd_Funding_Platform.Controllers
         private readonly string _razorpayKey;
         private readonly string _razorpaySecret;
         private readonly IEmailSenderRepos _emailSender;      
-        public ContributionsController(DbMain_CFS cFS, IConfiguration config, IEmailSenderRepos emailSender)
+        private readonly IContributionRepository _contributionRepository;      
+        public ContributionsController(DbMain_CFS cFS, IConfiguration config, IEmailSenderRepos emailSender, IContributionRepository contributionRepository)
         {
             _context = cFS;
             _config = config;
             _razorpayKey = _config["Razorpay:Key"];
             _razorpaySecret = _config["Razorpay:Secret"];
-            _emailSender = emailSender; 
+            _emailSender = emailSender;
+            _contributionRepository = contributionRepository;
         }
 
         [HttpPost]
@@ -160,19 +162,10 @@ namespace Crowd_Funding_Platform.Controllers
                    <strong>Amount:</strong> ₹{data.amount}<br>
                 <p>We’ve also attached your official receipt (PDF) for your records.</p>
                 <!-- PDF-ATTACHMENT:{base64Pdf} -->";
-
-                //string emailBodyWithPdf = $@"
-                //<p>Dear {user.Username},</p>
-                //<p>Thank you for your contribution!</p>
-                //<p><strong>Campaign:</strong> {campaign.Title}<br>
-                //   <strong>Amount:</strong> ₹{data.amount}<br>
-                //   <strong>Transaction ID:</strong> {contribution.TransactionId}</p>
-                //<p>We’ve also attached your official receipt (PDF) for your records.</p>
-                //PDF:{base64Pdf}";
-                //<p>© 2025 FundHive. All rights reserved.</p>";
-
-
+              
                await _emailSender.SendEmailAsync(user.Email, user.Username, "Thank You for Your Contribution!", emailBodyWithPdf, "Contribution");
+
+                await _contributionRepository.AssignRewardAsync(userId.Value);
 
                 return Json(new { success = true, message = "Payment verified & receipt emailed!" });
             }

@@ -19,10 +19,10 @@
             .then(res => res.json())
             .then(data => {
                 if(!data.success){
-                            showToast(result.message, "error")
+                            alert(result.message)
                 }
-                if (data.success && data.redirect) {
-                    window.location.href = data.redirect;
+                if (data.success && data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
                 }
                 else if (!data.success && data.redirect) {
                     window.location.href = data.redirect;
@@ -34,7 +34,7 @@
                 }
             })
             .catch(err => {
-                            showToast("Unknown error occurred", "error")
+                            alert("Unknown error occurred")
                 console.error(err);
                 window.location.href = "/Account/login";
             });

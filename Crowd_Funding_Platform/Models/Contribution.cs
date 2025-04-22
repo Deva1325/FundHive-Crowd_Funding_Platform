@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Crowd_Funding_Platform.Models;
 
@@ -24,6 +25,9 @@ public partial class Contribution
     public string? OrderId { get; set; }
 
     public string? Status { get; set; }
+
+    [NotMapped]
+    public decimal TotalAmountContributed { get; set; }
 
     public virtual Campaign Campaign { get; set; } = null!;
 

@@ -53,6 +53,7 @@
                             <th>Description</th>
                             <th>Created On</th>
                             <th class="text-center">Actions</th>
+                            <th>Badge</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,6 +64,9 @@
                                 <td>₹ @item.RequiredAmount.ToString("N2")</td>
                                 <td>@item.RewardDescription</td>
                                 <td>@(item.Timestamp?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                <td><img src="@item.BadgeIcon" alt="Badge" style="width:60px;height:auto;" /></td>
+                                
+
                                 <td class="text-center">
                                     <a asp-action="SaveRewards" asp-route-id="@item.RewardId"
                                        class="btn btn-sm btn-warning text-white me-1">

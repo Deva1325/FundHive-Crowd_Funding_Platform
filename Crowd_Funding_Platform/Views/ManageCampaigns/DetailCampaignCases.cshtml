@@ -47,7 +47,7 @@
                             Donate Now
                         </button>  *@
 
-                        <a href="javascript:void(0);"
+                        @* <a href="javascript:void(0);"
                            onclick="checkLoginAndNavigate({
        url: '/Contributions/Donate?campaignId=@Model.CampaignId',
        title: 'Want to help this campaign?',
@@ -57,10 +57,10 @@
                            class="btn btn-danger btn-lg w-100">
                             Donate Now
                         </a>
-
-                       @*  <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()">
+ *@
+                        <button class="btn btn-danger btn-lg w-100" onclick="handleDonateClick()">
                             Donate Now
-                        </button> *@
+                        </button>
 
                     </div>
                     <p class="text-center text-muted mt-2">Card, Netbanking, UPI</p>
@@ -122,21 +122,48 @@
     var userId = Context.Session.GetInt32("UserId_ses");
 }
 <script>
-    const isLoggedIn = @(userId != null ? "true" : "false");
+    const isLoggedIn = "@(userId != null ? "true" : "false")";
 </script>
+<script>
+    console.log("IsLoggedIn JS value: ", isLoggedIn);
+</script>
+
 @section Scripts {
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <script src="~/authentication_t/app-assets/vendors/js/extensions/sweetalert2.all.min.js"></script>
     <script>
 
+        // function handleDonateClick() {
+        //     if (!isLoggedIn) {
+        //         alert("Please login first to donate.");
+        //         window.location.href = "/Account/Login"; // Adjust path as needed
+        //     } else {
+        //         const donateModal = new bootstrap.Modal(document.getElementById('donateModal'));
+        //         donateModal.show();
+        //     }
+        // }
+
+
         function handleDonateClick() {
-            if (!isLoggedIn) {
-                alert("Please login first to donate.");
-                window.location.href = "/Account/Login"; // Adjust path as needed
-            } else {
+            if (isLoggedIn === "true") {
                 const donateModal = new bootstrap.Modal(document.getElementById('donateModal'));
                 donateModal.show();
+            } else {
+                Swal.fire({
+                    title: 'Please Login First',
+                    text: 'Login or register to continue donating.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login Now',
+                    cancelButtonText: 'Maybe Later',
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/Account/Login';
+                    }
+                });
             }
         }
 
@@ -166,6 +193,11 @@
                         name: "Crowd Funding",
                         description: "Donation",
                         order_id: order.id,
+                        prefill: {
+                            name: "@ViewBag.UserName",
+                            email: "@ViewBag.UserEmail",
+                            contact: "9999999999" // Use test number
+                        },
                         handler: function (response) {
                             fetch(`/Contributions/VerifyAndStorePayment`, {
                                 method: "POST",
@@ -204,28 +236,31 @@
         });
 
 
-        function checkLoginAndNavigate({ url, title, text, btnText }) {
-            const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
+        // function checkLoginAndNavigate({ url, title, text, btnText }) {
 
-            if (isLoggedIn) {
-                window.location.href = url;
-            } else {
-                Swal.fire({
-                    title: title || 'Hold on!',
-                    text: text || 'Please login or register to continue.',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: btnText || 'Login',
-                    cancelButtonText: 'Maybe later',
-                    confirmButtonColor: '#198754',
-                    cancelButtonColor: '#d33'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/Account/Login';
-                    }
-                });
-            }
-        }
+        //     var isLoggedIn = '@ViewBag.IsLoggedIn'.toLowerCase() === 'true';
+
+        //     const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
+
+        //     if (isLoggedIn) {
+        //         window.location.href = url;
+        //     } else {
+        //         Swal.fire({
+        //             title: title || 'Hold on!',
+        //             text: text || 'Please login or register to continue.',
+        //             icon: 'info',
+        //             showCancelButton: true,
+        //             confirmButtonText: btnText || 'Login',
+        //             cancelButtonText: 'Maybe later',
+        //             confirmButtonColor: '#198754',
+        //             cancelButtonColor: '#d33'
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 window.location.href = '/Account/Login';
+        //             }
+        //         });
+        //     }
+        // }
 
     </script>
 }

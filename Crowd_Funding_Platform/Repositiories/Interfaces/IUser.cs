@@ -9,5 +9,8 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
 
         Task<CreatorApplication?> GetCreatorsById(int id);
         Task<bool> DeleteCreator(int id);
+        //Task<List<Contribution>> GetMyContributions();
+        Task<List<Contribution>> MyContributions();
+        Task<List<Contribution>> GetContributionHistory(int campaignId);
     }
 }

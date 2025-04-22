@@ -1,0 +1,145 @@
+﻿@model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "Contribution History";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<style>
+    table {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table th, .table td {
+        vertical-align: middle !important;
+    }
+</style>
+
+
+<div class="container my-5">
+    <h2 class="mb-4 text-center">Contribution History</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No contribution history found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <div class="table-responsive">
+                <table id="contributionTable" class="table table-hover table-bordered shadow-sm">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Payment Status</th>
+                            <th>Payment ID</th>
+                            <th>Order ID</th>
+                            <th>Campaign</th>
+                            <th>Amount (₹)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center align-middle">
+                        @foreach (var item in Model.Select((contribution, index) => new { contribution, index }))
+                        {
+                            var status = item.contribution.Status?.ToLower();
+                            string statusClass = status switch
+                            {
+                                "confirmed" => "badge bg-success",
+                                "pending" => "badge bg-warning text-dark",
+                                "failed" => "badge bg-danger",
+                                _ => "badge bg-secondary"
+                            };
+                            <tr>
+                                <td>@(item.index + 1)</td>
+                                <td>@item.contribution.Date?.ToString("dd-MMM-yyyy")</td>
+                                <td>@item.contribution.TransactionId</td>
+                                <td><span class="badge bg-info text-dark">@item.contribution.PaymentStatus</span></td>
+                                <td>@item.contribution.PaymentId</td>
+                                <td>@item.contribution.OrderId</td>
+                                <td>
+                                    <strong>@item.contribution.Campaign?.Title</strong> <br />
+                                    <small class="text-muted">@item.contribution.CampaignId</small>
+                                </td>
+                                <td>₹@item.contribution.Amount</td>
+                                <td><span class="@statusClass text-capitalize">@item.contribution.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+           
+
+        </div>
+    }
+</div>
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('#contributionTable').DataTable({
+            "order": [[1, "desc"]] // Sort by Date column initially
+        });
+    });
+</script>
+
+
+
+
+@* 
+<table class="table table-hover table-bordered shadow-sm">
+    <thead class="table-dark text-center">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date</th>
+            <th scope="col">Transaction ID</th>
+            <th scope="col">Payment Status</th>
+            <th scope="col">Payment ID</th>
+            <th scope="col">Order ID</th>
+            <th scope="col">Campaign</th>
+            <th scope="col">Amount (₹)</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody class="text-center align-middle">
+        @foreach (var item in Model.Select((contribution, index) => new { contribution, index }))
+        {
+            var status = item.contribution.Status?.ToLower();
+            string statusClass = status switch
+            {
+                "confirmed" => "badge bg-success",
+                "pending" => "badge bg-warning text-dark",
+                "failed" => "badge bg-danger",
+                _ => "badge bg-secondary"
+            };
+            <tr>
+                <td>@(item.index + 1)</td>
+                <td>@item.contribution.Date?.ToString("dd-MMM-yyyy")</td>
+                <td>@item.contribution.TransactionId</td>
+                <td>
+                    <span class="badge bg-info text-dark">@item.contribution.PaymentStatus</span>
+                </td>
+                <td>@item.contribution.PaymentId</td>
+                <td>@item.contribution.OrderId</td>
+                <td>
+                    <strong>@item.contribution.Campaign?.Title</strong> <br />
+                    <small class="text-muted">@item.contribution.CampaignId</small>
+                </td>
+                <td>₹@item.contribution.Amount</td>
+                <td>
+                    <span class="@statusClass text-capitalize">@item.contribution.Status</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table> *@

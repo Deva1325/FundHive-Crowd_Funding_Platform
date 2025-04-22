@@ -29,6 +29,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
         {
             try
             {
+                string certificateFilePath = null;
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("OTP Verifier", "tester.devanshi29@gmail.com"));
                 message.To.Add(new MailboxAddress("User", toEmail));
@@ -138,6 +139,153 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
                     </body>
                 </html>";
                 }
+                else if (emailType == "Certificate")
+                {
+                    string badgeName = "Gold Badge";
+
+                    // Extract badge name and certificate path from the input
+                    var match = Regex.Match(body, @"^(.*?)\|CERTIFICATE_PATH:(.+)$");
+                    if (match.Success)
+                    {
+                        badgeName = match.Groups[1].Value.Trim();
+                        certificateFilePath = match.Groups[2].Value.Trim();
+                    }
+
+                    emailBody = $@"<html>
+<head>
+    <style>
+        body {{
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }}
+        .email-container {{
+            background: #ffffff;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }}
+        h2 {{
+            color: #4CAF50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }}
+        p {{
+            color: #333333;
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }}
+        .footer {{
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777777;
+        }}
+    </style>
+</head>
+<body>
+    <div class='email-container'>
+        <h2>🎉 Congratulations on Earning Your Badge!</h2>
+        <p>Dear {userName},</p>
+        <p>We are delighted to present you with the <strong>{badgeName}</strong> for your outstanding contributions at <strong>FundHive</strong>.</p>
+        <p>This badge is a token of your dedication and commitment to supporting meaningful campaigns.</p>
+        <p>Please find your official certificate attached as a PDF.</p>
+        <p>Thank you for being an invaluable part of the FundHive community!</p>
+        <div class='footer'>
+            &mdash; The FundHive Team
+        </div>
+    </div>
+</body>
+</html>";
+                }
+                else if (emailType == "GoogleRegistration")
+                {
+                    string username = userName;
+                    string email = "";
+                    string password = "";
+
+                    // Parse the body using a delimiter
+                    var match = Regex.Match(body, @"^(.*?)\|EMAIL:(.*?)\|PASSWORD:(.*)$");
+                    if (match.Success)
+                    {
+                        username = match.Groups[1].Value.Trim();
+                        email = match.Groups[2].Value.Trim();
+                        password = match.Groups[3].Value.Trim();
+                    }
+
+                    emailBody = $@"<html>
+<head>
+    <style>
+        body {{
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }}
+        .email-wrapper {{
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }}
+        h2 {{
+            color: #4CAF50;
+            text-align: center;
+        }}
+        p {{
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.6;
+        }}
+        .info {{
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }}
+        .info strong {{
+            display: inline-block;
+            width: 100px;
+        }}
+        .footer {{
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 30px;
+        }}
+    </style>
+</head>
+<body>
+    <div class='email-wrapper'>
+        <h2>🎉 Welcome to FundHive!</h2>
+        <p>Hi {username},</p>
+        <p>Your account has been successfully created using your Google account.</p>
+
+        <div class='info'>
+            <p><strong>Username:</strong> {username}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Password:</strong> {password}</p>
+        </div>
+
+        <p>You can now log in and start exploring campaigns or even create your own.</p>
+        <p><strong>Tip:</strong> For better security, we recommend updating your password after your first login.</p>
+
+        <p>If you have any questions or need help, feel free to contact our support team.</p>
+
+        <div class='footer'>
+            &mdash; The FundHive Team
+        </div>
+    </div>
+</body>
+</html>";
+                }
 
                 var builder = new BodyBuilder();
                 builder.HtmlBody = emailBody;
@@ -156,17 +304,11 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
                         body = Regex.Replace(body, @"<!--\s*PDF-ATTACHMENT:(.+?)\s*-->", "");
                     }
                 }
-
-                //if (emailType == "Contribution")
-                //{
-                //    var base64Match = Regex.Match(body, @"PDF:(.+)$");
-                //    if (base64Match.Success)
-                //    {
-                //        string base64Pdf = base64Match.Groups[1].Value.Trim();
-                //        byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
-                //        builder.Attachments.Add("FundHive_Receipt.pdf", pdfBytes, new ContentType("application", "pdf"));
-                //    }
-                //}
+                // Attach certificate if the file exists
+                if (!string.IsNullOrEmpty(certificateFilePath) && System.IO.File.Exists(certificateFilePath))
+                {
+                    builder.Attachments.Add(Path.GetFileName(certificateFilePath), System.IO.File.ReadAllBytes(certificateFilePath), new ContentType("application", "pdf"));
+                }
 
                 message.Body = builder.ToMessageBody();
 

@@ -15,6 +15,8 @@ public partial class UserReward
 
     public DateTime? Timestamp { get; set; }
 
+    public bool? IsCertificateGenerated { get; set; }
+
     public virtual Reward Reward { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

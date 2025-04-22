@@ -11,6 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -41,10 +46,51 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpGet, ActionName("Registration")]
-        public async Task<IActionResult> AddUserRegister()
+        public async Task<IActionResult> AddUserRegister(string? email)
         {
+            if (!string.IsNullOrEmpty(email))
+            {
+                var tempPassword = GenerateTemporaryPassword(12);
+
+                var model = new GoogleSignupModel
+                {
+                    Email = email,
+                    PasswordHash = tempPassword,         // Use this directly in the form field
+                    ConfirmPassword = tempPassword       // Optional: For auto-filling confirm password
+                };
+
+                ViewBag.GoogleData = model;
+            }
+
             return View();
+            //if (email != null)
+            //{
+            //    var model = new GoogleSignupModel { Email = email, temppassword = "hello12345678" };
+            //    ViewBag.GoogleData = model;
+            //}
+            //return View();
         }
+
+        private string GenerateTemporaryPassword(int length)
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*";
+            StringBuilder password = new StringBuilder();
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] uintBuffer = new byte[sizeof(uint)];
+
+                while (password.Length < length)
+                {
+                    rng.GetBytes(uintBuffer);
+                    uint num = BitConverter.ToUInt32(uintBuffer, 0);
+                    password.Append(validChars[(int)(num % (uint)validChars.Length)]);
+                }
+            }
+
+            return password.ToString();
+        }
+
 
         //[HttpPost, ActionName("Registration")]
         //public async Task<IActionResult> AddUserRegister(User user, IFormFile? ImageFile)
@@ -133,8 +179,21 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet]
         public async Task<IActionResult> OtpCheck()
         {
+            string email = HttpContext.Session.GetString("UserEmail");
+
+            var isVerified = _dbMain.Users
+                .Where(x => x.Email == email)
+                .Select(y => y.EmailVerified)
+                .FirstOrDefault();
+
+            if (isVerified == true)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> OtpCheck(User users)
@@ -418,6 +477,8 @@ namespace Crowd_Funding_Platform.Controllers
             var name = result.Principal.Identity.Name;
 
             var user = await _dbMain.Users.FirstOrDefaultAsync(u => u.Email == email);
+            string redirectUrl = "/Home/Index"; // Default for contributors
+
 
             if (user != null && user.IsGoogleAccount == false)
             {
@@ -426,42 +487,43 @@ namespace Crowd_Funding_Platform.Controllers
 
             if (user != null && user.IsGoogleAccount == true)
             {
-                //var info = await _db.TblAdminInfos.FirstOrDefaultAsync(u => u.AdminId == user.UserId);
-                //TblShop shopData = new TblShop();
+       
+                HttpContext.Session.SetInt32("UserId_ses", user.UserId);
+                HttpContext.Session.SetString("IsAdmin_ses", user.IsAdmin == true ? "true" : "false");
+                HttpContext.Session.SetString("IsCreatorApproved", user.IsCreatorApproved == true ? "true" : "false");
 
-                //if (user.RoleId <= 2)
-                //    shopData = _db.TblShops.FirstOrDefault(x => x.AdminId == user.UserId);
-                //else
-                //    shopData = _db.TblShops.FirstOrDefault(x => x.AdminId == user.AdminRef);
 
-                //if (shopData != null)
-                //    HttpContext.Session.SetInt32("ShopId", shopData.ShopId);
+              
+                if (user.IsAdmin == true)
+                {
+                    redirectUrl = "/Dashboard/Dashboard"; // Admin Dashboard
+                }
+                else if (user.IsCreatorApproved == true)
+                {
+                    redirectUrl = "/Home/Index"; // Creator Dashboard
+                }
 
-                HttpContext.Session.SetInt32("UserId", user.UserId);
-                //HttpContext.Session.SetInt32("UserRoleId", user.Role);
                 HttpContext.Session.SetString("UserEmail", email);
 
+                var data = await _acc.GetUserDataByEmail(email);
+                int id = data.UserId;
+                HttpContext.Session.SetInt32("UserId", id);
+                HttpContext.Session.SetString("UserName", data.Username);
 
-                // Check conditions and return messages accordingly
-                //if (user.RoleId == 2)
-                //{
-                //    if (!await _users.hasShopDetails(user.UserId))
-                //        return Json(new { success = false, message = "Shop details are missing. Please complete you shop details.", redirect = Url.Action("ShopDetails", "Auth") });
+                if (data.ProfilePicture != null)
+                {
+                    HttpContext.Session.SetString("UserImage", data.ProfilePicture);
+                }
 
-                //    if (!await _users.hasAdminDoc(user.UserId))
-                //        return Json(new { success = false, message = "Documents are not uploaded yet.", redirect = Url.Action("AdminDoc", "Auth") });
-                //}
-
-                //if (info != null)
-                //{
-                //    if (user.VerificationStatus == "Rejected")
-                //        return Json(new { success = false, message = "Your account is rejected. Contact support." });
-
-                //    if (user.VerificationStatus == "Pending")
-                //        return Json(new { success = false, message = "Your account is pending verification." });
-                //}
-
-                return Json(new { success = true, message = "Login successful!", redirect = Url.Action("", "Dashboard") });
+                return Json(new
+                {
+                    success = true,
+                    message = "Login successful!",
+                    role = user.IsAdmin == true ? "Admin" :
+                   user.IsCreatorApproved == true ? "Creator" :
+                   "Contributor",
+                    redirectUrl // Ensure this is included in the response!
+                });
             }
 
             // New Google user
@@ -469,7 +531,7 @@ namespace Crowd_Funding_Platform.Controllers
             {
                 success = true,
                 message = "Google account not found. Please complete your details.",
-                redirect = Url.Action("GoogleDetails", "Account", new { email })
+                redirectUrl = Url.Action("Registration", "Account", new { email })
             });
         }
 

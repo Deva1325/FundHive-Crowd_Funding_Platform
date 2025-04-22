@@ -37,6 +37,12 @@ public partial class DbMain_CFS : DbContext
 
     public virtual DbSet<Reward> Rewards { get; set; }
 
+    public virtual DbSet<TblAuditLog> TblAuditLogs { get; set; }
+
+    public virtual DbSet<TblContact> TblContacts { get; set; }
+
+    public virtual DbSet<TblNotification> TblNotifications { get; set; }
+
     public virtual DbSet<TblTab> TblTabs { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -236,13 +242,87 @@ public partial class DbMain_CFS : DbContext
 
         modelBuilder.Entity<Reward>(entity =>
         {
-            entity.HasKey(e => e.RewardId).HasName("PK__Rewards__825015B960DC00A7");
+            entity.HasKey(e => e.RewardId).HasName("PK__Rewards__825015B93D99A36B");
 
+            entity.Property(e => e.BadgeIcon).HasMaxLength(255);
             entity.Property(e => e.RequiredAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.RewardBatch).HasMaxLength(100);
             entity.Property(e => e.Timestamp)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<TblAuditLog>(entity =>
+        {
+            entity.HasKey(e => e.LogId).HasName("PK__tblAudit__5E5499A8974D935A");
+
+            entity.ToTable("tblAuditLogs");
+
+            entity.Property(e => e.LogId).HasColumnName("LogID");
+            entity.Property(e => e.ActivityType)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.RecordId).HasColumnName("RecordID");
+            entity.Property(e => e.TableName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.Timestamp)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany(p => p.TblAuditLogs)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tblAuditL__UserI__32AB8735");
+        });
+
+        modelBuilder.Entity<TblContact>(entity =>
+        {
+            entity.HasKey(e => e.ContactId).HasName("PK__tblConta__5C6625BB3631E82F");
+
+            entity.ToTable("tblContact");
+
+            entity.Property(e => e.ContactId).HasColumnName("ContactID");
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.Message).HasColumnType("text");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.SubmittedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<TblNotification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("PK__tblNotif__20CF2E123F6391DE");
+
+            entity.ToTable("tblNotification");
+
+            entity.Property(e => e.Date)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+            entity.Property(e => e.Message)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.ModuleType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.RelatedId).HasColumnName("RelatedID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.TblNotifications)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tblNotifi__UserI__3A4CA8FD");
         });
 
         modelBuilder.Entity<TblTab>(entity =>
@@ -298,8 +378,9 @@ public partial class DbMain_CFS : DbContext
 
         modelBuilder.Entity<UserReward>(entity =>
         {
-            entity.HasKey(e => e.UserRewardId).HasName("PK__UserRewa__930DB9BAFA7F4B6F");
+            entity.HasKey(e => e.UserRewardId).HasName("PK__UserRewa__930DB9BAD6A4C9D3");
 
+            entity.Property(e => e.IsCertificateGenerated).HasDefaultValue(false);
             entity.Property(e => e.Timestamp)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -308,12 +389,12 @@ public partial class DbMain_CFS : DbContext
             entity.HasOne(d => d.Reward).WithMany(p => p.UserRewards)
                 .HasForeignKey(d => d.RewardId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserRewar__Rewar__66603565");
+                .HasConstraintName("FK__UserRewar__Rewar__2DE6D218");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserRewards)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserRewar__UserI__656C112C");
+                .HasConstraintName("FK__UserRewar__UserI__2CF2ADDF");
         });
 
         OnModelCreatingPartial(modelBuilder);

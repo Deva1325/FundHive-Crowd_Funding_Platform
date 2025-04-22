@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Crowd_Funding_Platform.Models;
 
@@ -17,9 +16,6 @@ public partial class CampaignImage
     public int? SortOrder { get; set; }
 
     public DateTime? UploadedDate { get; set; }
-
-   
-
 
     public virtual Campaign Campaign { get; set; } = null!;
 }

@@ -32,11 +32,13 @@ public partial class User
 
     public bool? IsCreatorApproved { get; set; }
 
+
     [NotMapped]
     public string? ConfirmPassword { get; set; } = null!;
 
     [NotMapped]
     public FormFile? ImageFile { get; set; }
+
 
     public string? FirstName { get; set; }
 
@@ -54,6 +56,7 @@ public partial class User
 
     public bool? IsGoogleAccount { get; set; }
 
+
     public virtual ICollection<AdminLog> AdminLogs { get; set; } = new List<AdminLog>();
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
@@ -63,6 +66,10 @@ public partial class User
     public virtual ICollection<CreatorApplication> CreatorApplications { get; set; } = new List<CreatorApplication>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<TblAuditLog> TblAuditLogs { get; set; } = new List<TblAuditLog>();
+
+    public virtual ICollection<TblNotification> TblNotifications { get; set; } = new List<TblNotification>();
 
     public virtual ICollection<UserReward> UserRewards { get; set; } = new List<UserReward>();
 }

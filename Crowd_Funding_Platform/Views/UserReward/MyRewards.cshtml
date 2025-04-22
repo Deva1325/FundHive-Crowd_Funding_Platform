@@ -1,0 +1,145 @@
+﻿@model List<Crowd_Funding_Platform.Models.Reward>
+@{
+    ViewData["Title"] = "MyRewards";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+    reward-img {
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+    }
+</style>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-4">My Earned Rewards</h2>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var reward in Model)
+                {
+                    @* var fileName = $"User_{reward.UserRewards.user}_{reward.Reward.RewardBatch}.pdf"; *@
+                    @* var filePath = $"/Certificates/{fileName}"; *@
+                    var userReward = reward.UserRewards.FirstOrDefault(); // Assumes one per user
+                    if (userReward != null)
+                    {
+                        <div class="col-md-4">
+                            <div class="card shadow rounded-4 border-0 h-100">
+                                <div class="card-body text-center">
+                                    @if (!string.IsNullOrEmpty(reward.BadgeIcon))
+                                    {
+                                        <img src="@reward.BadgeIcon" alt="Badge" class="reward-img-fluid mb-3" style="height: 80px;">
+                                    }
+                                    <h5 class="card-title fw-bold">@reward.RewardBatch</h5>
+                                    <p class="card-text text-muted">@reward.RewardDescription</p>
+                                    <span class="badge bg-success fs-6 d-block mb-2">Worth: ₹@reward.RequiredAmount+</span>
+                                    <p class="mb-1"><strong>Your Contribution:</strong> ₹@userReward.TotalContribution</p>
+                                    <p class="text-secondary mb-0">Earned on: @userReward.Timestamp?.ToString("dd MMM yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center" role="alert">
+                You haven't earned any rewards yet.
+            </div>
+        }
+    </div>
+</section>
+
+
+
+@* @model IEnumerable<Crowd_Funding_Platform.Models.UserReward>
+@{
+    ViewData["Title"] = "MyRewards";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<h2 class="text-center">My Earned Rewards</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="reward-list">
+        @foreach (var userreward in Model)
+        {
+            <div class="card p-3 m-2 shadow">
+                <h4>@userreward.UserRewardId</h4>
+                <h4>@userreward.UserId</h4>
+                <h4>@userreward.RewardId</h4>
+                <p>@userreward.TotalContribution</p>
+                <p>@userreward.Timestamp</p>
+                @* <span class="badge bg-success">Worth: ₹@reward.RequiredAmount+</span> 
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted">You haven't earned any rewards yet.</p>
+}
+
+
+
+@* <h1>MyRewards</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalContribution)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Timestamp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reward)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalContribution)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Timestamp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reward.RewardId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UserRewardId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.UserRewardId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.UserRewardId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+ *@

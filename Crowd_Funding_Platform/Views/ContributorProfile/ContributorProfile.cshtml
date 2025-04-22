@@ -103,6 +103,28 @@
     </div>
 </div>
 
+@* @if (Model.LatestReward?.RewardBatch == "Gold")
+{
+    <img src="/images/badges/gold.png" alt="Gold Badge" class="badge-img" />
+}
+else if (Model.LatestReward?.RewardBatch == "Silver")
+{
+    <img src="/images/badges/silver.png" alt="Silver Badge" class="badge-img" />
+}
+else if (Model.LatestReward?.RewardBatch == "Bronze")
+{
+    <img src="/images/badges/bronze.png" alt="Bronze Badge" class="badge-img" />
+}
+
+// Style suggestion
+<style>
+    .badge-img {
+        width: 80px;
+        height: auto;
+        margin: 10px;
+    }
+</style>
+ *@
 <!-- Custom CSS -->
 <style>
     body {
@@ -112,7 +134,7 @@
     }
 
     .profile-container {
-        padding: 50px 0;
+        padding: 2px 0;
     }
 
     .profile-header {

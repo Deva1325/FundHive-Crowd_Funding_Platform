@@ -7,18 +7,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Razorpay.Api;
 using Crowd_Funding_Platform.Helpers;
+using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
+using Humanizer;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Crowd_Funding_Platform.Repositiories.Classes
 {
-    public class ContributionReposClass
+    public class ContributionReposClass : IContributionRepository
     {
         private readonly DbMain_CFS _CFS; 
         private readonly IConfiguration _configuration;
+        private readonly IEmailSenderRepos _emailService;
 
-        public ContributionReposClass(DbMain_CFS dbMain_CFS,IConfiguration configuration)
+        public ContributionReposClass(DbMain_CFS dbMain_CFS,IConfiguration configuration, IEmailSenderRepos emailService)
         {
             _CFS = dbMain_CFS;
             _configuration = configuration; 
+            _emailService = emailService;
         }
 
         public async Task<string> CreateOrderAsync(decimal amount, int campaignId, int contributorId)
@@ -106,6 +111,67 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             return true;
         }
 
+        public async Task AssignRewardAsync(int userId)
+        {
+            var totalContribution = await _CFS.Contributions
+                .Where(c => c.ContributorId == userId && c.PaymentStatus == "Success")
+                .SumAsync(c => c.Amount);
+
+            var allRewards = await _CFS.Rewards.OrderBy(r => r.RequiredAmount).ToListAsync();
+            var userRewardIds = await _CFS.UserRewards
+                .Where(ur => ur.UserId == userId)
+                .Select(ur => ur.RewardId)
+                .ToListAsync();
+
+            // var user = await _CFS.Users.FindAsync(userId);
+
+            // New - better way:
+            var user = await _CFS.Contributions
+                .Include(c => c.Contributor)
+                .Where(c => c.ContributorId == userId && c.PaymentStatus == "Success")
+                .Select(c => c.Contributor)
+                .FirstOrDefaultAsync();
+
+            foreach (var reward in allRewards)
+            {
+                if (totalContribution >= reward.RequiredAmount && !userRewardIds.Contains(reward.RewardId))
+                {
+                    UserReward userReward = new UserReward
+                    {
+                        UserId = userId,
+                        RewardId = reward.RewardId,
+                        TotalContribution = totalContribution,
+                        Timestamp = DateTime.Now,
+                        IsCertificateGenerated = true
+                    };
+
+                    await _CFS.UserRewards.AddAsync(userReward);
+                    await _CFS.SaveChangesAsync();
+
+                    string pdfPath = CertificateHelper.GenerateCertificatePDF(user, reward.RewardBatch, totalContribution);
+                    string badgeName = "Gold Badge";
+
+                    await _emailService.SendEmailAsync(
+                        toEmail: user.Email,
+                        userName: user.Username,
+                        subject: "🎉 Your Gold Badge Certificate!",
+                        body: $"{badgeName}|CERTIFICATE_PATH:{pdfPath}",
+                        emailType: "Certificate"
+                    );
+
+
+                    //                    // ✅ Generate and email certificate
+                    //                    string certPath = CertificateHelper.GenerateCertificatePDF(user, reward.RewardBatch, totalContribution);
+                    //                    await _emailService.SendEmailAsync(
+                    //    toEmail: user.Email,
+                    //    userName: user.Username,
+                    //    subject: "🎉 Your Gold Badge Certificate!",
+                    //    body: "CERTIFICATE_PATH:/path/to/generated_certificate.pdf",
+                    //    emailType: "Certificate"
+                    //);
+                }
+            }
+        }
 
     }
 }

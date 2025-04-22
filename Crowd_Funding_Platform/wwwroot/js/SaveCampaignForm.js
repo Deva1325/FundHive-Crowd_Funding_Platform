@@ -16,7 +16,7 @@
         rules: {
             Title: {
                 required: true,
-                minlength: 5,
+                minlength: 3,
                 maxlength: 100
             },
             Description: {
@@ -47,7 +47,7 @@
         messages: {
             Title: {
                 required: "Please enter the campaign title.",
-                minlength: "Title must be at least 5 characters.",
+                minlength: "Title must be at least 3 characters.",
                 maxlength: "Title cannot exceed 100 characters."
             },
             Description: {
@@ -80,6 +80,9 @@
         // ✅ AJAX Submission Handler
         submitHandler: function (form, event) {
             event.preventDefault();
+
+            $('#aiResult').fadeOut();
+            aiCardVisible = false;
 
             const formData = new FormData(form);
 

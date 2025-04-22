@@ -7,6 +7,7 @@ using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IAuthorization;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
+using Crowd_Funding_Platform.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 using Microsoft.AspNetCore.Authentication.Google;
@@ -18,12 +19,15 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddSingleton<IEmailSenderRepos, EmailSenderRepos>(); // Email service interface and implementation
+builder.Services.AddSingleton<OpenAIService>();
+builder.Services.AddSingleton<DeepAIService>();
 
 
 //// Register Google reCAPTCHA settings
 //builder.Services.Configure<GoogleReCAPTCHA>(builder.Configuration.GetSection("GoogleReCAPTCHA"));
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<OpenRouterService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -49,6 +53,10 @@ builder.Services.AddScoped<IProfileRepos, ProfileClassRepos>();
 builder.Services.AddScoped<IUser, UserClassRepos>();
 builder.Services.AddScoped<ICategories, CategoriesClassRepos>();
 builder.Services.AddScoped<IRewards, RewardsClassRepos>();
+builder.Services.AddScoped<IContributionRepository, ContributionReposClass>();
+builder.Services.AddScoped<IUserRewardRepository, UserRewardClassRepos>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+
 //builder.Services.AddScoped<IGoogleReCAPTCHAService, GoogleReCAPTCHAService>();
 
 

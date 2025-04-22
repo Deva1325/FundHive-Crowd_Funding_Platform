@@ -15,5 +15,7 @@ public partial class Reward
 
     public DateTime? Timestamp { get; set; }
 
+    public string? BadgeIcon { get; set; }
+
     public virtual ICollection<UserReward> UserRewards { get; set; } = new List<UserReward>();
 }

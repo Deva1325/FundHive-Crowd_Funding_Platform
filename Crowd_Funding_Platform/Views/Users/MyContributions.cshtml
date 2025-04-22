@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "My Contributions";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<style>
+    .my-5 {
+        margin-top: 7rem !important;
+        margin-bottom: 3rem !important;
+    }
+</style>
+<div class="container my-5">
+    <h2 class="text-center mb-4">My Contributions</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            You have not made any contributions yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Campaign Title</th>
+                        <th>Requirement</th>
+                        <th>Raised Amount</th>
+                        <th>Total Your Contribution</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Campaign.Title</td>
+                            <td>₹@item.Campaign.Requirement.ToString("N2")</td>
+                            <td>₹@item.Campaign.RaisedAmount</td>
+                            <td>₹@item.TotalAmountContributed.ToString("N2")</td> @* NotMapped property *@
+                            <td>
+                                @{
+                                    var status = item.Campaign.Status?.ToLower();
+                                    string badgeClass = status switch
+                                    {
+                                        "upcoming" => "badge bg-warning text-dark",
+                                        "completed" => "badge bg-success",
+                                        "closed" => "badge bg-danger",
+                                        _ => "badge bg-secondary"
+                                    };
+                                }
+                                <span class="@badgeClass">@item.Campaign.Status</span>
+                            </td>
+                            <td>
+                                <a asp-action="ViewContributionHistory" asp-route-campaignId="@item.CampaignId"
+                                   class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    View History
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+
+
+@* @model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "MyContributions";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<h1>MyContributions</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransactionId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Campaign)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contributor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Campaign.CampaignId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Contributor.UserId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ContributionId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ContributionId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ContributionId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+  *@
