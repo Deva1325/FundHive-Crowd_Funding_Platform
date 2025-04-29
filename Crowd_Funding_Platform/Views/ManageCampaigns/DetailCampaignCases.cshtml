@@ -213,13 +213,24 @@
                                 })
                             })
                                 .then(res => res.json())
+                                // .then(result => {
+                                //     alert(result.message);
+                                //     window.location.reload();
+                                // })
                                 .then(result => {
-                                    alert(result.message);
-                                    window.location.reload();
+                                    if (result.success) {
+                                        toastr.success(result.message);
+                                        setTimeout(() => {
+                                            window.location.href = `/ManageCampaigns/DetailCampaignCases/${campaignId}`;
+                                        }, 1500); // 1.5 second delay to show toastr
+                                    } else {
+                                        toastr.error(result.message);
+                                    }
                                 })
                                 .catch(error => {
                                     console.error("Verification failed:", error);
-                                    alert("Payment verification failed. Please try again.");
+                                    toastr.error("Payment verification failed. Please try again.");
+                                    //alert("Payment verification failed. Please try again.");
                                 });
                         },
                         theme: {
@@ -231,7 +242,8 @@
                 })
                 .catch(error => {
                     console.error("Order creation failed:", error);
-                    alert("Failed to create payment order. Please try again.");
+                    toastr.error("Failed to create payment order. Please try again.");
+                    //alert("Failed to create payment order. Please try again.");
                 });
         });
 

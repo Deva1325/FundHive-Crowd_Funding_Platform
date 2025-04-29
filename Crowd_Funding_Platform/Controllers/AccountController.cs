@@ -480,10 +480,10 @@ namespace Crowd_Funding_Platform.Controllers
             string redirectUrl = "/Home/Index"; // Default for contributors
 
 
-            if (user != null && user.IsGoogleAccount == false)
-            {
-                return Json(new { success = false, message = "This email is already registered manually. Use Email/Password to login." });
-            }
+            //if (user != null && user.IsGoogleAccount == false)
+            //{
+            //    return Json(new { success = false, message = "This email is already registered manually. Use Email/Password to login." });
+            //}
 
             if (user != null && user.IsGoogleAccount == true)
             {
@@ -504,6 +504,7 @@ namespace Crowd_Funding_Platform.Controllers
                 }
 
                 HttpContext.Session.SetString("UserEmail", email);
+                HttpContext.Session.SetString("LoginCred", email);
 
                 var data = await _acc.GetUserDataByEmail(email);
                 int id = data.UserId;
@@ -520,7 +521,7 @@ namespace Crowd_Funding_Platform.Controllers
                     success = true,
                     message = "Login successful!",
                     role = user.IsAdmin == true ? "Admin" :
-                   user.IsCreatorApproved == true ? "Creator" :
+                    user.IsCreatorApproved == true ? "Creator" :
                    "Contributor",
                     redirectUrl // Ensure this is included in the response!
                 });

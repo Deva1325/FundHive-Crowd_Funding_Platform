@@ -18,12 +18,14 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 
         public async Task<object> AddUserRegister(User user, IFormFile? ImageFile)
         {
+
+            string originalPassword = user.PasswordHash;
+
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
 
             user.DateCreated = DateTime.Now;
 
             // ✅ Store plain password BEFORE calling AddUserAsync
-            string originalPassword = user.PasswordHash;
 
             // Check if it's a Google user
             if (user.IsGoogleAccount == true)

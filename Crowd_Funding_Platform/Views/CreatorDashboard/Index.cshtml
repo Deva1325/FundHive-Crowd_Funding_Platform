@@ -1,0 +1,99 @@
+﻿@model Crowd_Funding_Platform.Models.CreatorDashboardVM
+@{
+    ViewData["Title"] = "Creator Dashboard";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Welcome to Your Dashboard</h2>
+
+    <div class="row">
+        <!-- Total Campaigns -->
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white shadow rounded-4">
+                <div class="card-body">
+                    <h5>Total Campaigns</h5>
+                    <h3>@Model.TotalCampaigns</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Campaigns -->
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white shadow rounded-4">
+                <div class="card-body">
+                    <h5>Active Campaigns</h5>
+                    <h3>@Model.ActiveCampaigns</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Campaigns -->
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white shadow rounded-4">
+                <div class="card-body">
+                    <h5>Completed Campaigns</h5>
+                    <h3>@Model.CompletedCampaigns</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Raised Amount -->
+        <div class="col-md-6 mb-3">
+            <div class="card bg-warning text-dark shadow rounded-4">
+                <div class="card-body">
+                    <h5>Total Raised</h5>
+                    <h3>₹@Model.TotalRaisedAmount.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Contributors -->
+        <div class="col-md-6 mb-3">
+            <div class="card bg-secondary text-white shadow rounded-4">
+                <div class="card-body">
+                    <h5>Total Contributors</h5>
+                    <h3>@Model.TotalContributors</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign-wise Raised Amount Chart -->
+    <div class="mt-5">
+        <h4>Campaign-wise Raised Amount</h4>
+        <canvas id="campaignChart" height="150"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('campaignChart').getContext('2d');
+        const campaignChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ChartCampaigns.Select(c => c.Title))),
+                datasets: [{
+                    label: 'Raised Amount (₹)',
+                    data: @Html.Raw(Json.Serialize(Model.ChartCampaigns.Select(c => c.RaisedAmount))),
+                    backgroundColor: '#4e73df',
+                    borderColor: '#4e73df',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '₹' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

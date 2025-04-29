@@ -14,9 +14,24 @@ namespace Crowd_Funding_Platform.Controllers
         [ActionName("Dashboard")]
         public IActionResult Index()
         {
-            if (!MainCheck())
-                return RedirectToAction("Login","Account");
-            return View();
+            var isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+            var isCreatorApproved = HttpContext.Session.GetString("IsCreatorApproved");
+
+            if (isAdmin == "true")
+            {
+                return RedirectToAction("Index", "AdminDashboard");
+            }
+            else if (isCreatorApproved == "true")
+            {
+                return RedirectToAction("Index", "CreatorDashboard");
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            //if (!MainCheck())
+            //    return RedirectToAction("Login","Account");
+            //return View();
         }
     }
 }

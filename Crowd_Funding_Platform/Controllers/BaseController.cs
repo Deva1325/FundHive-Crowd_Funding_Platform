@@ -24,8 +24,8 @@ namespace Crowd_Funding_Platform.Controllers
             }
             return true;
         }
-
-
+        
+       
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             int? userid = HttpContext.Session.GetInt32("UserId_ses");

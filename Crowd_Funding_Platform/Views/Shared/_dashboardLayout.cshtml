@@ -51,6 +51,8 @@
     <link rel="stylesheet" href="~/DashboardAssets/css/style.css">
     <!-- End layout styles -->
     @* <link rel="shortcut icon" href="~/DashboardAssets/images/favicon.png" /> *@
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets/img/icon/favicon.png">
+
     <title>FundHive</title>
 
    
@@ -93,10 +95,21 @@
 
     <div class="container-scroller">
         <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row" style="font-family: 'Material Design Icons';">
-            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                <a class="navbar-brand brand-logo" href="index.html">FundHive</a>
+             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+                <img src="~/fundhive_logo.png" alt="FundHive Logo" class="logo-img" style="    margin-left: 44px;    height: 29px;" />
+                <a class="navbar-brand brand-logo" href="index.html" style="    padding: 5px;
+    padding-left: 13px;
+    color: #bf1633;">FundHive</a>
                 <a class="navbar-brand brand-logo-mini" href="/Dashboard/Dashboard"><img src="~/DashboardAssets/images/logo-mini.svg" alt="logo" /></a>
+             </div>
+  
+            @* <div class="navbar-brand-wrapper d-flex align-items-center justify-content-start" style="padding-left: 10px;">
+                <a class="navbar-brand d-flex align-items-center" href="/Dashboard/Dashboard" style="text-decoration: none;">
+                    <img src="~/fundhive_logo.png" alt="FundHive Logo" class="logo-img" />
+                    <span class="logo-text" style="color: white; font-weight: 600; font-size: 20px;">FundHive</span>
+                </a>
             </div>
+ *@
 
             <div class="navbar-menu-wrapper d-flex align-items-stretch">
                 <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">

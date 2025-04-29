@@ -27,7 +27,17 @@ builder.Services.AddSingleton<DeepAIService>();
 //builder.Services.Configure<GoogleReCAPTCHA>(builder.Configuration.GetSection("GoogleReCAPTCHA"));
 
 builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<OpenRouterService>();
+//// Register services
+//builder.Services.AddHttpClient<GeminiService>();
+//builder.Services.AddHttpClient<OpenRouterService>();
+
+//// Register CampaignAiService manually with required dependencies
+//builder.Services.AddHttpClient<CampaignAiService>();
+
+
+builder.Services.AddScoped<GeminiService>();
+builder.Services.AddScoped<OpenRouterService>();
+builder.Services.AddScoped<CampaignAiService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -56,6 +66,12 @@ builder.Services.AddScoped<IRewards, RewardsClassRepos>();
 builder.Services.AddScoped<IContributionRepository, ContributionReposClass>();
 builder.Services.AddScoped<IUserRewardRepository, UserRewardClassRepos>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICreatorDashboard, CreatorDashboardRepo>();
+builder.Services.AddScoped<IAdminDashboard, AdminDashboardRepo>();
+
+
 
 //builder.Services.AddScoped<IGoogleReCAPTCHAService, GoogleReCAPTCHAService>();
 

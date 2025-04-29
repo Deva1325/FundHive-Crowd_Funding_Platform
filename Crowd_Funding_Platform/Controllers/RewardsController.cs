@@ -22,6 +22,12 @@ namespace Crowd_Funding_Platform.Controllers
 
         public async Task<IActionResult> RewardsList()
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
             var rewards = await _rewards.GetAllRewards();
             return View(rewards);
         }
@@ -29,6 +35,16 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet]
         public async Task<IActionResult> SaveRewards(int? id)
         {
+            // string user_ID = HttpContext.Session.GetString("UserId_ses");
+            //string IscreatorA = HttpContext.Session.GetString("IsCreatorApproved");
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
+
             if (id == null || id == 0)
                 return View(new Reward()); // Add Mode (Empty form)
 
@@ -44,6 +60,7 @@ namespace Crowd_Funding_Platform.Controllers
         {
             try
             {
+
                 bool isNew = reward.RewardId == 0;  // Check if it's a new category
 
                 // ✅ Ensure ID is properly passed and checked
@@ -80,6 +97,11 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
             var reward = await _rewards.GetRewardById(id);
             return View(reward);
 

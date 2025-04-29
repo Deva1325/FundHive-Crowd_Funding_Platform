@@ -10,6 +10,11 @@
     // ✅ Set today's date as min for both start and end dates
     let todayStr = new Date().toISOString().split('T')[0];
     $("#StartDate, #EndDate").attr("min", todayStr);
+    $("#StartDate, #EndDate").val(todayStr);
+
+    $("#StartDate").change(function () {
+        $("#EndDate").attr("min", $("#StartDate").val());
+    })
 
     // ✅ Form Validation Rules
     $("#campaignForm").validate({

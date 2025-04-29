@@ -5,26 +5,56 @@
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
 
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<style>
+    /* Final Delete confirmation toast */
+    .toast-info {
+        background-color: #dc3545 !important; /* Bootstrap danger red (lighter) */
+        color: #ffffff !important; /* White text */
+        font-weight: 600;
+        font-size: 15px;
+        padding: 12px 16px;
+        min-width: 300px; /* Make box compact */
+        max-width: 350px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.3); /* soft nice shadow */
+        opacity: 1 !important; /* fully solid */
+    }
 
-<!-- Toast Container -->
-@* <div aria-live="polite" aria-atomic="true" class="btn btn-success mb-3">
- *@<div aria-live="polite" aria-atomic="true" class="">
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="successMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
+    /* Title inside toast */
+    .toast-title {
+        font-weight: 700;
+        font-size: 17px;
+        margin-bottom: 6px;
+    }
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    </div>
-</div>
+    /* Button inside toast */
+    #confirmDeleteBtn {
+        background-color: #ffffff; /* White button */
+        color: #dc3545; /* matching red color text */
+        border: none;
+        margin-top: 10px;
+        padding: 6px 14px;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+        #confirmDeleteBtn:hover {
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+    /* Hide info icon inside toastr */
+    .toast-info .toast-message i {
+        display: none;
+    }
+</style>
+
 
 <div class="container py-5">
     <div class="card shadow-lg border-0 rounded-lg">
@@ -134,33 +164,67 @@
                 transform: scale(1.05);
             }
     </style>
-
+    
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+         toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
         function confirmDelete(RewardId) {
-            if (confirm("Are you sure you want to delete this category?")) {
-                fetch(`/Rewards/DeleteReward/${RewardId}`, {
-                    method: "DELETE"
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast("successToast", "Reward deleted successfully.");
-                            setTimeout(() => location.reload(), 1500);
-                        } else {
-                            showToast("errorToast", "Reward to delete category.");
-                        }
-                    })
-                    .catch(error => {
-                        showToast("errorToast", "An error occurred while deleting.");
-                    });
-            }
+            toastr.info(
+                'Are you sure you want to delete this reward?<br/><br/><button type="button" id="confirmDeleteBtn" class="btn btn-danger btn-sm">Yes, Delete</button>',
+                'Confirm Delete',
+                {
+                    timeOut: 0,
+                    extendedTimeOut: 0,
+                    closeButton: true,
+                    tapToDismiss: false,
+                    allowHtml: true,
+                    onShown: function () {
+                        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                            sendDeleteRequest(RewardId);
+                        });
+                    }
+                }
+            );
         }
 
-        function showToast(toastId, message) {
-            document.getElementById(toastId).querySelector(".toast-body").innerText = message;
-            let toastElement = new bootstrap.Toast(document.getElementById(toastId));
-            toastElement.show();
+        function sendDeleteRequest(RewardId) {
+            // Optional: show some loader if you want
+
+            fetch(`/Rewards/DeleteReward/${RewardId}`, {
+                method: "DELETE"
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success("Reward deleted successfully!");
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        toastr.error("Failed to delete reward.");
+                    }
+                })
+                .catch(error => {
+                    toastr.error("An error occurred while deleting.");
+                });
         }
+
+        
     </script>
 }

@@ -1,13 +1,23 @@
 ﻿$(document).ready(function () {
     console.log("Rewards JS Loaded");
-    // Noooo yrrrr  hurt mne pn thay 6 mne pn nai saru lagtu butatleast vat toh kr yrrr khali sathe besye? haaaaaaa saruu but ek var sari rite bolav agar man hoy toh pehla jarak besu shanti thi? ok:((((((((((( tari sathe j chu baju maj chu coco nahhhhhhhhh nathi sathe evu feel thay 6 sathe j chu chal run karine error atav
+    
     // ✅ Toastr Configuration
     toastr.options = {
         "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
         "progressBar": true,
-        "timeOut": "3000"
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
     };
-
     // ================================
     // 🔑 Save Rewards Form Validation & Submission
     // ================================
@@ -20,7 +30,8 @@
             RequiredAmount: {
                 required: true,
                 number: true,
-                min: 1  // ✅ Ensures positive numbers only
+                digits: true, 
+                min: 1 
             },
             RewardDescription: {
                 required: true,
@@ -34,6 +45,7 @@
             RequiredAmount: {
                 required: "Please enter the required amount.",
                 number: "Only numbers are allowed.",
+                digits: "Please enter digits only, no letters or special characters.",
                 min: "Amount must be at least 1."
             },
             RewardDescription: {
@@ -58,9 +70,9 @@
                 data: formData,
                 success: function (result) {
                     if (result.success) {
-                        toastr.success(result.message);
-
-                        // ✅ Redirect to the campaign list after success
+                       
+                        toastr.success("Reward Saved succesfully");
+                       
                         setTimeout(() => {
                             window.location.href = '/Rewards/RewardsList';
                         }, 1500);
@@ -76,24 +88,24 @@
     });
 });
 
-function showToast(message, type) {
-    let bgColor = type === "success" ? "bg-success" : "bg-danger";
-    let toastId = "toast-" + new Date().getTime();
+//function showToast(message, type) {
+//    let bgColor = type === "success" ? "bg-success" : "bg-danger";
+//    let toastId = "toast-" + new Date().getTime();
 
-    $("#toastContainer").append(
-        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    );
+//    $("#toastContainer").append(
+//        <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+//            <div class="d-flex">
+//                <div class="toast-body">${message}</div>
+//                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+//            </div>
+//        </div>
+//    );
 
-    let toastElement = new bootstrap.Toast(document.getElementById(toastId));
-    toastElement.show();
+//    let toastElement = new bootstrap.Toast(document.getElementById(toastId));
+//    toastElement.show();
 
-    setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 2000);
-}
+//    setTimeout(() => $("#" + toastId).fadeOut("slow", function () { $(this).remove(); }), 2000);
+//}
 
 
 //$(document).ready(function () {

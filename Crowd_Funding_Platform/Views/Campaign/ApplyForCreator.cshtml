@@ -5,7 +5,8 @@
     Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
 }
 
-
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 <style>
     /* General Styling */
     .contact-title {
@@ -139,6 +140,10 @@
     </div>
     <!-- Hero area End -->
     <!-- Contact Area Start -->
+
+    <div id="statusMessage" class="alert alert-info" style="display:none;"></div>
+    <div id="creatorForm">
+
     <section class="contact-section">
         <div class="container">
             <div class="row">
@@ -149,7 +154,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);height: 530px;">
                         <h2 class="text-center text-dark fw-bold mb-4" style="    margin-top: 30px;">📜 Submit Your Application</h2>
 
-                        <form class="form-contact contact_form" method="post" id="applyForCreatorForm" enctype="multipart/form-data" asp-action="ApplyForCreator" asp-controller="Campaign">
+                        <form class="form-contact contact_form" id="applyForCreatorForm" method="post" enctype="multipart/form-data" >
 
                             <!-- Document Type Selection -->
                             <div class="form-group mb-3" style="margin-top: 50px;">
@@ -174,7 +179,7 @@
 
                             <!-- Submit Button -->
                             <div class="text-center">
-                                <button type="submit" class="button button-contactForm boxed-btn" style="margin-top: 39px;">
+                                <button type="button" id="btnSubmit" class="button button-contactForm boxed-btn" style="margin-top: 39px;">
                                     🚀 Submit Application
                                 </button>
                             </div>
@@ -228,28 +233,14 @@
 </main>
 
 
-<!-- ✅ Toastr Notifications -->
-<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <!-- ✅ jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <!-- ✅ jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-
-    <!-- ✅ Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- ✅ Toastr -->
+    
+    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <!-- ✅ Your Script -->
     <script src="~/js/CampaignCreator.js"></script>
 
+    <!-- ✅ Your Script -->
 }
 
 
@@ -295,8 +286,7 @@
 
  
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="~/js/CampaignCreator.js"></script>
 

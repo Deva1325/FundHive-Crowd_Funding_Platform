@@ -56,6 +56,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
 
                 if (reward.RewardId== 0)
                 {
+                    reward.BadgeIcon = newFilePath;  // <<<<< Important!
                     await _CFS.Rewards.AddAsync(reward); // Add new
                 }
                 else

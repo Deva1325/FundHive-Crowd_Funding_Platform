@@ -80,6 +80,7 @@ public partial class DbMain_CFS : DbContext
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Requirement).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.IsDeleted);
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasDefaultValue("Active");

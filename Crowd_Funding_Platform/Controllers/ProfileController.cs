@@ -154,23 +154,74 @@ namespace Crowd_Funding_Platform.Controllers
                 return Json(new { success = false, message = "User not found." });
             }
 
+            // First, generate the new default profile image
             string relativePath = _acc.GenerateDefaultProfileImage(user.Username);
 
-            // Remove old profile image if exists
+            // Safely remove old profile image if it was not a default one
             if (!string.IsNullOrEmpty(user.ProfilePicture))
             {
+                // (Optional) Check if it's not a generated default before deleting
                 string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+
                 if (System.IO.File.Exists(oldImagePath))
                 {
-                    System.IO.File.Delete(oldImagePath);
+                    try
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }                  
+                        catch (Exception ex)
+                    {
+                        return Json(new { success = false, message = "Error while updating profile Image " + ex.Message });
+                    }
+                    // Log error if needed
+                
                 }
             }
 
+            // Update user profile with new image path
             user.ProfilePicture = relativePath;
             await _CFS.SaveChangesAsync();
 
             return Json(new { success = true, imagePath = relativePath });
         }
+
+
+        //OLD Method
+        //[HttpPost]
+        //public async Task<IActionResult> GenerateDefaultProfile()
+        //{
+        //    int? userId = HttpContext.Session.GetInt32("UserId");
+
+        //    if (userId == null)
+        //    {
+        //        return Json(new { success = false, message = "Session expired. Please login again." });
+        //    }
+
+        //    var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        //    if (user == null)
+        //    {
+        //        return Json(new { success = false, message = "User not found." });
+        //    }
+
+        //    string relativePath = _acc.GenerateDefaultProfileImage(user.Username);
+
+        //    // Remove old profile image if exists
+        //    if (!string.IsNullOrEmpty(user.ProfilePicture))
+        //    {
+        //        string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+        //        if (System.IO.File.Exists(oldImagePath))
+        //        {
+        //            System.IO.File.Delete(oldImagePath);
+        //        }
+        //    }
+
+        //    user.ProfilePicture = relativePath;
+        //    await _CFS.SaveChangesAsync();
+
+        //    return Json(new { success = true, imagePath = relativePath });
+        //}
+
+
         [HttpPost]
         public async Task<IActionResult> UpdateEmailVerification([FromBody] User users)
         {

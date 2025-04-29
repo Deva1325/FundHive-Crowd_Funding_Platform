@@ -17,14 +17,17 @@ namespace Crowd_Funding_Platform.Controllers
         private readonly ICampaignsRepos _campaign;
         private readonly DbMain_CFS _CFS;
         private readonly IActivityRepository _activityRepository;
+        private readonly CampaignAiService _campaignAiService;
+
         private readonly OpenRouterService _openRouterService;
 
-        public ManageCampaignsController(ICampaignsRepos campaign, DbMain_CFS dbMain_CFS, ISidebarRepos sidebar, IActivityRepository activityRepository, OpenRouterService openRouterService) : base(sidebar)
+        public ManageCampaignsController(ICampaignsRepos campaign, DbMain_CFS dbMain_CFS, ISidebarRepos sidebar, IActivityRepository activityRepository, OpenRouterService openRouterService, CampaignAiService campaignAiService) : base(sidebar)
         {
             _campaign = campaign;
             _CFS = dbMain_CFS;
             _activityRepository = activityRepository;
             _openRouterService = openRouterService;
+            _campaignAiService = campaignAiService;
         }
 
         public IActionResult Index()
@@ -554,7 +557,42 @@ namespace Crowd_Funding_Platform.Controllers
             return View(deltCam);
         }
 
-        [HttpPost, ActionName("Delete")]
+        // [HttpGet]
+        // public async Task<IActionResult> DeleteConfirmed(int id)
+        // {
+        //     try
+        //     {
+        //         // ✅ Get userId from session (works for both admin and creator)
+        //         var userId = HttpContext.Session.GetInt32("UserId_ses") ?? 0;
+
+        //         var campaign = await _campaign.GetCampaignById(id);
+        //         if (campaign == null)
+        //         {
+        //             return Json(new { success = false });
+        //         }
+
+        //         var result = await _campaign.DeleteCampaign(id);
+
+        //          //✅ Log the delete action
+        //                  string activityType = "Delete";
+        //         string description = $"User with ID {userId} deleted campaign titled '{campaign.Title}'.";
+
+        //         _activityRepository.AddNewActivity(
+        //    userId: userId,
+        //    activityType: $"Campaign {activityType}",
+        //    description: description,
+        //    tableName: "Campaigns",
+        //    recordId: id
+        //);
+        //         return Json(new { success = true });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return Json(new { success = false, message = ex.Message });
+        //     }
+        // }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
@@ -566,7 +604,8 @@ namespace Crowd_Funding_Platform.Controllers
                 var campaign = await _campaign.GetCampaignById(id);
                 if (campaign == null)
                 {
-                    return NotFound();
+                    return Json(new { success = false });
+                    // return NotFound();
                 }
 
                 var DelCam = await _campaign.DeleteCampaign(id);
@@ -582,8 +621,8 @@ namespace Crowd_Funding_Platform.Controllers
            tableName: "Campaigns",
            recordId: id
        );
-
-                return RedirectToAction("CampaignsList", "ManageCampaigns");
+                return Json(new { success = true });
+                //return RedirectToAction("CampaignsList", "ManageCampaigns");
                 //return View(DelCam);
             }
             catch (Exception ex)
@@ -638,74 +677,125 @@ namespace Crowd_Funding_Platform.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GenerateAiTitle(string keyword)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(keyword))
-                {
-                    return Json(new { success = false, message = "Keyword is required." });
-                }
-
-                string title = await _openRouterService.GenerateCampaignAsync(keyword);
-
-                return Json(new { success = true, title });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "AI generation failed: " + ex.Message });
-            }
-        }
-
-
-        //    public async Task<string> GenerateTextAsync(string input)
-        //    {
-        //        var formContent = new FormUrlEncodedContent(new[]
-        //        {
-        //    new KeyValuePair<string, string>("text", input)
-        //});
-
-        //        var response = await _httpClient.PostAsync("https://api.deepai.org/api/text-generator", formContent);
-
-        //        if (!response.IsSuccessStatusCode)
-        //        {
-        //            var error = await response.Content.ReadAsStringAsync();
-        //            throw new Exception($"DeepAI error: {response.StatusCode} - {error}");
-        //        }
-
-        //        var responseString = await response.Content.ReadAsStringAsync();
-        //        using var jsonDoc = JsonDocument.Parse(responseString);
-        //        return jsonDoc.RootElement.GetProperty("output").GetString();
-        //    }
-
-
-        //    public class CampaignIdeaRequest
-        //    {
-        //        public string Category { get; set; }
-        //        public string Requirement { get; set; }
-        //    }
-
-
+       
         //[HttpPost]
-        //public async Task<IActionResult> GenerateCampaignIdea([FromBody] CampaignIdeaRequest request, [FromServices] OpenAIService openAI)
+        //public async Task<IActionResult> GenerateAiTitle(string keyword)
         //{
         //    try
         //    {
-        //        var result = await openAI.GenerateCampaignContent(request.Category, request.Requirement);
-        //        return Json(new { success = true, content = result });
+        //        if (string.IsNullOrWhiteSpace(keyword))
+        //        {
+        //            return Json(new { success = false, message = "Keyword is required." });
+        //        }
+
+        //        var (title, description, category) = await _openRouterService.GenerateCampaignFullAsync(keyword);
+
+        //        return Json(new { success = true, title, description, category });
         //    }
         //    catch (Exception ex)
         //    {
-        //        return Json(new { success = false, message = "AI error: " + ex.Message });
+        //        return Json(new { success = false, message = "AI generation failed: " + ex.Message });
         //    }
         //}
 
-        //public class CampaignIdeaRequest
-        //{
-        //    public string Category { get; set; }
-        //    public string Requirement { get; set; }
-        //}
+        [HttpPost]
+        public async Task<IActionResult> GenerateAiTitle(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                return BadRequest("Category is required");
+
+            var result = await _campaignAiService.GenerateCampaignAsync(category);
+
+            if (!result.Success)
+                return Json(new { success = false, error = result.ErrorMessage });
+
+            return Json(new
+            {
+                success = true,
+                title = result.Title,
+                description = result.Description,
+                category=result.Category,
+                source = result.Source
+            });
+        }
+
 
     }
 }
+
+//[HttpPost]
+//public async Task<IActionResult> GenerateAiTitle(string keyword)
+//{
+//    try
+//    {
+//        if (string.IsNullOrWhiteSpace(keyword))
+//        {
+//            return Json(new { success = false, message = "Keyword is required." });
+//        }
+
+//        string title = await _openRouterService.GenerateCampaignAsync(keyword);
+
+//        return Json(new { success = true, title });
+//    }
+//    catch (Exception ex)
+//    {
+//        return Json(new { success = false, message = "AI generation failed: " + ex.Message });
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+//    public async Task<string> GenerateTextAsync(string input)
+//    {
+//        var formContent = new FormUrlEncodedContent(new[]
+//        {
+//    new KeyValuePair<string, string>("text", input)
+//});
+
+//        var response = await _httpClient.PostAsync("https://api.deepai.org/api/text-generator", formContent);
+
+//        if (!response.IsSuccessStatusCode)
+//        {
+//            var error = await response.Content.ReadAsStringAsync();
+//            throw new Exception($"DeepAI error: {response.StatusCode} - {error}");
+//        }
+
+//        var responseString = await response.Content.ReadAsStringAsync();
+//        using var jsonDoc = JsonDocument.Parse(responseString);
+//        return jsonDoc.RootElement.GetProperty("output").GetString();
+//    }
+
+
+//    public class CampaignIdeaRequest
+//    {
+//        public string Category { get; set; }
+//        public string Requirement { get; set; }
+//    }
+
+
+//[HttpPost]
+//public async Task<IActionResult> GenerateCampaignIdea([FromBody] CampaignIdeaRequest request, [FromServices] OpenAIService openAI)
+//{
+//    try
+//    {
+//        var result = await openAI.GenerateCampaignContent(request.Category, request.Requirement);
+//        return Json(new { success = true, content = result });
+//    }
+//    catch (Exception ex)
+//    {
+//        return Json(new { success = false, message = "AI error: " + ex.Message });
+//    }
+//}
+
+//public class CampaignIdeaRequest
+//{
+//    public string Category { get; set; }
+//    public string Requirement { get; set; }
+//}

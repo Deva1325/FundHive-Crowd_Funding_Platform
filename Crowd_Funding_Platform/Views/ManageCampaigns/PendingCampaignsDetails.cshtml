@@ -98,8 +98,182 @@ else{
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+   
+    <!-- Loader CSS -->
+    <style>
+       /*  .custom-loader {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+            .custom-loader img {
+                width: 80px;
+                height: 80px;
+            }
+ */
+        /* Fix Toastr Background Colors */
+        .toast-info {
+            background-color: #17a2b8 !important; /* Darker Info */
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important; /* Darker Warning */
+        }
+    </style>
+
+    @* <!-- Loader -->
+    <div class="custom-loader" id="loader">
+        <img src="/loader.gif" alt="Loading..." />
+    </div> *@
+
+   
 
     <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": true,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "4000",  // Show approval success for 4 sec
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        // function showLoader() {
+        //     document.getElementById('loader').style.display = "flex";
+        // }
+
+        // function hideLoader() {
+        //     document.getElementById('loader').style.display = "none";
+        // }
+
+        function approveCreator(applicationId) {
+            toastr.info(
+                'Are you sure you want to approve this creator?<br/><br/><button type="button" id="confirmApproveBtn" class="btn btn-success btn-sm">Yes, Approve</button>',
+                'Confirm Approval',
+                {
+                    timeOut: 0,
+                    extendedTimeOut: 0,
+                    closeButton: true,
+                    tapToDismiss: false,
+                    allowHtml: true,
+                    onShown: function () {
+                        document.getElementById('confirmApproveBtn').addEventListener('click', function () {
+                            sendApprovalRequest(applicationId);
+                        });
+                    }
+                }
+            );
+        }
+
+        function rejectCreator(applicationId) {
+            toastr.warning(
+                'Are you sure you want to reject this creator?<br/><br/><button type="button" id="confirmRejectBtn" class="btn btn-danger btn-sm">Yes, Reject</button>',
+                'Confirm Rejection',
+                {
+                    timeOut: 0,
+                    extendedTimeOut: 0,
+                    closeButton: true,
+                    tapToDismiss: false,
+                    allowHtml: true,
+                    onShown: function () {
+                        document.getElementById('confirmRejectBtn').addEventListener('click', function () {
+                            sendRejectionRequest(applicationId);
+                        });
+                    }
+                }
+            );
+        }
+
+        function sendApprovalRequest(applicationId) {
+            showLoader();
+            $.ajax({
+                url: '/ManageCampaigns/ApproveCreator',
+                type: 'POST',
+                data: { id: applicationId },
+                success: function (response) {
+                    hideLoader();
+                    if (response.success) {
+                        toastr.success(response.message || "Creator approved successfully!");
+                        setTimeout(() => {
+                            window.location.href = '/ManageCampaigns/PendingCampaigns';
+                        }, 2500);  // ⏳ 2.5 seconds after success message
+                    } else {
+                        toastr.error(response.message || "Approval failed.");
+                    }
+                },
+                error: function () {
+                    hideLoader();
+                    toastr.error("Error processing approval.");
+                }
+            });
+        }
+
+        function sendRejectionRequest(applicationId) {
+            showLoader();
+            $.ajax({
+                url: '/ManageCampaigns/RejectCreator',
+                type: 'POST',
+                data: { id: applicationId },
+                success: function (response) {
+                    hideLoader();
+                    if (response.success) {
+                        toastr.success(response.message || "Creator rejected successfully!");
+                        setTimeout(() => {
+                            window.location.href = '/ManageCampaigns/PendingCampaigns';
+                        }, 2500);
+                    } else {
+                        toastr.error(response.message || "Rejection failed.");
+                    }
+                },
+                error: function () {
+                    hideLoader();
+                    toastr.error("Error processing rejection.");
+                }
+            });
+        }
+    </script>
+
+}
+
+@*  <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
         function approveCreator(applicationId) {
             if (confirm("Are you sure you want to approve this creator?")) {
                 $.ajax({
@@ -108,6 +282,7 @@ else{
                     data: { id: applicationId },
                     success: function (response) {
                         if (response.success) {
+                            toastr.success("Creator Request is Approved!");
                             alert(response.message);
                             location.reload();
                         } else {
@@ -115,7 +290,8 @@ else{
                         }
                     },
                     error: function () {
-                        alert("Something went wrong.");
+                        toastr.error("Creator approval request is in processing...!");
+                        //alert("Something went wrong.");
                     }
                 });
             }
@@ -129,6 +305,7 @@ else{
                     data: { id: applicationId },
                     success: function (response) {
                         if (response.success) {
+
                             alert(response.message);
                             location.reload();
                         } else {
@@ -141,7 +318,6 @@ else{
                 });
             }
         }
-    </script>
-}
+    </script> *@
 
 

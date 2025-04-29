@@ -21,6 +21,7 @@ public partial class CreatorApplication
     public DateTime? StatusUpdatedDate { get; set; }
 
     public string? AdminRemarks { get; set; }
+
     [NotMapped]
     public IFormFile? ImageFile { get; set; }
 

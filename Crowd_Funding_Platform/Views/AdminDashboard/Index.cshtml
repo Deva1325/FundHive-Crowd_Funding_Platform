@@ -1,0 +1,570 @@
+﻿@model AdminDashboardVM
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f0f2f5;
+    }
+
+    .card-stat, .widget-card {
+        border-radius: 14px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+        background-color: #fff;
+    }
+
+        .card-stat:hover, .widget-card:hover {
+            transform: scale(1.015);
+        }
+
+    .card-body {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #eee;
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-outline-primary, .btn-outline-warning, .btn-outline-success {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    canvas {
+        max-height: 300px;
+    }
+
+    .text-muted {
+        font-size: 0.85rem;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        color: white;
+    }
+
+    .badge-pink {
+        background-color: #f06292;
+    }
+
+    .badge-yellow {
+        background-color: #efd91d;
+    }
+
+    .badge-green {
+        background-color: #49cb50;
+    }
+
+    .badge-secondary {
+        background-color: #6c757d;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <!-- 🔢 Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-stat border-start border-primary border-4">
+                <div class="card-body">👥 Total Users<br><strong>@Model.TotalUsers</strong></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-stat border-start border-success border-4">
+                <div class="card-body" style=" padding: 36px;
+                     margin-bottom: 8px;"
+                     ">
+                    📢 Total Campaigns<br><strong>@Model.TotalCampaigns</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-stat border-start border-warning border-4">
+                <div class="card-body">🎁 Contributions<br><strong>@Model.TotalContributions</strong></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-stat border-start border-danger border-4">
+                <div class="card-body">💰 Raised<br>₹<strong>@Model.TotalRaisedAmount</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 Charts -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="widget-card p-3">
+                <canvas id="topContributorsChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="widget-card p-3">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="widget-card p-3">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="widget-card p-3">
+                <canvas id="pieChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="widget-card p-3">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 Lists Section -->
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="widget-card p-3 h-100 d-flex flex-column">
+                <h5 class="section-title">📅 Latest Campaigns</h5>
+                <ul class="list-group flex-grow-1">
+                    @foreach (var c in Model.LatestCampaigns)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@c.Title</strong>
+                                <div class="text-muted">Starts on @c.StartDate.ToString("dd MMM yyyy")</div>
+                            </div>
+                        @{
+                            string badgeClass = c.Status switch
+                            {
+                                "Upcoming" => "badge badge-pink",
+                                "Ongoing" => "badge badge-yellow",
+                                "Completed" => "badge badge-green",
+                                _ => "badge badge-secondary"
+                            };
+                        }
+                            <span class="@badgeClass">@c.Status</span>
+                            
+                        </li>
+                    }
+                </ul>
+                <a href="/Campaign/List" class="btn btn-outline-primary mt-3">📋 View Campaign List</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="widget-card p-3 h-100 d-flex flex-column">
+                <h5 class="section-title">🧾 Pending Applications</h5>
+                <ul class="list-group flex-grow-1">
+                    @foreach (var a in Model.PendingApplications)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@(a.User?.Username ?? "Unknown")</strong>
+                                <div class="text-muted">Submitted on @a.SubmissionDate?.ToString("dd MMM yyyy")</div>
+                            </div>
+                            <span class="badge bg-warning text-dark">@a.Status</span>
+                        </li>
+                    }
+                </ul>
+                <a href="/Admin/Applications" class="btn btn-outline-warning mt-3">📝 Pending Applications</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="widget-card p-3 h-100 d-flex flex-column">
+                <h5 class="section-title">💸 Recent Contributions</h5>
+                <ul class="list-group flex-grow-1">
+                    @foreach (var rc in Model.RecentContributions)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                ₹<strong>@rc.Amount</strong> from <strong>@rc.Contributor?.Username</strong>
+                                <div class="text-muted">for @rc.Campaign?.Title</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <a href="/Contribution/List" class="btn btn-outline-success mt-3">💰 View Contributions</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart scripts remain unchanged -->
+<!-- 📊 Chart.js Scripts -->
+
+
+<script>
+    Chart.defaults.color = '#333';
+    Chart.defaults.font.family = 'Segoe UI';
+
+
+    function checkDataAndRender(containerId, data, config) {
+        if (!data || data.labels.length === 0 || data.datasets[0].data.length === 0) {
+            document.getElementById(containerId).outerHTML = '<div class="text-muted text-center py-4">📉 No chart data available</div>';
+        } else {
+            new Chart(document.getElementById(containerId), config);
+        }
+    }
+
+    // 1️⃣ Line Chart – Raised Per Day
+    const raisedPerWeekData = {
+        labels: @Html.Raw(Json.Serialize(Model.RaisedPerWeek.Select(p => p.Label))),
+        datasets: [{
+            label: 'Amount Raised',
+            data: @Html.Raw(Json.Serialize(Model.RaisedPerWeek.Select(p => p.Value))),
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.2)',
+            tension: 0.3
+        }]
+    };
+    const raisedPerWeekConfig = {
+        type: 'line',
+        data: raisedPerWeekData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Funds Raised Over Time'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => '₹ ' + ctx.parsed.y.toLocaleString()
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Amount (₹)' }
+                },
+                x: {
+                    ticks: { maxRotation: 45, minRotation: 45 }
+                }
+            }
+        }
+    };
+    checkDataAndRender('lineChart', raisedPerWeekData, raisedPerWeekConfig);
+
+    // 2️⃣ Bar Chart – Top Campaigns
+    const topCampaignsData = {
+        labels: @Html.Raw(Json.Serialize(Model.TopCampaigns.Select(c => c.Label))),
+        datasets: [{
+            label: 'Raised',
+            data: @Html.Raw(Json.Serialize(Model.TopCampaigns.Select(c => c.Value))),
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    };
+    const topCampaignsConfig = {
+        type: 'bar',
+        data: topCampaignsData,
+        options: {
+            plugins: {
+                title: { display: true, text: 'Top 5 Campaigns by Raised Amount' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => '₹ ' + ctx.parsed.y.toLocaleString()
+                    }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Amount (₹)' }
+                },
+                x: {
+                    ticks: {
+                        callback: function (label) {
+                            return label.length > 10 ? label.substring(0, 10) + '...' : label;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    checkDataAndRender('barChart', topCampaignsData, topCampaignsConfig);
+
+    // 3️⃣ Pie Chart – Payment Status
+    const paymentStatusData = {
+        labels: @Html.Raw(Json.Serialize(Model.PaymentStatusDistribution.Select(p => p.Label))),
+        datasets: [{
+            label: 'Payment Status',
+            data: @Html.Raw(Json.Serialize(Model.PaymentStatusDistribution.Select(p => p.Value))),
+            backgroundColor: ['#4caf50', '#ff9800', '#f44336', '#2196f3']
+        }]
+    };
+    const paymentStatusConfig = {
+        type: 'pie',
+        data: paymentStatusData,
+        options: {
+            plugins: {
+                title: { display: true, text: 'Payment Status Breakdown' },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.parsed;
+                            const percent = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percent}%)`;
+                        }
+                    }
+                },
+                legend: { position: 'right' }
+            }
+        }
+    };
+    checkDataAndRender('pieChart', paymentStatusData, paymentStatusConfig);
+
+    // 4️⃣ Category Chart – Contributions by Category
+    const categoryData = {
+        labels: @Html.Raw(Json.Serialize(Model.ContributionsByCategory.Select(c => c.Label))),
+        datasets: [{
+            label: 'Contributions',
+            data: @Html.Raw(Json.Serialize(Model.ContributionsByCategory.Select(c => c.Value))),
+            backgroundColor: 'rgba(153, 102, 255, 0.7)'
+        }]
+    };
+    const categoryConfig = {
+        type: 'bar',
+        data: categoryData,
+        options: {
+            plugins: {
+                title: { display: true, text: 'Contributions by Category' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => '₹ ' + ctx.parsed.y.toLocaleString()
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Amount (₹)' }
+                }
+            }
+        }
+    };
+    checkDataAndRender('categoryChart', categoryData, categoryConfig);
+
+    // 🔝 Top Contributors Chart
+    const topContributorsData = {
+        labels: @Html.Raw(Json.Serialize(Model.TopContributors.Select(c => c.Label))),
+        datasets: [{
+            label: 'Total Donated',
+            data: @Html.Raw(Json.Serialize(Model.TopContributors.Select(c => c.Value))),
+            backgroundColor: 'rgba(255, 159, 64, 0.7)'
+        }]
+    };
+
+    const topContributorsConfig = {
+        type: 'bar',
+        data: topContributorsData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Top 5 Contributors'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => '₹ ' + ctx.parsed.y.toLocaleString()
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Amount (₹)' }
+                }
+            }
+        }
+    };
+
+    checkDataAndRender('topContributorsChart', topContributorsData, topContributorsConfig);
+
+</script>
+
+
+
+<script>
+    // const lineCtx = document.getElementById('lineChart').getContext('2d');
+    // const barCtx = document.getElementById('barChart').getContext('2d');
+    // const pieCtx = document.getElementById('pieChart').getContext('2d');
+    // const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+
+    // const lineChart = new Chart(lineCtx, {
+    //     type: 'line',
+    //     data: {
+    //         labels: @Html.Raw(Json.Serialize(Model.RaisedPerWeek.Select(x => x.Label))),
+    //         datasets: [{
+    //             label: 'Raised Per Day',
+    //             data: @Html.Raw(Json.Serialize(Model.RaisedPerWeek.Select(x => x.Value))),
+    //             borderColor: 'rgba(75, 192, 192, 1)',
+    //             fill: true,
+    //             tension: 0.4
+    //         }]
+    //     },
+    //     options: {
+    //         responsive: true,
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Funds Raised Over Time'
+    //             },
+    //             tooltip: {
+    //                 callbacks: {
+    //                     label: function (context) {
+    //                         return '₹ ' + context.parsed.y.toLocaleString();
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         scales: {
+    //             y: {
+    //                 title: {
+    //                     display: true,
+    //                     text: 'Amount (₹)'
+    //                 },
+    //                 beginAtZero: true
+    //             },
+    //             x: {
+    //                 ticks: {
+    //                     maxRotation: 45,
+    //                     minRotation: 45
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    // });
+
+
+    // const barChart = new Chart(barCtx, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: @Html.Raw(Json.Serialize(Model.TopCampaigns.Select(x => x.Label))),
+    //         datasets: [{
+    //             label: 'Top Campaigns',
+    //             data: @Html.Raw(Json.Serialize(Model.TopCampaigns.Select(x => x.Value))),
+    //             backgroundColor: 'rgba(54, 162, 235, 0.7)'
+    //         }]
+    //     },
+    //     options: {
+    //         responsive: true,
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Top 5 Campaigns by Raised Amount'
+    //             },
+    //             legend: {
+    //                 display: false
+    //             }
+    //         },
+    //         scales: {
+    //             y: {
+    //                 title: {
+    //                     display: true,
+    //                     text: 'Amount Raised (₹)'
+    //                 },
+    //                 beginAtZero: true
+    //             },
+    //             x: {
+    //                 ticks: {
+    //                     callback: function (label) {
+    //                         return label.length > 10 ? label.substring(0, 10) + '...' : label;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    // });
+
+
+    // const pieChart = new Chart(pieCtx, {
+    //     type: 'pie',
+    //     data: {
+    //         labels: @Html.Raw(Json.Serialize(Model.PaymentStatusDistribution.Select(x => x.Label))),
+    //         datasets: [{
+    //             label: 'Payment Status',
+    //             data: @Html.Raw(Json.Serialize(Model.PaymentStatusDistribution.Select(x => x.Value))),
+    //             backgroundColor: ['#4caf50', '#ff9800', '#f44336', '#2196f3']
+    //         }]
+    //     },
+    //     plugins: {
+    //         title: {
+    //             display: true,
+    //             text: 'Payment Status Breakdown'
+    //         },
+    //         tooltip: {
+    //             callbacks: {
+    //                 label: function (context) {
+    //                     const total = context.chart._metasets[context.datasetIndex].total;
+    //                     const value = context.parsed;
+    //                     const percentage = ((value / total) * 100).toFixed(1);
+    //                     return `${context.label}: ${value} (${percentage}%)`;
+    //                 }
+    //             }
+    //         },
+    //         legend: {
+    //             position: 'right'
+    //         }
+    //     }
+
+    // });
+
+    // const categoryChart = new Chart(categoryCtx, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: @Html.Raw(Json.Serialize(Model.ContributionsByCategory.Select(x => x.Label))),
+    //         datasets: [{
+    //             label: 'By Category',
+    //             data: @Html.Raw(Json.Serialize(Model.ContributionsByCategory.Select(x => x.Value))),
+    //             backgroundColor: 'rgba(153, 102, 255, 0.7)'
+    //         }]
+    //     },
+    //     options: {
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Contributions by Category'
+    //             },
+    //             tooltip: {
+    //                 callbacks: {
+    //                     label: function (context) {
+    //                         return '₹ ' + context.parsed.toLocaleString();
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         scales: {
+    //             y: {
+    //                 title: {
+    //                     display: true,
+    //                     text: 'Amount (₹)'
+    //                 },
+    //                 beginAtZero: true
+    //             }
+    //         }
+    //     }
+
+    // });
+</script>

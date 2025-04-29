@@ -63,12 +63,30 @@ namespace Crowd_Funding_Platform.Controllers
                     return Json(new { success = false, message = "Application submission failed. Please try again later." });
                 }
 
-                return Json(new { success = true, message = "Application submitted successfully!" });
+                // Respect the actual repository result (whether success = false or true)
+                return Json(result);
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
+        }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> GetCreatorApplicationStatus(int userId)
+        {
+            ViewBag.CurrentUserId = userId;
+
+            var latestApplication = await _dbMain1.CreatorApplications
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.SubmissionDate)
+                .FirstOrDefaultAsync();
+
+            if (latestApplication == null)
+                return Json(new { status = "None" });
+
+            return Json(new { status = latestApplication.Status }); // Use status string directly
         }
 
 
@@ -100,6 +118,20 @@ namespace Crowd_Funding_Platform.Controllers
         //    }
         //}
 
+        //public async Task<JsonResult> GetCreatorApplicationStatus(int userId)
+        //{
+
+
+        //    var latestApplication = await _dbMain1.CreatorApplications
+        //        .Where(x => x.UserId == userId)
+        //        .OrderByDescending(x => x.SubmissionDate)
+        //        .FirstOrDefaultAsync();
+
+        //    if (latestApplication == null)
+        //        return Json(new { status = "None" });
+
+        //    return Json(new { status = latestApplication.Status.ToString() });
+        //}
 
 
 

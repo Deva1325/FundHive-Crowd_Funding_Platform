@@ -45,7 +45,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
 
         public async Task<List<Campaign>> GetAllCampaigns()
         {
-            return await _CFS.Campaigns.OrderByDescending(c => c.StartDate).ToListAsync();
+            return await _CFS.Campaigns.Where(c => !c.IsDeleted).OrderByDescending(c => c.StartDate).ToListAsync();
         }
 
         // Add this method inside the repository class
@@ -443,20 +443,23 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
 
         public async Task<Campaign?> GetCampaignById(int id)
         {
-            return await _CFS.Campaigns.FirstOrDefaultAsync(c => c.CampaignId == id);
+            return await _CFS.Campaigns.Where(c => !c.IsDeleted).FirstOrDefaultAsync(c => c.CampaignId == id);
         }
  
         public async Task<bool> DeleteCampaign(int id)
         {
-            var campaignId = await _CFS.Campaigns.FindAsync(id);
+            var campaign = await _CFS.Campaigns.FindAsync(id);
 
-            if (campaignId == null)
+            if (campaign == null)
             {
                 return false;
             }
 
-            _CFS.Campaigns.Remove(campaignId);
-            await _CFS.SaveChangesAsync();
+            //_CFS.Campaigns.Remove(campaignId);
+            campaign.IsDeleted = true; // ✅ Soft delete
+            _CFS.Campaigns.Update(campaign);
+
+            await _CFS.SaveChangesAsync(); // ✅ Async save
             return true;
         }
 
@@ -499,7 +502,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         // Fetch all campaigns with creator username
         public List<Campaign> ShowCampaignCases()
         {
-            return _CFS.Campaigns
+            return _CFS.Campaigns.Where(c => !c.IsDeleted)
                 .Include(c => c.Creator)  // Include creator details
                 .Select(c => new Campaign
                 {
@@ -527,7 +530,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         {
             return _CFS.Campaigns
                 .Include(c => c.Creator)  // Include creator details    
-                .Where(c => c.CampaignId == campaignId)
+                .Where(c => c.CampaignId == campaignId && !c.IsDeleted)
                 .Select(c => new Campaign
                 {
                     CampaignId = c.CampaignId,

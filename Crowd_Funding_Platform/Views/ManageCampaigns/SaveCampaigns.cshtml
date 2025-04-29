@@ -49,14 +49,48 @@
         <h3 class="text-center text-primary mb-4">@ViewData["Title"]</h3>
 
         <form id="campaignForm" enctype="multipart/form-data" method="post">
-            <input type="hidden" asp-for="CampaignId" />
+            <input type="hidden" asp-for="CampaignId" />   
 
-             @* 
-<button type="button" id="generateAi" class="btn btn-sm btn-primary mt-2">Generate with AI</button>
-<div id="aiLoader" class="text-info mt-2" style="display:none;">Generating with AI...</div>
-<div id="aiResult" class="mt-2 text-success"></div> *@
+         
+            <!-- New AI Keyword Input -->
+            <div class="form-group mb-3">
+                <label for="AIKeyword" class="form-label fw-bold">🔮 Enter a keyword for AI suggestion</label>
+                <input type="text" class="form-control" id="AIKeyword" placeholder="e.g., education, healthcare, environment">
+            </div>
 
-            <button type="button" id="generateAi" class="btn btn-sm btn-primary mt-2">Generate with AI</button>
+            @* <!-- Generate AI Button -->
+            <div class="form-group mb-3">
+                <button type="button" id="generateAi" class="btn btn-sm btn-primary">
+                    <i class="bi bi-stars me-1"></i> Generate with AI
+                </button>
+            </div> *@
+
+            <!-- Generate AI Section -->
+            <div class="form-group mb-3 d-flex gap-2 align-items-center flex-wrap">
+                <button type="button" id="generateAi" class="btn btn-sm btn-primary">
+                    <i class="bi bi-stars me-1"></i> Generate with AI
+                </button>
+
+                <button type="button" id="regenerateAi" class="btn btn-sm btn-outline-secondary" style="display:none;">
+                    <i class="bi bi-arrow-repeat me-1"></i> Regenerate
+                </button>
+
+                <div class="form-check ms-2">
+                    <input class="form-check-input" type="checkbox" value="" id="autoFillCheckbox" checked>
+                    <label class="form-check-label" for="autoFillCheckbox">
+                        Auto-fill fields
+                    </label>
+                </div>
+            </div>
+
+            <!-- Previous/Next Navigation -->
+            <div class="d-flex justify-content-end gap-2 mb-3" id="navigationButtons" style="display:none;">
+                <button type="button" id="prevSuggestion" class="btn btn-outline-primary btn-sm">Previous</button>
+                <button type="button" id="nextSuggestion" class="btn btn-outline-primary btn-sm">Next</button>
+            </div>
+
+
+            <!-- AI Loader & Result -->
             <div id="aiLoader" class="text-info mt-2" style="display:none;">Generating with AI...</div>
             <div id="aiResult" class="mt-3"></div>
 
@@ -68,11 +102,7 @@
                         <label asp-for="Title" class="form-label fw-bold">Campaign Title</label>
                         <input asp-for="Title" class="form-control" placeholder="Enter campaign title" id="Title" />
                         <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-                   @*  <button type="button" id="generateAi" class="btn btn-sm btn-primary">Generate with AI</button>
-                    <div id="aiLoader" style="display:none;">Generating with AI...</div>
-                    <div id="aiResult" class="mt-2 text-success"></div>
- *@
+                    </div>                
 
                     <div class="form-group mb-3">
                         <label asp-for="Requirement" class="form-label fw-bold">Goal Amount ($)</label>
@@ -97,7 +127,7 @@
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
-                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories" id="CategoryId">
                             <option value="">Select Category</option>
                         </select>
                         <span asp-validation-for="CategoryId" class="text-danger"></span>
@@ -109,14 +139,7 @@
                         <input type="file" name="ImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
                         <img id="existingImage" src="@Model.MediaUrl" class="mt-2" style="max-width: 200px; display: @(string.IsNullOrEmpty(Model.MediaUrl) ? "none" : "block")" />
                     </div>
-
-                   @*  <!-- Gallery Images -->
-                    <!-- Multiple Attachments -->
-                    <div class="form-group mb-3">
-                        <label for="GalleryImages" class="form-label fw-bold">Attachments (Images, PDFs, Docs)</label>
-                        <input type="file" name="GalleryImages" multiple class="form-control" onchange="previewGallery(event)" />
-                        <div id="galleryPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
-                    </div> *@
+                 
                     <!-- ✅ Hidden input to send files to server -->
                     <input type="file" id="GalleryImagesInput" name="GalleryImages" multiple hidden />
 
@@ -133,8 +156,6 @@
                     </div>
                 </div>
             </div>
-
-           
 
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-primary btn-lg px-4">
@@ -153,59 +174,172 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="~/js/SaveCampaignForm.js"></script>
 
+
     <script>
+        let suggestions = [];
+        let currentIndex = 0;
 
-        $('#generateAi').on('click', function () {
-            const keyword = $('#Title').val().trim();
-            if (!keyword) {
-                alert("Please enter a keyword to generate title.");
-                return;
+        function showSuggestion(index) {
+            const suggestion = suggestions[index];
+            if (!suggestion) return;
+
+            const suggestionHtml = `
+                    <div class="ai-card w-100 p-3 border rounded shadow-sm">
+                                <h5><i class="bi bi-stars me-2 text-primary"></i> ${suggestion.title}</h5>
+                                <p class="mb-2"><strong>Description:</strong> ${suggestion.description}</p>
+                                <p class="mb-3"><strong>Category:</strong> ${suggestion.category}</p>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-success fw-bold">✅ AI Suggestion Ready.</span>
+                            <button type="button" class="btn btn-success btn-sm useSuggestionBtn">Use This</button>
+                        </div>
+                    </div>
+                `;
+            $('#aiResult').html(suggestionHtml).show();
+            $('#navigationButtons').show();
+        }
+
+        function fillFormFields(suggestion) {
+            $('#Title').val(suggestion.title);
+            $('#Description').val(suggestion.description);
+
+            const categoryDropdown = $('#CategoryId');
+            const matchedOption = categoryDropdown.find('option').filter(function () {
+                return $(this).text().trim().toLowerCase() === suggestion.category.toLowerCase();
+            });
+
+            if (matchedOption.length > 0) {
+                matchedOption.prop('selected', true);
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Category not found',
+                    text: 'AI suggested a category that is not in your list. Please select manually.'
+                });
             }
+        }
 
+        function generateAI(keyword) {
+            const button = $('#generateAi');
+            const originalButtonText = button.html();
+
+            button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Generating...');
             $('#aiLoader').show();
             $('#aiResult').hide().empty();
 
             $.ajax({
                 type: "POST",
                 url: "/ManageCampaigns/GenerateAiTitle",
-                data: { keyword },
+                data: { category: keyword },
                 success: function (response) {
                     $('#aiLoader').hide();
-                    if (response.success) {
-                        const suggestions = response.title.split(/\n+/).filter(line => line.trim() !== "");
+                    $('#regenerateAi').show();
 
-                        let listItems = "";
-                        suggestions.forEach((suggestion) => {
-                            listItems += `<li><i class="bi bi-stars me-2 text-primary"></i>${suggestion}</li>`;
-                        });
+                    // ✅ Use the response directly without parsing unless it's a string
+                    let parsedResponse = response;
 
-                        const suggestionHtml = `
-                            <div class="ai-card w-100">
-                                <ul class="list-unstyled mb-0">
-                                    ${listItems}
-                                </ul>
-                            </div>
-                        `;
+                    if (typeof response === 'string') {
+                        try {
+                            parsedResponse = JSON.parse(response);
+                        } catch (e) {
+                            console.error("Parsing error:", e);
+                            Swal.fire('Error', 'AI response was not valid JSON.', 'error');
+                            return;
+                        }
+                    }
 
-                        $('#aiResult').append(suggestionHtml).show();
+                    if (parsedResponse.success) {
+                        const suggestion = {
+                            title: parsedResponse.title,
+                            description: parsedResponse.description,
+                            category: parsedResponse.category
+                        };
+
+                        suggestions.push(suggestion);
+                        currentIndex = suggestions.length - 1;
+                        showSuggestion(currentIndex);
+
+                        if ($('#autoFillCheckbox').is(':checked')) {
+                            fillFormFields(suggestion);
+                        }
+
                     } else {
-                        $('#aiResult').text(response.message).show();
+                        Swal.fire('Error', parsedResponse.message || 'AI generation failed.', 'error');
                     }
                 },
-                error: function () {
+                error: function (xhr, status, error) {
                     $('#aiLoader').hide();
-                    $('#aiResult').text("Error during AI generation.").show();
+                    console.error("Error:", status, error);
+                    Swal.fire('Error', 'Error during AI generation.', 'error');
+                },
+                complete: function () {
+                    button.prop('disabled', false).html(originalButtonText);
                 }
             });
-        });
+        }
 
-        //old 2
+        $(document).ready(function () {
+            $('#generateAi').on('click', function () {
+                const keyword = $('#AIKeyword').val().trim();
+                if (!keyword) {
+                    Swal.fire('Warning', 'Please enter a keyword to generate.', 'warning');
+                    return;
+                }
+                suggestions = [];
+                currentIndex = 0;
+                generateAI(keyword);
+            });
+
+            $('#regenerateAi').on('click', function () {
+                const keyword = $('#AIKeyword').val().trim();
+                if (!keyword) {
+                    Swal.fire('Warning', 'Please enter a keyword.', 'warning');
+                    return;
+                }
+                generateAI(keyword);
+            });
+
+            $('#prevSuggestion').on('click', function () {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    showSuggestion(currentIndex);
+                }
+            });
+
+            $('#nextSuggestion').on('click', function () {
+                if (currentIndex < suggestions.length - 1) {
+                    currentIndex++;
+                    showSuggestion(currentIndex);
+                }
+            });
+
+            $(document).on('click', '.useSuggestionBtn', function () {
+                const suggestion = suggestions[currentIndex];
+                fillFormFields(suggestion);
+                Swal.fire('Success', 'Fields filled with selected AI suggestion.', 'success');
+            });
+        });
+    </script>
+
+
+    <script>
+       
+
+
+
         // $('#generateAi').on('click', function () {
-        //     const keyword = $('#Title').val().trim();
+        //     const button = $(this);
+        //     const originalButtonText = button.html();
+
+        //     button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Generating...');
+
+        //     const keyword = $('#AIKeyword').val().trim();
         //     if (!keyword) {
-        //         alert("Please enter a keyword to generate title.");
+        //         alert("Please enter a keyword to generate with AI.");
+        //         button.prop('disabled', false).html(originalButtonText);
         //         return;
         //     }
 
@@ -215,66 +349,63 @@
         //     $.ajax({
         //         type: "POST",
         //         url: "/ManageCampaigns/GenerateAiTitle",
-        //         data: { keyword },
+        //         data: { keyword: keyword },
         //         success: function (response) {
         //             $('#aiLoader').hide();
-        //             if (response.success) {
-        //                 const suggestions = response.title.split(/\n+/).filter(line => line.trim() !== "");
 
-        //                 suggestions.forEach((suggestion) => {
-        //                     const suggestionHtml = `
-        //                         <div class="ai-card">
-        //                             <p class="mb-0">${suggestion}</p>
-        //                         </div>
-        //                     `;
-        //                     $('#aiResult').append(suggestionHtml);
+        //             let parsedResponse;
+        //             try {
+        //                 if (typeof response === 'string') {
+        //                     parsedResponse = JSON.parse(response); // 🔥 Fix: Safely parse if response is string
+        //                 } else {
+        //                     parsedResponse = response; // already JSON
+        //                 }
+        //             } catch (e) {
+        //                 console.error("Parsing error:", e);
+        //                 $('#aiResult').text("AI generation failed: Failed to parse AI JSON response.").show();
+        //                 return;
+        //             }
+
+        //             if (parsedResponse.success) {
+        //                 $('#Title').val(parsedResponse.title);
+        //                 $('#Description').val(parsedResponse.description);
+
+        //                 const categoryDropdown = $('#CategoryId');
+        //                 const matchedOption = categoryDropdown.find('option').filter(function () {
+        //                     return $(this).text().trim().toLowerCase() === parsedResponse.category.toLowerCase();
         //                 });
 
-        //                 $('#aiResult').show();
+        //                 if (matchedOption.length > 0) {
+        //                     matchedOption.prop('selected', true);
+        //                 } else {
+        //                     alert("Category suggested by AI not found in the list. Please select manually.");
+        //                 }
+
+        //                 const suggestionHtml = `
+        //                     <div class="ai-card w-100 p-3 border rounded shadow-sm">
+        //                         <h5><i class="bi bi-stars me-2 text-primary"></i> ${parsedResponse.title}</h5>
+        //                         <p class="mb-2"><strong>Description:</strong> ${parsedResponse.description}</p>
+        //                         <p class="mb-3"><strong>Category:</strong> ${parsedResponse.category}</p>
+        //                         <div class="text-success fw-bold">✅ Fields pre-filled automatically.</div>
+        //                     </div>
+        //                 `;
+
+        //                 $('#aiResult').html(suggestionHtml).show();
         //             } else {
-        //                 $('#aiResult').text(response.message).show();
+        //                 $('#aiResult').text(parsedResponse.message || "AI generation failed.").show();
         //             }
         //         },
-        //         error: function () {
+        //         error: function (xhr, status, error) {
         //             $('#aiLoader').hide();
+        //             console.error("Error:", status, error);
         //             $('#aiResult').text("Error during AI generation.").show();
+        //         },
+        //         complete: function () {
+        //             button.prop('disabled', false).html(originalButtonText);
         //         }
         //     });
         // });
 
-        //old1
-
-        // $('#generateAi').on('click', function () {
-        //     const keyword = $('#Title').val().trim();
-        //     if (!keyword) {
-        //         alert("Please enter a keyword to generate title.");
-        //         return;
-        //     }
-
-        //     $('#aiLoader').show();
-        //     $('#aiResult').hide();
-
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "/ManageCampaigns/GenerateAiTitle",
-        //         data: { keyword },
-        //         success: function (response) {
-        //             $('#aiLoader').hide();
-        //             if (response.success) {
-        //                 $('#Description').val(response.title);
-        //                 $('#aiResult').text("AI-generated title inserted!").show();
-        //             } else {
-        //                 $('#aiResult').text(response.message).show();
-        //             }
-        //         },
-        //         error: function () {
-        //             $('#aiLoader').hide();
-        //             $('#aiResult').text("Error during AI generation.").show();
-        //         }
-        //     });
-        // });
-
-       
     </script>
 
 
@@ -369,47 +500,22 @@
         // }
     </script>
     }
-@* 
-<<<<<<< Updated upstream *@
-    @* <script>
-        $('#generateAi').on('click', function () {
-            const category = $('#CategoryId option:selected').text();
-            const requirement = $('#Requirement').val();
-
-            $('#aiLoader').show();
-            $('#aiResult').html('');
-
-            $.ajax({
-                type: 'POST',
-                url: '/ManageCampaigns/GenerateCampaignIdea',
-                contentType: 'application/json',
-                data: JSON.stringify({ category, requirement }),
-                success: function (res) {
-                    $('#aiLoader').hide();
-                    if (res.success) {
-                        const content = res.content;
-                        $('#aiResult').html('<pre>' + content + '</pre>');
-
-                        // Auto-fill fields
-                        const titleMatch = content.match(/Title:\s*(.*)/);
-                        const descMatch = content.match(/Description:\s*([\s\S]*)/);
-
-                        if (titleMatch) $('#Title').val(titleMatch[1].trim());
-                        if (descMatch) $('#Description').val(descMatch[1].trim());
-                    } else {
-                        $('#aiResult').text('AI Error: ' + res.message);
-                    }
-                }
-            });
-        });
-    </script> *@
-}
 
 
-@* 
-=======
-   }
->>>>>>> Stashed changes *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @* @model Crowd_Funding_Platform.Models.Campaign
 @{
