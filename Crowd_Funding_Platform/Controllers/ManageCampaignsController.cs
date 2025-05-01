@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Security.Claims;
 using X.PagedList.Extensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using ClosedXML.Excel;
+
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -477,6 +479,118 @@ namespace Crowd_Funding_Platform.Controllers
         //    }
         //}
 
+        [HttpGet]
+        public async Task<IActionResult> ExportCampaignsToExcel(string searchTerm, string categoryFilter, DateOnly? startDate, DateOnly? endDate)
+        {
+            try
+            {
+                int? userId = HttpContext.Session.GetInt32("UserId_ses");
+                string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+                if (userId == null && isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
+
+                List<Campaign> campaigns;
+
+                if (isAdmin == "true")
+                    campaigns = await _campaign.GetAllCampaigns();
+                else
+                    campaigns = await _campaign.GetCampaignsByCreator(userId.Value);
+
+                DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+                foreach (var campaign in campaigns)
+                {
+                    if (campaign.StartDate > today)
+                        campaign.Status = "Upcoming";
+                    else if (campaign.StartDate <= today && campaign.EndDate >= today)
+                        campaign.Status = "Ongoing";
+                    else if (campaign.EndDate < today)
+                        campaign.Status = "Completed";
+
+                    campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId);
+                }
+
+                // Filters
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    campaigns = campaigns
+                        .Where(c => c.Title != null && c.Title.ToLower().Contains(searchTerm.ToLower()))
+                        .ToList();
+                }
+
+                if (startDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.StartDate >= startDate.Value).ToList();
+                }
+
+                if (endDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.EndDate <= endDate.Value).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(categoryFilter) && int.TryParse(categoryFilter, out int categoryId))
+                {
+                    campaigns = campaigns.Where(c => c.CategoryId == categoryId).ToList();
+                }
+
+                // Excel creation
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Campaigns");
+                    var currentRow = 1;
+
+                    // Header
+                    worksheet.Cell(currentRow, 1).Value = "Title";
+                    worksheet.Cell(currentRow, 2).Value = "Requirement Amount";
+                    worksheet.Cell(currentRow, 3).Value = "Raised Amount";
+                    worksheet.Cell(currentRow, 4).Value = "Start Date";
+                    worksheet.Cell(currentRow, 5).Value = "End Date";
+                    worksheet.Cell(currentRow, 6).Value = "Status";
+                    worksheet.Cell(currentRow, 7).Value = "Total Contributors";
+
+                    var headerRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Data rows
+                    foreach (var campaign in campaigns)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = campaign.Title ?? "-";
+                        worksheet.Cell(currentRow, 2).Value = campaign.Requirement;
+                        worksheet.Cell(currentRow, 3).Value = campaign.RaisedAmount;
+                        worksheet.Cell(currentRow, 4).Value = campaign.StartDate.ToString("dd MMM yyyy");
+                        worksheet.Cell(currentRow, 5).Value = campaign.EndDate.ToString("dd MMM yyyy");
+                        worksheet.Cell(currentRow, 6).Value = campaign.Status ?? "-";
+                        worksheet.Cell(currentRow, 7).Value = campaign.TotalContributors;
+
+                        var rowRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                        rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "CampaignsReport.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error exporting campaigns: " + ex.Message });
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> ViewCreatorDocument(int id)

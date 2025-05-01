@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "Top Contributors";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h4 class="mb-0 text-center">🏆 Top 5 Contributors</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle text-center">
+                            <thead class="table-light">
+                                <tr class="fw-semibold">
+                                    <th>#</th>
+                                    <th>Contributor Name</th>
+                                    <th>Total Contribution</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    int i = 1;
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>@item.Contributor?.Username</td>
+                                            <td class="text-success fw-bold">₹ @item.TotalAmountContributed.ToString("N2")</td>
+                                            <td>@item.Contributor?.Email</td>
+                                        </tr>
+                                        i++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-muted">No contributors found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end mt-3">
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

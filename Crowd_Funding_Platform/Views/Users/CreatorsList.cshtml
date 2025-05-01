@@ -11,6 +11,11 @@
     <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
 
+
+<a href="@Url.Action("ExportCreatorsToExcel", "Users")" class="btn btn-success">
+    Export to Excel
+</a>
+
 <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
     <table class="table table-hover">
         <thead class="bg-secondary text-white">
@@ -23,8 +28,8 @@
                 <th>Document</th>
                 <th>Status</th>
                 <th>Submitted On</th>
-                <th>Last Updated</th>
-                <th>Admin Remarks</th>
+                @* <th>Last Updated</th> *@
+                @* <th>Admin Remarks</th> *@
                 <th>Actions</th>
             </tr>
         </thead>
@@ -73,10 +78,10 @@
 
                     <!-- Dates -->
                     <td>@item.SubmissionDate?.ToString("dd MMM yyyy")</td>
-                    <td>@item.StatusUpdatedDate?.ToString("dd MMM yyyy")</td>
+                    @* <td>@item.StatusUpdatedDate?.ToString("dd MMM yyyy")</td> *@
 
                     <!-- Admin Remarks -->
-                    <td>@item.AdminRemarks</td>
+                    @* <td>@item.AdminRemarks</td> *@
 
                    <!-- Actions (Icons Only) -->
                     <td>

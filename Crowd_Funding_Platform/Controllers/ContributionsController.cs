@@ -17,7 +17,7 @@ using X.PagedList.Extensions;
 
 namespace Crowd_Funding_Platform.Controllers
 {
-    public class ContributionsController : Controller
+    public class ContributionsController : BaseController
     {
         private readonly IUser _user;
         private readonly DbMain_CFS _context;
@@ -26,7 +26,7 @@ namespace Crowd_Funding_Platform.Controllers
         private readonly string _razorpaySecret;
         private readonly IEmailSenderRepos _emailSender;      
         private readonly IContributionRepository _contributionRepository;      
-        public ContributionsController(DbMain_CFS cFS, IConfiguration config,IUser user, IEmailSenderRepos emailSender, IContributionRepository contributionRepository)
+        public ContributionsController(DbMain_CFS cFS, IConfiguration config,IUser user, IEmailSenderRepos emailSender, IContributionRepository contributionRepository,ISidebarRepos sidebar): base(sidebar)
         {
             _context = cFS;
             _config = config;
@@ -179,7 +179,7 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ContributorsList(string searchString, string category, int? page)
+        public async Task<IActionResult> ContributionsList(string searchString, string category, int? page)
         {
             var contributors = await _user.GetAllContributorsAsync();
 

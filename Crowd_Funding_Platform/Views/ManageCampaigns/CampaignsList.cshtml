@@ -95,6 +95,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<a asp-action="ExportCampaignsToExcel" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-categoryFilter="@ViewBag.SelectedCategoryId" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="btn btn-success">
+    Export to Excel
+</a>
 
 <div class="container mt-4">
     @if (Model != null && Model.Any())

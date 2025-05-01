@@ -4,7 +4,7 @@ using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 using X.PagedList.Extensions;
-
+using ClosedXML.Excel;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -30,6 +30,90 @@ namespace Crowd_Funding_Platform.Controllers
             List<CreatorApplication> creators = await _user.GetAllCreatorsAsync();
             return View(creators);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCreatorsToExcel()
+        {
+            try
+            {
+                var creators = await _user.GetAllCreatorsAsync();
+
+                if (creators == null || !creators.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No creator data available to generate the report."
+                    });
+                }
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Creators");
+                    var currentRow = 1;
+
+                    // Header
+                    worksheet.Cell(currentRow, 1).Value = "Username";
+                    worksheet.Cell(currentRow, 2).Value = "Email";
+                    worksheet.Cell(currentRow, 3).Value = "Phone Number";
+                    worksheet.Cell(currentRow, 4).Value = "Submission Date";
+                    worksheet.Cell(currentRow, 5).Value = "Status";
+                    worksheet.Cell(currentRow, 6).Value = "Document Type";
+                    worksheet.Cell(currentRow, 7).Value = "Admin Remarks";
+
+                    var headerRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Data Rows
+                    foreach (var creator in creators)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = creator.User?.Username ?? "-";
+                        worksheet.Cell(currentRow, 2).Value = creator.User?.Email ?? "-";
+                        worksheet.Cell(currentRow, 3).Value = creator.User?.PhoneNumber ?? "-";
+                        worksheet.Cell(currentRow, 4).Value = creator.SubmissionDate.HasValue
+    ? creator.SubmissionDate.Value.ToString("dd MMM yyyy")
+    : "-";
+
+                        //worksheet.Cell(currentRow, 4).Value = creator.SubmissionDate.ToString("dd MMM yyyy");
+                        worksheet.Cell(currentRow, 5).Value = creator.Status ?? "-";
+                        worksheet.Cell(currentRow, 6).Value = creator.DocumentType ?? "-";
+                        worksheet.Cell(currentRow, 7).Value = creator.AdminRemarks ?? "-";
+
+                        var rowRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                        rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "CreatorsReport.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the creators report.",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> ContributorsList(string searchString, string category, int? page)
@@ -72,6 +156,93 @@ namespace Crowd_Funding_Platform.Controllers
 
             return View(pagedContributors);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportContributorsToExcel()
+        {
+            try
+            {
+                var contributors = await _user.GetAllContributorsAsync();
+
+                if (contributors == null || !contributors.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No contributor data available to generate the report."
+                    });
+                }
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Contributors");
+                    var currentRow = 1;
+
+                    // Header
+                    worksheet.Cell(currentRow, 1).Value = "Username";
+                    worksheet.Cell(currentRow, 2).Value = "Email";
+                    worksheet.Cell(currentRow, 3).Value = "Phone";
+                    worksheet.Cell(currentRow, 4).Value = "Campaign Title";
+                    worksheet.Cell(currentRow, 5).Value = "Category";
+                    worksheet.Cell(currentRow, 6).Value = "Amount";
+                    worksheet.Cell(currentRow, 7).Value = "Date";
+                    worksheet.Cell(currentRow, 8).Value = "Transaction ID";
+                    worksheet.Cell(currentRow, 9).Value = "Payment Status";
+
+                    var headerRange = worksheet.Range(currentRow, 1, currentRow, 9);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightSteelBlue;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Data Rows
+                    foreach (var c in contributors)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = c.Contributor?.Username ?? "-";
+                        worksheet.Cell(currentRow, 2).Value = c.Contributor?.Email ?? "-";
+                        worksheet.Cell(currentRow, 3).Value = c.Contributor?.PhoneNumber ?? "-";
+                        worksheet.Cell(currentRow, 4).Value = c.Campaign?.Title ?? "-";
+                        worksheet.Cell(currentRow, 5).Value = c.Campaign?.Category?.Name ?? "-";
+                        worksheet.Cell(currentRow, 6).Value = c.Amount.ToString("0.00");
+                        worksheet.Cell(currentRow, 7).Value = c.Date.HasValue
+    ? c.Date.Value.ToString("dd MMM yyyy")
+    : "-";
+
+                        worksheet.Cell(currentRow, 8).Value = c.TransactionId ?? "-";
+                        worksheet.Cell(currentRow, 9).Value = c.PaymentStatus ?? "-";
+
+                        var rowRange = worksheet.Range(currentRow, 1, currentRow, 9);
+                        rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "ContributorsReport.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the contributors report.",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         //[HttpGet]
         //public async Task<IActionResult> ContributorsList()
@@ -262,6 +433,13 @@ namespace Crowd_Funding_Platform.Controllers
             return View(pagedUsers);
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> TopContributorsList()
+        {
+            var TopContributors = await _user.GetTop5Contributors();
+            return View(TopContributors);
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> MyContributions()

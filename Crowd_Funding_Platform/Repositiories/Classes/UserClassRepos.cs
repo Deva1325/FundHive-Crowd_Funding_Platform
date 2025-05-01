@@ -1,5 +1,6 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -152,7 +153,26 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             return await _CFS.Users.OrderByDescending(c => c.DateCreated).ToListAsync();
         }
 
-        
+        public async Task<List<Contribution>> GetTop5Contributors()
+        {
+            return await _CFS.Contributions
+                .Include(c => c.Contributor)
+                .Include(c => c.Campaign)
+                .GroupBy(c => c.ContributorId)
+                .Select(g => new Contribution
+                {
+                    ContributorId = g.Key,
+                    Amount = g.Sum(x => x.Amount),
+                    Contributor = g.Select(x => x.Contributor).FirstOrDefault(),
+                    TotalAmountContributed = g.Sum(x => x.Amount)
+                })
+                .OrderByDescending(c => c.TotalAmountContributed)
+                .Take(5)
+                .ToListAsync();
+        }
+
+
+
 
         //public async Task<List<Contribution>> GetMyContributions()
         //{

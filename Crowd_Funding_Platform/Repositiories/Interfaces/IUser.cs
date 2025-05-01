@@ -14,5 +14,6 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
         Task<List<Contribution>> GetContributionHistory(int campaignId);
 
         Task<List<User>> GetAllUsersList();
+        Task<List<Contribution>> GetTop5Contributors();
     }
 }
