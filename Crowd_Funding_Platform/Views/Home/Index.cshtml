@@ -1,4 +1,5 @@
-﻿@{
+﻿@model Crowd_Funding_Platform.Models.HomePageViewModel
+@{
     <title>@ViewData["Title"] - Crowd_Funding_Platform</title>
    //  Layout = "~/Views/Shared/_mainLayout.cshtml";
      Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
@@ -6,8 +7,6 @@
 }
 
 <main>
-
-
     <!-- slider Area Start-->
     <div class="slider-area position-relative">
         <div class="slider-active dot-style">
@@ -76,172 +75,59 @@
                     </div>
                 </div>
             </div>
-            <div class="services1-active">
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <!-- Single -->
-                    <div class="properties pb-30">
-                        <div class="properties-card">
-                            <div class="properties-img">
-                                <a href="#"><img src="~/assets/img/gallery/services-img1.jpg" alt=""></a>
-                                <!-- Progress Bar -->
-                                <div class="single-skill">
-                                    <div class="bar-progress">
-                                        <div id="bar1" class="barfiller">
-                                            <div class="tipWrap">
-                                                <span class="tip"></span>
+            <div class="services1-active row">
+                @foreach (var item in Model.Campaigns)
+                {
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <!-- Single -->
+                        <div class="properties pb-30">
+                            <div class="properties-card">
+                                <div class="properties-img">
+                                    <a href="#"><img src="@item.MediaUrl" alt="@item.Title" style="height: 250px; width: 100%; object-fit: cover;" /></a>
+
+                                    <!-- Progress Bar -->
+                                    @{
+                                        var percentage = item.RaisedAmount.HasValue && item.Requirement > 0
+                                        ? (int)((item.RaisedAmount.Value / item.Requirement) * 100)
+                                        : 0;
+                                    }
+                                    <div class="single-skill">
+                                        <div class="bar-progress">
+                                            <div class="barfiller">
+                                                <div class="tipWrap">
+                                                    <span class="tip">@percentage%</span>
+                                                </div>
+                                                <span class="fill" data-percentage="@percentage"></span>
                                             </div>
-                                            <span class="fill" data-percentage="65"></span>
                                         </div>
                                     </div>
+                                    <!-- / progress -->
                                 </div>
-                                <!-- / progress -->
-                            </div>
-                            <div class="wrap-wrapper">
-                                <div class="properties-caption">
-                                    <h3><a href="#">Help the ecosystems</a></h3>
-                                    <p>Sedac odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante.</p>
-                                </div>
-                                <div class="properties-footer d-flex justify-content-between align-items-center">
-                                    <div class="class-day">
-                                        <a href="#" class="btn">Donate</a>
+                                <div class="wrap-wrapper">
+                                    <div class="properties-caption">
+                                        <h3><a href="#">@item.Title</a></h3>
+                                        <p>@item.Description</p>
                                     </div>
-                                    <div class="class-day">
-                                        <span class="color-font2">$67,845</span>
-                                        <p>Goal</p>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font1">$48,845</span>
-                                        <p>Raised</p>
+                                    <div class="properties-footer d-flex justify-content-between align-items-center">
+                                        <div class="class-day">
+                                            <a href="#" class="btn">Donate</a>
+                                        </div>
+                                        <div class="class-day">
+                                            <span class="color-font2">@item.Requirement.ToString("C")</span>
+                                            <p>Goal</p>
+                                        </div>
+                                        <div class="class-day">
+                                            <span class="color-font1">@item.RaisedAmount?.ToString("C") ?? "$0"</span>
+                                            <p>Raised</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <!-- Single -->
-                    <div class="properties pb-30">
-                        <div class="properties-card">
-                            <div class="properties-img">
-                                <a href="#"><img src="~/assets/img/gallery/services-img2.jpg" alt=""></a>
-                                <!-- Progress Bar -->
-                                <div class="single-skill">
-                                    <div class="bar-progress">
-                                        <div id="bar2" class="barfiller">
-                                            <div class="tipWrap">
-                                                <span class="tip"></span>
-                                            </div>
-                                            <span class="fill" data-percentage="65"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- / progress -->
-                            </div>
-                            <div class="wrap-wrapper">
-                                <div class="properties-caption">
-                                    <h3><a href="#">Sponsor a child</a></h3>
-                                    <p>Sedac odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante.</p>
-                                </div>
-                                <div class="properties-footer d-flex justify-content-between align-items-center">
-                                    <div class="class-day">
-                                        <a href="#" class="btn">Donate</a>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font2">$67,845</span>
-                                        <p>Goal</p>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font1">$48,845</span>
-                                        <p>Raised</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <!-- Single -->
-                    <div class="properties pb-30">
-                        <div class="properties-card">
-                            <div class="properties-img">
-                                <a href="#"><img src="~/assets/img/gallery/services-img3.jpg" alt=""></a>
-                                <!-- Progress Bar -->
-                                <div class="single-skill">
-                                    <div class="bar-progress">
-                                        <div id="bar3" class="barfiller">
-                                            <div class="tipWrap">
-                                                <span class="tip"></span>
-                                            </div>
-                                            <span class="fill" data-percentage="65"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- / progress -->
-                            </div>
-                            <div class="wrap-wrapper">
-                                <div class="properties-caption">
-                                    <h3><a href="#">Help senior citizens</a></h3>
-                                    <p>Sedac odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante.</p>
-                                </div>
-                                <div class="properties-footer d-flex justify-content-between align-items-center">
-                                    <div class="class-day">
-                                        <a href="#" class="btn">Donate</a>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font2">$67,845</span>
-                                        <p>Goal</p>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font1">$48,845</span>
-                                        <p>Raised</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <!-- Single -->
-                    <div class="properties pb-30">
-                        <div class="properties-card">
-                            <div class="properties-img">
-                                <a href="#"><img src="~/assets/img/gallery/services-img2.jpg" alt=""></a>
-                                <!-- Progress Bar -->
-                                <div class="single-skill">
-                                    <div class="bar-progress">
-                                        <div id="bar4" class="barfiller">
-                                            <div class="tipWrap">
-                                                <span class="tip"></span>
-                                            </div>
-                                            <span class="fill" data-percentage="65"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- / progress -->
-                            </div>
-                            <div class="wrap-wrapper">
-                                <div class="properties-caption">
-                                    <h3><a href="#">Help the ecosystems</a></h3>
-                                    <p>Sedac odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante.</p>
-                                </div>
-                                <div class="properties-footer d-flex justify-content-between align-items-center">
-                                    <div class="class-day">
-                                        <a href="#" class="btn">Donate</a>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font2">$67,845</span>
-                                        <p>Goal</p>
-                                    </div>
-                                    <div class="class-day">
-                                        <span class="color-font1">$48,845</span>
-                                        <p>Raised</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
+
         </div>
     </div>
     <!-- Services End -->
@@ -287,7 +173,7 @@
                                         <img src="~/assets/img/icon/count-icon1.svg" alt="">
                                     </div>
                                     <div class="captions">
-                                        <span class="counter">35</span>
+                                        <span class="counter">@ViewBag.Totals.TotalCampaigns</span>
                                         <span class="plus">+</span>
                                         <p class="color-green">Active Cases</p>
                                     </div>
@@ -299,8 +185,7 @@
                                         <img src="~/assets/img/icon/count-icon2.svg" alt="">
                                     </div>
                                     <div class="captions">
-                                        <span class="counter">12</span>
-                                        <span class="plus">m</span>
+                                        <span class="counter">@ViewBag.Totals.TotalUsers</span>
                                         <p class="color-green">People Joined</p>
                                     </div>
                                 </div>
@@ -311,8 +196,7 @@
                                         <img src="~/assets/img/icon/count-icon3.svg" alt="">
                                     </div>
                                     <div class="captions">
-                                        <span class="counter">200</span>
-                                        <span class="plus">m</span>
+                                        <span class="counter">@ViewBag.Totals.TotalCampaigns</span>
                                         <p class="color-green">Cases every Year</p>
                                     </div>
                                 </div>
@@ -323,7 +207,7 @@
                                         <img src="~/assets/img/icon/count-icon4.svg" alt="">
                                     </div>
                                     <div class="captions">
-                                        <span class="counter">1200</span>
+                                        <span class="counter">@ViewBag.Totals.TotalRaisedAmount</span>
                                         <p class="color-green">People get help from us</p>
                                     </div>
                                 </div>

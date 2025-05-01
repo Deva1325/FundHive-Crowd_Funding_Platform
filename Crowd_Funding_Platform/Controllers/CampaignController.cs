@@ -1,5 +1,6 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Classes.Authorization;
+using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,31 @@ namespace Crowd_Funding_Platform.Controllers
         public async Task<IActionResult> ApplyForCreator()
         {
             ViewBag.DocumentTypes = new string[] { "Aadhar Card", "Voter ID", "Driving License", "PAN Card", "Passport" };
+
+            var latestApplication = await _dbMain1.CreatorApplications
+               .Where(x => x.UserId == HttpContext.Session.GetInt32("UserId_ses"))
+               .OrderByDescending(x => x.SubmissionDate)
+               .FirstOrDefaultAsync();
+
+            var totalRequest = _dbMain1.CreatorApplications
+               .Where(x => x.UserId == HttpContext.Session.GetInt32("UserId_ses"))
+               .OrderByDescending(x => x.SubmissionDate);
+            ViewBag.TotalRequest = 5 - totalRequest.Count();
+            if (latestApplication != null)
+            {
+                
+                if (latestApplication.Status == "Pending")
+                {
+                    ViewBag.creatorstatus = "You have already submitted a request. Please wait for admin approval.";
+                }
+
+                if (latestApplication.Status == "Approved")
+                {
+                    ViewBag.creatorstatus = "You are already approved as a creator.";
+                }
+
+                // If rejected – allow resubmission (no block)
+            }
             return View();
         }
 

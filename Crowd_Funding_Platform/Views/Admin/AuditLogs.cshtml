@@ -1,0 +1,415 @@
+﻿@model List<AuditLogViewModel>
+
+@{
+    ViewData["Title"] = "Audit Log";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+@functions {
+    public string GetRowClass(string activityType)
+    {
+        var type = activityType?.ToLower();
+        if (type.Contains("approve")) return "table-success";
+        if (type.Contains("reject")) return "table-danger";
+        if (type.Contains("delete")) return "table-secondary";
+        if (type.Contains("update")) return "table-warning";
+        if (type.Contains("create")) return "table-info";
+        return "";
+    }
+}
+
+<style>
+    .filter-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .form-control, .form-select {
+        height: 42px;
+        font-size: 0.95rem;
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        color: black;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        text-align: center;
+        word-break: break-word;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #e9f7fe;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .header-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #007bff;
+    }
+
+    .btn-clear-logs {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+</style>
+
+<div class="card shadow rounded p-4">
+    <h4 class="mb-4">Audit Log</h4>
+    <div class="container mt-4">
+        <div class="card filter-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="text-primary m-0">📝 Audit Log</h2>
+                <button class="btn btn-danger btn-clear-logs" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                    <i class="fas fa-trash-alt"></i> Clear Logs
+                </button>
+            </div>
+
+            <!-- 🔍 Filters -->
+            <form id="filterForm" method="get">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" id="username" name="username" class="form-control" placeholder="👤 Username" value="@Context.Request.Query["username"]" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" id="activityType" name="activityType" class="form-control" placeholder="📘 Activity Type" value="@Context.Request.Query["activityType"]" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" id="tableName" name="tableName" class="form-control" placeholder="📋 Table Name" value="@Context.Request.Query["tableName"]" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" id="fromDate" name="fromDate" class="form-control" value="@Context.Request.Query["fromDate"]" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" id="toDate" name="toDate" class="form-control" value="@Context.Request.Query["toDate"]" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ✅ Success/Error Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <!-- 📋 Table -->
+
+        <div class="table-responsive rounded shadow-sm bg-white p-3" id="auditLogTable">
+            <table class=" table table-hover table-bordered align-middle"">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Log ID</th>
+                        <th>User</th>
+                        <th>Activity Type</th>
+                        <th>Description</th>
+                        <th>Table</th>
+                        <th>Record ID</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr class="@GetRowClass(log.ActivityType)">
+                            <td>@log.LogId</td>
+                            <td>@log.Username</td>
+                            <td>
+                                @if (log.ActivityType.ToLower().Contains("approve"))
+                                {
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>@log.ActivityType</span>
+                                }
+                                else if (log.ActivityType.ToLower().Contains("reject"))
+                                {
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>@log.ActivityType</span>
+                                }
+                                else if (log.ActivityType.ToLower().Contains("update"))
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-edit me-1"></i>@log.ActivityType</span>
+                                }
+                                else if (log.ActivityType.ToLower().Contains("create"))
+                                {
+                                    <span class="badge bg-info text-dark"><i class="fas fa-plus-circle me-1"></i>@log.ActivityType</span>
+                                }
+                                else if (log.ActivityType.ToLower().Contains("delete"))
+                                {
+                                    <span class="badge bg-secondary"><i class="fas fa-trash-alt me-1"></i>@log.ActivityType</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark"><i class="fas fa-info-circle me-1"></i>@log.ActivityType</span>
+                                }
+                            </td>
+
+                            <td title="@log.Description">@((log.Description?.Length > 60) ? log.Description.Substring(0, 60) + "..." : log.Description)</td>
+
+                            <td>@log.TableName</td>
+                            <td>@log.RecordId</td>
+                            <td>@log.Timestamp.ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 🛑 Confirm Clear Logs Modal -->
+       @*  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form asp-action="ClearLogs" asp-controller="Admin" method="post">
+            @Html.AntiForgeryToken()
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">Confirm Log Clear</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to clear all audit logs? This action cannot be undone.</p>
+                            <div class="mb-3">
+                                <label for="adminPassword" class="form-label">Enter Admin Password to Confirm:</label>
+                                <input type="password" class="form-control" name="adminPassword" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <!-- Trigger for modal -->
+                           @*  <button class="btn btn-danger btn-clear-logs" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                                <i class="fas fa-trash-alt"></i> Clear Logs
+                            </button> 
+
+                            <button class="btn btn-danger btn-clear-logs" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                                <i class="fas fa-trash-alt"></i> Clear Logs
+                            </button>
+
+                            @* button type="submit" class="btn btn-danger">Clear Logs</button> 
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> *@
+
+        <!-- 🗑️ Confirm Delete Modal -->
+         @* <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-action="ClearLogs">
+            @Html.AntiForgeryToken()
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="confirmDeleteModalLabel">Confirm Clear Logs</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="adminPassword" class="form-label">Enter Admin Password:</label>
+                            <input type="password" name="adminPassword" id="adminPassword" class="form-control" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Clear Logs</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>  *@
+
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action='/Admin/ClearLogs'>
+            @Html.AntiForgeryToken()
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="confirmDeleteModalLabel">Confirm Clear Logs</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="adminPassword" class="form-label">Enter Admin Password:</label>
+                            <input type="password" name="adminPassword" id="adminPassword" class="form-control" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Clear Logs</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <!-- Filters and Table go here -->
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        $('#confirmDeleteModal').on('hidden.bs.modal', function () {
+            // Reset password field if needed
+            $('#adminPassword').val('');
+        });
+     </script>
+    <script>
+        (function () {
+            const tooltipTriggerList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')];
+            const tooltipList = tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        })();
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Debounce function to limit the rate of AJAX calls
+            function debounce(func, delay) {
+                let timer;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            // Function to fetch filtered logs
+            function fetchFilteredLogs() {
+                let formData = $('#filterForm').serialize();
+                $.ajax({
+                    url: '/AuditLogs',
+                    type: 'GET',
+                    data: formData,
+                    success: function (data) {
+                        // Replace the entire body with the new content
+                        $('body').html(data);
+                    },
+                    error: function () {
+                        alert('Error loading filtered audit logs.');
+                    }
+                });
+            }
+
+            // Attach event listeners with debounce
+            $('#filterForm input').on('input change', debounce(fetchFilteredLogs, 500));
+        });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+@* @model List<AuditLogViewModel>
+
+@{
+    ViewData["Title"] = "Audit Log";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<h2 class="mb-4">Audit Log</h2>
+
+<div class="container-fluid">
+
+    <form id="filterForm" method="get" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <input type="text" id="username" name="username" class="form-control" placeholder="Username" value="@Context.Request.Query["username"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="activityType" name="activityType" class="form-control" placeholder="Activity Type" value="@Context.Request.Query["activityType"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="tableName" name="tableName" class="form-control" placeholder="Table Name" value="@Context.Request.Query["tableName"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" id="fromDate" name="fromDate" class="form-control" value="@Context.Request.Query["fromDate"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" id="toDate" name="toDate" class="form-control" value="@Context.Request.Query["toDate"]" />
+        </div>
+    </form>
+
+
+    <!-- Clear Logs Button -->
+    <div class="mb-3">
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+            Clear Logs
+        </button>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div id="auditLogTable">
+    <!-- Audit Logs Table -->
+    <table class="table table-bordered table-striped text-center" style="table-layout: fixed; width: 100%;">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 5%;">Log ID</th>
+                <th style="width: 10%;">User</th>
+                <th style="width: 15%;">Activity Type</th>
+                <th style="width: 30%;">Description</th>
+                <th style="width: 15%;">Table</th>
+                <th style="width: 10%;">Record ID</th>
+                <th style="width: 15%;">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="auditLogTable">
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.LogId</td>
+                    <td>@log.Username</td>
+                    <td>@log.ActivityType</td>
+                    <td style="word-wrap: break-word;">@log.Description</td>
+                    <td>@log.TableName</td>
+                    <td>@log.RecordId</td>
+                    <td>@log.Timestamp.ToString("g")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+    <!-- Modal for Clear Logs Confirmation -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" asp-action="ClearLogs">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Clear Logs</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="adminPassword" class="form-label">Enter Admin Password:</label>
+                        <input type="password" name="adminPassword" id="adminPassword" class="form-control" required />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Clear Logs</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+ *@

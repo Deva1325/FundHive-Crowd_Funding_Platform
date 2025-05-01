@@ -491,8 +491,6 @@ namespace Crowd_Funding_Platform.Controllers
                 HttpContext.Session.SetInt32("UserId_ses", user.UserId);
                 HttpContext.Session.SetString("IsAdmin_ses", user.IsAdmin == true ? "true" : "false");
                 HttpContext.Session.SetString("IsCreatorApproved", user.IsCreatorApproved == true ? "true" : "false");
-
-
               
                 if (user.IsAdmin == true)
                 {

@@ -315,13 +315,6 @@ namespace Crowd_Funding_Platform.Controllers
 
                 }
 
-                // Filter: Search by title
-                //if (!string.IsNullOrEmpty(searchTerm))
-                //{
-                //    campaigns = campaigns.Where(c => c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
-                //}
-
-
                 // Search filter
                 if (!string.IsNullOrEmpty(searchTerm))
                 {

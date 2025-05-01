@@ -1,0 +1,30 @@
+﻿@model List<AuditLogViewModel>
+
+<h2>Audit Log</h2>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Log ID</th>
+            <th>User</th>
+            <th>Activity Type</th>
+            <th>Description</th>
+            <th>Table</th>
+            <th>Record ID</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.LogId</td>
+                <td>@log.Username</td>
+                <td>@log.ActivityType</td>
+                <td>@log.Description</td>
+                <td>@log.TableName</td>
+                <td>@log.RecordId</td>
+                <td>@log.Timestamp.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
+</table>

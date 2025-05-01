@@ -144,6 +144,9 @@
     <div id="statusMessage" class="alert alert-info" style="display:none;"></div>
     <div id="creatorForm">
 
+        <div>
+            
+        </div>
     <section class="contact-section">
         <div class="container">
             <div class="row">
@@ -153,6 +156,7 @@
         border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);height: 530px;">
                         <h2 class="text-center text-dark fw-bold mb-4" style="    margin-top: 30px;">📜 Submit Your Application</h2>
+                            <h5 class="text-center text-danger fw-bold mb-4" style="    margin-top: 30px;"> @ViewBag.TotalRequest Request Left</h5>
 
                         <form class="form-contact contact_form" id="applyForCreatorForm" method="post" enctype="multipart/form-data" >
 
@@ -179,9 +183,24 @@
 
                             <!-- Submit Button -->
                             <div class="text-center">
-                                <button type="button" id="btnSubmit" class="button button-contactForm boxed-btn" style="margin-top: 39px;">
-                                    🚀 Submit Application
-                                </button>
+                                    @if (ViewBag.creatorstatus != null)
+                                    {
+                                        <div class="" style="color:red; margin-top:10px;">@ViewBag.creatorstatus</div>
+                                    }
+                                    else
+                                    {
+                                        if (ViewBag.TotalRequest == 0)
+                                        {
+                                            <div class="" style="color:red; margin-top:10px;">Your all 5 Requests are Rejected</div>
+                                        }
+                                        else{
+                                            <button type="button" id="btnSubmit" class="button button-contactForm boxed-btn" style="margin-top: 39px;">
+                                                🚀 Submit Application
+                                            </button>
+                                        }
+                                        
+                                    }
+                                    
                             </div>
 
                         </form>

@@ -40,5 +40,60 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             }
         }
 
+
+        public List<AuditLogViewModel> GetAllAuditLogs()
+        {
+            return _context.TblAuditLogs
+                .Include(a => a.User)
+                .OrderByDescending(a => a.Timestamp)
+                .Select(a => new AuditLogViewModel
+                {
+                    LogId = a.LogId,
+                    Username = a.User.Username,
+                    ActivityType = a.ActivityType,
+                    Description = a.Description,
+                    TableName = a.TableName,
+                    RecordId = a.RecordId,
+                    Timestamp = a.Timestamp,
+                    IsDeleted = a.IsDeleted
+
+                    // ✅ this is likely causing the exception
+                })
+                .ToList();
+        }    
+
+        //public List<AuditLogViewModel> GetAllAuditLogs()
+        //{
+        //    return _context.TblAuditLogs
+        //        .Include(a => a.User)
+        //        .OrderByDescending(a => a.Timestamp)
+        //        .Select(a => new AuditLogViewModel
+        //        {
+        //            LogId = a.LogId,
+        //            Username = a.User != null ? a.User.Username : "Unknown", // null-safe
+        //            ActivityType = a.ActivityType,
+        //            Description = a.Description,
+        //            TableName = a.TableName,
+        //            RecordId = a.RecordId,
+        //            Timestamp = a.Timestamp,
+        //            IsDeleted = a.IsDeleted
+        //        }).ToList();
+
+
+
+        //        //.Select(a => new AuditLogViewModel
+        //        //{
+        //        //    LogId = a.LogId,
+        //        //    Username = a.User.Username,
+        //        //    ActivityType = a.ActivityType,
+        //        //    Description = a.Description,
+        //        //    TableName = a.TableName,
+        //        //    RecordId = a.RecordId,
+        //        //    Timestamp = a.Timestamp,
+        //        //    IsDeleted = a.IsDeleted
+        //        //})
+        //        //.ToList();
+        //}
+
     }
 }

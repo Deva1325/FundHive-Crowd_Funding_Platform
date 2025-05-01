@@ -206,13 +206,13 @@ else{
         }
 
         function sendApprovalRequest(applicationId) {
-            showLoader();
+            // showLoader();
             $.ajax({
                 url: '/ManageCampaigns/ApproveCreator',
                 type: 'POST',
                 data: { id: applicationId },
                 success: function (response) {
-                    hideLoader();
+                    // hideLoader();
                     if (response.success) {
                         toastr.success(response.message || "Creator approved successfully!");
                         setTimeout(() => {
@@ -223,20 +223,20 @@ else{
                     }
                 },
                 error: function () {
-                    hideLoader();
+                    // hideLoader();
                     toastr.error("Error processing approval.");
                 }
             });
         }
 
         function sendRejectionRequest(applicationId) {
-            showLoader();
+            // showLoader();
             $.ajax({
                 url: '/ManageCampaigns/RejectCreator',
                 type: 'POST',
                 data: { id: applicationId },
                 success: function (response) {
-                    hideLoader();
+                    // hideLoader();
                     if (response.success) {
                         toastr.success(response.message || "Creator rejected successfully!");
                         setTimeout(() => {
@@ -247,7 +247,8 @@ else{
                     }
                 },
                 error: function () {
-                    hideLoader();
+                    // hideLoader();
+
                     toastr.error("Error processing rejection.");
                 }
             });

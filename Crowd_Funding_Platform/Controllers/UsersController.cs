@@ -125,6 +125,145 @@ namespace Crowd_Funding_Platform.Controllers
         }
 
         //[HttpGet]
+        //public IActionResult UsersList(string searchTerm, string roleFilter, int? monthFilter, int? page, bool isAjax = false)
+        //{
+        //    int pageSize = 5;
+        //    int pageNumber = page ?? 1;
+
+        //    var usersQuery = _CFS.Users.AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //        usersQuery = usersQuery.Where(u => u.Username.Contains(searchTerm));
+
+        //    if (!string.IsNullOrEmpty(roleFilter))
+        //    {
+        //        if (roleFilter == "Creator")
+        //            usersQuery = usersQuery.Where(u => u.IsCreatorApproved == true);
+        //        else if (roleFilter == "Contributor")
+        //            usersQuery = usersQuery.Where(u => u.IsCreatorApproved == false || u.IsCreatorApproved == null);
+        //    }
+
+        //    if (monthFilter.HasValue)
+        //        usersQuery = usersQuery.Where(u => u.DateCreated.HasValue && u.DateCreated.Value.Month == monthFilter.Value);
+
+        //    var pagedUsers = usersQuery.OrderByDescending(u => u.DateCreated).ToPagedList(pageNumber, pageSize);
+
+        //    if (isAjax)
+        //    {
+        //        var jsonList = pagedUsers.Select(user => new
+        //        {
+        //            user.UserId,
+        //            user.Username,
+        //            user.Email,
+        //            user.PhoneNumber,
+        //            EmailVerified = user.EmailVerified.GetValueOrDefault(),
+        //            IsCreatorApproved = user.IsCreatorApproved.GetValueOrDefault(),
+        //            DateCreated = user.DateCreated?.ToString("dd-MM-yyyy"),
+        //            ProfilePicture = string.IsNullOrEmpty(user.ProfilePicture)
+        //                ? Url.Content("~/images/default-user.png")
+        //                : user.ProfilePicture
+        //        }).ToList();
+
+        //        return Json(new
+        //        {
+        //            Users = jsonList,
+        //            PageNumber = pagedUsers.PageNumber,
+        //            PageCount = pagedUsers.PageCount
+        //        });
+        //    }
+
+        //    // Normal View
+        //    ViewBag.SearchTerm = searchTerm;
+        //    ViewBag.RoleFilter = roleFilter;
+        //    ViewBag.MonthFilter = monthFilter?.ToString();
+        //    return View(pagedUsers);
+        //}
+
+        //[HttpGet]
+        //public IActionResult UsersList(string searchTerm, string roleFilter, int? monthFilter, int? page)
+        //{
+        //    int pageSize = 5;
+        //    int pageNumber = page ?? 1;
+
+        //    var usersQuery = _CFS.Users.AsQueryable();
+
+        //    // Search filter
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //        usersQuery = usersQuery.Where(u => u.Username.Contains(searchTerm));
+
+        //    // Role filter
+        //    if (!string.IsNullOrEmpty(roleFilter))
+        //    {
+        //        if (roleFilter == "Creator")
+        //            usersQuery = usersQuery.Where(u => u.IsCreatorApproved == true);
+        //        else if (roleFilter == "Contributor")
+        //            usersQuery = usersQuery.Where(u => u.IsCreatorApproved == false || u.IsCreatorApproved == null);
+        //    }
+
+        //    // Month filter
+        //    if (monthFilter.HasValue)
+        //        usersQuery = usersQuery.Where(u => u.DateCreated.HasValue && u.DateCreated.Value.Month == monthFilter.Value);
+
+        //    // Paged list (sync)
+        //    var pagedUsers = usersQuery
+        //        .OrderByDescending(u => u.DateCreated)
+        //        .ToPagedList(pageNumber, pageSize);
+
+        //    // Pass filters back to view
+        //    ViewBag.SearchTerm = searchTerm;
+        //    ViewBag.RoleFilter = roleFilter;
+        //    ViewBag.MonthFilter = monthFilter?.ToString();
+
+        //    return View(pagedUsers);
+        //}
+
+
+        [HttpGet]
+        public async Task<IActionResult> UsersList(string searchTerm, string roleFilter, string monthFilter, int? page)
+        {
+            var allUsers = await _user.GetAllUsersList();
+
+            // Search by name
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                allUsers = allUsers.Where(u =>
+                    (!string.IsNullOrEmpty(u.Username) && u.Username.ToLower().Contains(searchTerm)) ||
+                    (!string.IsNullOrEmpty(u.FirstName) && u.FirstName.ToLower().Contains(searchTerm)) ||
+                    (!string.IsNullOrEmpty(u.LastName) && u.LastName.ToLower().Contains(searchTerm))
+                ).ToList();
+            }
+
+            // Filter by role (Creator / Contributor)
+            if (!string.IsNullOrEmpty(roleFilter))
+            {
+                if (roleFilter == "Creator")
+                    allUsers = allUsers.Where(u => u.IsCreatorApproved == true).ToList();
+                else if (roleFilter == "Contributor")
+                    allUsers = allUsers.Where(u => u.IsCreatorApproved == false || u.IsCreatorApproved == null).ToList();
+            }
+
+            // Filter by month (JoinedOn)
+            if (!string.IsNullOrEmpty(monthFilter) && int.TryParse(monthFilter, out int month))
+            {
+                allUsers = allUsers.Where(u => u.DateCreated?.Month == month).ToList();
+            }
+
+            // Pagination
+            int pageSize = 5;
+            int pageNumber = page ?? 1;
+            var pagedUsers = allUsers.ToPagedList(pageNumber, pageSize);
+
+            // Pass filters to ViewBag
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.RoleFilter = roleFilter;
+            ViewBag.MonthFilter = monthFilter;
+
+            return View(pagedUsers);
+        }
+
+
+        //[HttpGet]
         //public async Task<IActionResult> MyContributions()
         //{
         //    var contributions = await _user.GetMyContributions();

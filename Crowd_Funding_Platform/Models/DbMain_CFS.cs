@@ -267,6 +267,7 @@ public partial class DbMain_CFS : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.RecordId).HasColumnName("RecordID");
+            entity.Property(e => e.IsDeleted);
             entity.Property(e => e.TableName)
                 .HasMaxLength(255)
                 .IsUnicode(false);

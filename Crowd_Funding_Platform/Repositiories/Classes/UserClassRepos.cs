@@ -147,6 +147,13 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
                 .ToListAsync();
         }
 
+        public async Task<List<User>> GetAllUsersList()
+        {
+            return await _CFS.Users.OrderByDescending(c => c.DateCreated).ToListAsync();
+        }
+
+        
+
         //public async Task<List<Contribution>> GetMyContributions()
         //{
         //    int? userid = _httpContextAccessor.HttpContext?.Session.GetInt32("UserId_ses");

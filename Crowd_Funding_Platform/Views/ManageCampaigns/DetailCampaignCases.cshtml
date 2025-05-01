@@ -109,7 +109,7 @@
                     <input type="hidden" id="campaignId" value="@Model.CampaignId" />
                     <div class="mb-3">
                         <label for="amount" class="form-label">Enter Amount (INR)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" min="1" required />
+                        <input type="number" class="form-control" id="amount" name="amount" />
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Contribute</button>
                 </form>
@@ -130,7 +130,13 @@
 
 @section Scripts {
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
+
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <script src="~/authentication_t/app-assets/vendors/js/extensions/sweetalert2.all.min.js"></script>
     <script>
 
@@ -143,7 +149,25 @@
         //         donateModal.show();
         //     }
         // }
-
+        // ================================
+        // 🔥 Toastr Configuration
+        // ================================
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
 
         function handleDonateClick() {
             if (isLoggedIn === "true") {
@@ -167,85 +191,108 @@
             }
         }
 
-
-        document.getElementById("donationForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const amount = parseFloat(document.getElementById("amount").value);
-            const campaignId = parseInt(document.getElementById("campaignId").value);
-
-            fetch(`/Contributions/CreateOrder`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    amount: amount,
-                    campaignId: campaignId
-                })
-            })
-                .then(response => response.json())
-                .then(order => {
-                    const options = {
-                        key: "rzp_test_lP7c4T9H5YGiXt", // Replace with key from config in production
-                        amount: order.amount,
-                        currency: "INR",
-                        name: "Crowd Funding",
-                        description: "Donation",
-                        order_id: order.id,
-                        prefill: {
-                            name: "@ViewBag.UserName",
-                            email: "@ViewBag.UserEmail",
-                            contact: "9999999999" // Use test number
-                        },
-                        handler: function (response) {
-                            fetch(`/Contributions/VerifyAndStorePayment`, {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_signature: response.razorpay_signature,
-                                    amount: amount,
-                                    campaignId: campaignId
-                                })
-                            })
-                                .then(res => res.json())
-                                // .then(result => {
-                                //     alert(result.message);
-                                //     window.location.reload();
-                                // })
-                                .then(result => {
-                                    if (result.success) {
-                                        toastr.success(result.message);
-                                        setTimeout(() => {
-                                            window.location.href = `/ManageCampaigns/DetailCampaignCases/${campaignId}`;
-                                        }, 1500); // 1.5 second delay to show toastr
-                                    } else {
-                                        toastr.error(result.message);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error("Verification failed:", error);
-                                    toastr.error("Payment verification failed. Please try again.");
-                                    //alert("Payment verification failed. Please try again.");
-                                });
-                        },
-                        theme: {
-                            color: "#528FF0"
-                        }
-                    };
-                    const rzp = new Razorpay(options);
-                    rzp.open();
-                })
-                .catch(error => {
-                    console.error("Order creation failed:", error);
-                    toastr.error("Failed to create payment order. Please try again.");
-                    //alert("Failed to create payment order. Please try again.");
-                });
+        $("#donationForm").validate({
+            rules: {
+                amount: {
+                    required: true,
+                    min: 1
+                }
+            },
+            messages: {
+                amount: {
+                    required: "Please enter an amount.",
+                    min: "Amount must be at least ₹1."
+                }
+            },
+            errorPlacement: function (error, element) {
+                error.insertAfter(element); // Show message below the field
+            }
         });
+
+document.getElementById("donationForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const amount = parseFloat(document.getElementById("amount").value);
+    const campaignId = parseInt(document.getElementById("campaignId").value);
+
+    // if (isNaN(amount) || amount < 1) {
+    //     toastr.error("Please enter a valid amount greater than or equal to ₹1.");
+    //     return;
+    // }
+            if (!$(this).valid()) return;
+
+    fetch(`/Contributions/CreateOrder`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            amount: amount,
+            campaignId: campaignId
+        })
+    })
+        .then(response => response.json())
+        .then(order => {
+            const options = {
+                key: "rzp_test_lP7c4T9H5YGiXt", // Replace with key from config in production
+                amount: order.amount,
+                currency: "INR",
+                name: "Crowd Funding",
+                description: "Donation",
+                order_id: order.id,
+                prefill: {
+                    name: "@ViewBag.UserName",
+                    email: "@ViewBag.UserEmail",
+                    contact: "9999999999" // Use test number
+                },
+                handler: function (response) {
+                    fetch(`/Contributions/VerifyAndStorePayment`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            amount: amount,
+                            campaignId: campaignId
+                        })
+                    })
+                        .then(res => res.json())
+                        // .then(result => {
+                        //     alert(result.message);
+                        //     window.location.reload();
+                        // })
+                        .then(result => {
+                            if (result.success) {
+                                toastr.success(result.message);
+                                setTimeout(() => {
+                                    // window.location.href = `/ManageCampaigns/DetailCampaignCases/${campaignId}`;
+                                            window.location.reload();
+                                }, 1500); // 1.5 second delay to show toastr
+                            } else {
+                                toastr.error(result.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Verification failed:", error);
+                            toastr.error("Payment verification failed. Please try again.");
+                            //alert("Payment verification failed. Please try again.");
+                        });
+                },
+                theme: {
+                    color: "#528FF0"
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        })
+        .catch(error => {
+            console.error("Order creation failed:", error);
+            toastr.error("Failed to create payment order. Please try again.");
+        });
+});
 
 
         // function checkLoginAndNavigate({ url, title, text, btnText }) {

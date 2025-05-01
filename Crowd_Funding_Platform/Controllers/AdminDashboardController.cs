@@ -27,6 +27,8 @@ namespace Crowd_Funding_Platform.Controllers
                 TotalUsers = await _adminDashboard.GetTotalUsers(),
                 TotalCampaigns = await _adminDashboard.GetTotalCampaigns(),
                 TotalContributions = await _adminDashboard.GetTotalContributions(),
+
+
                 TotalRaisedAmount = await _adminDashboard.GetTotalRaisedAmount(),
                 TotalCreatorApplications = await _adminDashboard.GetTotalCreatorApplications(),
                 PendingCreatorApplications = await _adminDashboard.GetPendingCreatorApplications(),

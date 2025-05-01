@@ -6,5 +6,6 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
     {
         object AddNewActivity(int userId, string activityType, string description, string tableName = null, int? recordId = null);
 
+        List<AuditLogViewModel> GetAllAuditLogs();
     }
 }
