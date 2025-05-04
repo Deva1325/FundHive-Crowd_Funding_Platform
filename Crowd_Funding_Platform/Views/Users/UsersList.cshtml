@@ -45,7 +45,14 @@
     .reset-btn {
         height: 42px;
         width: 100%;
+        padding: 6px;
     }
+
+   /*  .reset-btn {
+        height: 34px;
+        padding: 6px 12px;
+    } */
+
 
     .table thead th {
         background-color: #f8f9fa;
@@ -82,6 +89,27 @@
         border: 1px solid #ccc;
     }
 </style>
+
+
+<div class="export-buttons" style="margin-top: -16px; margin-right: 17px;">
+    <a asp-action="ExportUsersToExcel"
+       asp-route-searchTerm="@ViewBag.SearchTerm"
+       asp-route-roleFilter="@ViewBag.RoleFilter"
+       asp-route-monthFilter="@ViewBag.MonthFilter"
+       class="btn btn-outline-success"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel"
+       style="background-color: #1bcfb4; color: white;">
+        <i class="fas fa-file-excel"></i>
+    </a>
+
+    <a href="@Url.Action("ExportUsersToPdf", "Users", new { searchTerm = ViewBag.SearchTerm, roleFilter = ViewBag.RoleFilter, monthFilter = ViewBag.MonthFilter })"
+       class="btn btn-outline-danger"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF"
+       style="background-color: #fe7c96; color: white;">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+</div>
+
 
 <div class="container mt-4">
     <div class="card mb-4 p-4 filter-card">
@@ -211,9 +239,18 @@
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
 <script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
     function resetFilters() {
         window.location.href = '@Url.Action("UsersList", "Users")';
     }
@@ -242,6 +279,8 @@
         $("#roleFilter, #monthFilter").on("change", applyFilters);
     });
 </script>
+}
+
 
 @* <script>
     function resetFilters() {

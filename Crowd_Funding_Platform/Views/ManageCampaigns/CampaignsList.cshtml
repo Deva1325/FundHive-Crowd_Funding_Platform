@@ -8,7 +8,7 @@
 }
 
 <style>
-    .filter-card {
+    /* .filter-card {
         border-radius: 12px;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
         padding: 20px;
@@ -29,8 +29,68 @@
     .reset-btn {
         height: 42px;
         width: 100%;
+    } */
+
+    .filter-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        padding: 10px 20px;
+        margin-bottom: 15px;
     }
 
+    .form-control,
+    .form-select {
+        height: 34px;
+        font-size: 0.88rem;
+    }
+
+    .search-filter-group .col-auto {
+        padding: 6px 8px;
+    }
+
+    .reset-btn {
+        height: 34px;
+        padding: 6px 12px;
+    }
+
+    .export-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+        .export-buttons .btn {
+            padding: 6px 10px;
+        }
+
+    .filter-icons {
+        border: none;
+        background: transparent;
+        padding: 6px 10px;
+    }
+
+        .filter-icons:hover {
+            color: #007bff;
+        }
+
+    .tooltip-custom {
+        font-size: 13px;
+    }
+
+
+    /* .input-group .form-control[type="date"] {
+        padding-left: 40px;
+    }
+ */
+    .input-group-text {
+        background: #f8f9fa;
+        border-right: 0;
+    }
+
+    .input-group .form-control {
+        border-left: 0;
+    }
     .table thead th {
         background-color: #f8f9fa;
         font-weight: bold;
@@ -81,6 +141,7 @@
 
     .badge-green {
         background-color: #49cb50;
+        padding-inline: 6px;
     }
 
     .badge-secondary {
@@ -95,74 +156,114 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<a asp-action="ExportCampaignsToExcel" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-categoryFilter="@ViewBag.SelectedCategoryId" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="btn btn-success">
-    Export to Excel
-</a>
+<div class="export-buttons" style="    margin-top: -16px;
+    margin-right: 17px;
+}">
+    <a asp-action="ExportCampaignsToExcel"
+       asp-route-searchTerm="@ViewBag.SearchTerm"
+       asp-route-categoryFilter="@ViewBag.SelectedCategoryId"
+       asp-route-startDate="@ViewBag.StartDate"
+       asp-route-endDate="@ViewBag.EndDate"
+       class="btn btn-outline-success"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel" style="background-color: #1bcfb4;
+    color: white;">
+        <i class="fas fa-file-excel"></i>
+    </a>
+
+    <a href="@Url.Action("ExportCampaignsToPdf", "ManageCampaigns")"
+       class="btn btn-outline-danger"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" style="    background-color: #fe7c96;
+    color: white;">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+</div>
 
 <div class="container mt-4">
     @if (Model != null && Model.Any())
     {
         <div id="campaignContainer">
 
-            <!-- ✅ Filter Card with Title + Create Button -->
-            <div class="card mb-4 p-4 filter-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="text-primary m-0">📋 Campaigns List</h2>
-                    <a asp-action="SaveCampaigns" class="btn btn-success create-btn">
-                        <i class="fas fa-plus-circle"></i> Create New
-                    </a>
-                </div>
-
+          <form method="get" asp-action="CampaignsList" class="w-100">
                 <div class="row search-filter-group align-items-end g-2">
-                    <!-- Search -->
-                    <div class="col-md-3">
-                        <input type="text" name="searchTerm" class="form-control" id="searchTerm" placeholder="🔍 Search by title" />
-                    </div>
 
-                    <!-- Category -->
-                    <div class="col-md-3">
-                        <select id="categoryInput" name="categoryFilter" class="form-select">
-                            <option value="">🎯 All Categories</option>
-                            @foreach (var cat in ViewBag.Categories as List<SelectListItem>)
-                            {
-                                <option value="@cat.Value" selected="@(ViewBag.SelectedCategory == cat.Value ? "selected" : null)">
-                                    @cat.Text
-                                </option>
-                            }
-                        </select>
-                    </div>
+                    <!-- ✅ Filter Card with Title + Create Button -->
+                    <div class="card mb-4 p-4 filter-card" style="    margin-top: -7px;
+    height: 134px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="text-primary m-0">📋 Campaigns List</h2>
+                            <a asp-action="SaveCampaigns" class="btn btn-success create-btn">
+                                <i class="fas fa-plus-circle"></i> Create New
+                            </a>
+                        </div>
+ 
+                   
 
-                    <!-- Start Date -->
-                    <div class="col-md-2">
-                        <input type="date" name="startDate" class="form-control" id="startDate" placeholder="From" />
-                    </div>
+                        <div class="row search-filter-group align-items-end g-2">
+                            <!-- Search -->
+                            <div class="col-md-2">
+                                <input type="text" name="searchTerm" class="form-control" id="searchTerm" style="    padding-left: 10px;" placeholder="🔍 Search by title" />
+                            </div>
 
-                    <!-- End Date -->
-                    <div class="col-md-2">
-                        <input type="date" name="endDate" class="form-control" id="endDate" placeholder="To" />
-                    </div>
+                            <!-- Category -->
+                            <div class="col-md-2">
+                                <select id="categoryInput" name="categoryFilter" class="form-select">
+                                    <option value="">🎯 All Categories</option>
+                                    @foreach (var cat in ViewBag.Categories as List<SelectListItem>)
+                                    {
+                                        <option value="@cat.Value" selected="@(ViewBag.SelectedCategory == cat.Value ? "selected" : null)">
+                                            @cat.Text
+                                        </option>
+                                    }
+                                </select>
+                            </div>
 
-                    <!-- Reset Button -->
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-outline-danger reset-btn" onclick="resetFilters()">
-                            <i class="fas fa-redo-alt"></i> Reset
-                        </button>
+                            <!-- Campaign Status -->
+                            <div class="col-md-2">
+                                <select id="statusInput" name="statusFilter" class="form-select">
+                                    <option value="">📌 All Status</option>
+                                    <option value="Upcoming" selected="@(ViewBag.SelectedStatus == "Upcoming")">Upcoming</option>
+                                    <option value="Ongoing" selected="@(ViewBag.SelectedStatus == "Ongoing")">Ongoing</option>
+                                    <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
+
+                                </select>
+                            </div>
+
+
+                             <!-- Start Date -->
+                            <div class="col-md-2">
+                                <input type="date" name="startDate" class="form-control" id="startDate" placeholder="From" />
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-2">
+                                <input type="date" name="endDate" class="form-control" id="endDate" placeholder="To" />
+                            </div>
+ 
+                           
+                            <!-- Reset Button -->
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger reset-btn" onclick="resetFilters()">
+                                    <i class="fas fa-redo-alt"></i> Reset
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-
+            </form>    
+            
             <!-- 📋 Table Section -->
             <div class="table-responsive rounded shadow-sm bg-white p-3" id="campaignTable">
+
                 <table class="table table-hover">
                     <thead class="thead-dark">
                         <tr>
                             <th>Title</th>
+                            <th>Category</th>
                             <th>Requirement Amount</th>
                             <th>Raised Amount</th>
                             <th>Start Date</th>
                             <th>End Date</th>
-                            <th>Total Contributors</th>
+                            <th style="    padding-inline: 2px;">Total Contributors</th>
                             <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -172,6 +273,7 @@
                         {
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
 @*                                 <td>@Html.DisplayFor(modelItem => item.Requirement)</td>
  *@                                <td class="text-success fw-bold">₹@item.Requirement</td>
                                 <td class="text-success fw-bold">₹@item.RaisedAmount</td>
@@ -224,7 +326,8 @@
                                         <i class="fas fa-trash-alt"></i>
                                     </a> *@
 
-                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger text-white" onclick="confirmCampaignDelete(@item.CampaignId)">Delete</a>
+                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger text-white" onclick="confirmCampaignDelete(@item.CampaignId)" title="Delete this campaign"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-trash-alt"></i></a>
 
 
 
@@ -248,6 +351,7 @@
                             page,
                             searchTerm = ViewBag.SearchTerm,
                             categoryFilter = ViewBag.SelectedCategory,
+                            statusFilter = ViewBag.SelectedStatus,
                             startDate = ViewBag.StartDate,
                             endDate = ViewBag.EndDate
                         }), new PagedListRenderOptions
@@ -281,9 +385,18 @@
     }
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+
         function resetFilters() {
             document.getElementById("searchTerm").value = "";
             document.getElementById("categoryInput").selectedIndex = 0;
+            document.getElementById("statusInput").selectedIndex = 0;
             document.getElementById("startDate").value = "";
             document.getElementById("endDate").value = "";
 
@@ -320,15 +433,17 @@
             function fetchFilteredResults() {
                 const search = $("#searchTerm").val();
                 const category = $("#categoryInput").val();
+                const status = $("#statusInput").val();
                 const start = $("#startDate").val();
                 const end = $("#endDate").val();
 
-                const url = `/ManageCampaigns/CampaignsList?searchTerm=${encodeURIComponent(search)}&categoryFilter=${encodeURIComponent(category)}&startDate=${start}&endDate=${end}`;
+                const url = `/ManageCampaigns/CampaignsList?searchTerm=${encodeURIComponent(search)}
+                        &categoryFilter=${encodeURIComponent(category)}&statusFilter=${encodeURIComponent(status)}&startDate=${start}&endDate=${end}`;
                 loadCampaigns(url);
             }
 
             $("#searchTerm").on("input", debounce(fetchFilteredResults, 500));
-            $("#categoryInput, #startDate, #endDate").on("change", fetchFilteredResults);
+            $("#categoryInput, #statusInput ,#startDate, #endDate").on("change", fetchFilteredResults);
 
             $(document).on("click", ".pagination a", function (e) {
                 e.preventDefault();

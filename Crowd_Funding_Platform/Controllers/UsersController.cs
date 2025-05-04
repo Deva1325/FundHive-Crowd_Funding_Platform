@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 using X.PagedList.Extensions;
 using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using Crowd_Funding_Platform.Repositiories.Classes;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -116,6 +118,43 @@ namespace Crowd_Funding_Platform.Controllers
 
 
         [HttpGet]
+        public async Task<IActionResult> ExportCreatorsToPdf()
+        {
+            try
+            {
+                string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+                if (isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
+
+                var creators = await _user.GetAllCreatorsAsync();
+
+                if (creators == null || !creators.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No creator data available to generate the report."
+                    });
+                }
+
+                var document = new CreatorsList_PDF(creators);
+                var pdfBytes = document.GeneratePdf();
+
+                return File(pdfBytes, "application/pdf", "CreatorsReport.pdf");
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the creators report PDF.",
+                    error = ex.Message
+                });
+            }
+        }
+
+
+        [HttpGet]
         public async Task<IActionResult> ContributorsList(string searchString, string category, int? page)
         {
             var contributors = await _user.GetAllContributorsAsync();
@@ -152,7 +191,7 @@ namespace Crowd_Funding_Platform.Controllers
 
             ViewBag.CurrentFilter = searchString;
             ViewBag.SelectedCategory = category;
-            ViewBag.Categories = categories;
+            ViewBag.Categories = categories;    
 
             return View(pagedContributors);
         }
@@ -231,6 +270,58 @@ namespace Crowd_Funding_Platform.Controllers
                             "ContributorsReport.xlsx");
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the contributors report.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportContributorsToPdf(string searchString, string category)
+        {
+            try
+            {
+                var contributors = await _user.GetAllContributorsAsync();
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    contributors = contributors
+                        .Where(c => c.Contributor?.Username != null &&
+                                    c.Contributor.Username.ToLower().Contains(searchString.ToLower()))
+                        .ToList();
+                }
+
+                if (!string.IsNullOrEmpty(category))
+                {
+                    contributors = contributors
+                        .Where(c => c.Campaign?.Category?.Name == category)
+                        .ToList();
+                }
+
+                if (!contributors.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No contributor data available to generate the report."
+                    });
+                }
+
+                ViewBag.CurrentFilter = searchString;
+                ViewBag.SelectedCategory = category;
+
+                var document = new ContributorsList_PDF(contributors);
+                var pdfBytes = document.GeneratePdf();
+
+
+                return File(pdfBytes, "application/pdf", "ContributorsReport.pdf");
             }
             catch (Exception ex)
             {
@@ -431,6 +522,173 @@ namespace Crowd_Funding_Platform.Controllers
             ViewBag.MonthFilter = monthFilter;
 
             return View(pagedUsers);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ExportUsersToExcel(string searchTerm, string roleFilter, string monthFilter)
+        {
+            try
+            {
+                var allUsers = await _user.GetAllUsersList();
+
+                // Apply same filters as in UsersList
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    searchTerm = searchTerm.ToLower();
+                    allUsers = allUsers.Where(u =>
+                        (!string.IsNullOrEmpty(u.Username) && u.Username.ToLower().Contains(searchTerm)) ||
+                        (!string.IsNullOrEmpty(u.FirstName) && u.FirstName.ToLower().Contains(searchTerm)) ||
+                        (!string.IsNullOrEmpty(u.LastName) && u.LastName.ToLower().Contains(searchTerm))
+                    ).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(roleFilter))
+                {
+                    if (roleFilter == "Creator")
+                        allUsers = allUsers.Where(u => u.IsCreatorApproved == true).ToList();
+                    else if (roleFilter == "Contributor")
+                        allUsers = allUsers.Where(u => u.IsCreatorApproved == false || u.IsCreatorApproved == null).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(monthFilter) && int.TryParse(monthFilter, out int month))
+                {
+                    allUsers = allUsers.Where(u => u.DateCreated?.Month == month).ToList();
+                }
+
+                if (allUsers == null || !allUsers.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No user data available to export."
+                    });
+                }
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Users");
+                    var currentRow = 1;
+
+                    // Header
+                    worksheet.Cell(currentRow, 1).Value = "Username";
+                    worksheet.Cell(currentRow, 2).Value = "First Name";
+                    worksheet.Cell(currentRow, 3).Value = "Last Name";
+                    worksheet.Cell(currentRow, 4).Value = "Email";
+                    worksheet.Cell(currentRow, 5).Value = "Phone";
+                    worksheet.Cell(currentRow, 6).Value = "Role";
+                    worksheet.Cell(currentRow, 7).Value = "Joined On";
+
+                    var headerRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Data
+                    foreach (var user in allUsers)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = user.Username ?? "-";
+                        worksheet.Cell(currentRow, 2).Value = user.FirstName ?? "-";
+                        worksheet.Cell(currentRow, 3).Value = user.LastName ?? "-";
+                        worksheet.Cell(currentRow, 4).Value = user.Email ?? "-";
+                        worksheet.Cell(currentRow, 5).Value = user.PhoneNumber ?? "-";
+                        worksheet.Cell(currentRow, 6).Value = user.IsCreatorApproved == true ? "Creator" : "Contributor";
+                        worksheet.Cell(currentRow, 7).Value = user.DateCreated?.ToString("dd MMM yyyy") ?? "-";
+
+                        var rowRange = worksheet.Range(currentRow, 1, currentRow, 7);
+                        rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "UsersReport.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while exporting users.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportUsersToPdf(string searchTerm, string roleFilter, string monthFilter)
+        {
+            try
+            {
+                int? userId = HttpContext.Session.GetInt32("UserId_ses");
+                string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+                if (userId == null && isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
+
+                var users = await _user.GetAllUsersList();
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    searchTerm = searchTerm.ToLower();
+                    users = users.Where(u =>
+                        (!string.IsNullOrEmpty(u.Username) && u.Username.ToLower().Contains(searchTerm)) ||
+                        (!string.IsNullOrEmpty(u.FirstName) && u.FirstName.ToLower().Contains(searchTerm)) ||
+                        (!string.IsNullOrEmpty(u.LastName) && u.LastName.ToLower().Contains(searchTerm))
+                    ).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(roleFilter))
+                {
+                    if (roleFilter == "Creator")
+                        users = users.Where(u => u.IsCreatorApproved == true).ToList();
+                    else if (roleFilter == "Contributor")
+                        users = users.Where(u => u.IsCreatorApproved == false || u.IsCreatorApproved == null).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(monthFilter) && int.TryParse(monthFilter, out int month))
+                {
+                    users = users.Where(u => u.DateCreated?.Month == month).ToList();
+                }
+
+                if (users == null || !users.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No user data available to generate the report."
+                    });
+                }
+
+                // Generate PDF using QuestPDF
+                var document = new UsersList_PDF(users);
+                var pdfBytes = document.GeneratePdf();
+
+                return File(pdfBytes, "application/pdf", "UsersReport.pdf");
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the user report PDF.",
+                    error = ex.Message
+                });
+            }
         }
 
 

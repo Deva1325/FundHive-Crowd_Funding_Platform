@@ -137,56 +137,7 @@ namespace Crowd_Funding_Platform.Controllers
 
         //}
 
-
-        [HttpPost]
-        public async Task<IActionResult> GenerateDefaultProfile()
-        {
-            int? userId = HttpContext.Session.GetInt32("UserId");
-
-            if (userId == null)
-            {
-                return Json(new { success = false, message = "Session expired. Please login again." });
-            }
-
-            var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null)
-            {
-                return Json(new { success = false, message = "User not found." });
-            }
-
-            // First, generate the new default profile image
-            string relativePath = _acc.GenerateDefaultProfileImage(user.Username);
-
-            // Safely remove old profile image if it was not a default one
-            if (!string.IsNullOrEmpty(user.ProfilePicture))
-            {
-                // (Optional) Check if it's not a generated default before deleting
-                string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
-
-                if (System.IO.File.Exists(oldImagePath))
-                {
-                    try
-                    {
-                        System.IO.File.Delete(oldImagePath);
-                    }                  
-                        catch (Exception ex)
-                    {
-                        return Json(new { success = false, message = "Error while updating profile Image " + ex.Message });
-                    }
-                    // Log error if needed
-                
-                }
-            }
-
-            // Update user profile with new image path
-            user.ProfilePicture = relativePath;
-            await _CFS.SaveChangesAsync();
-
-            return Json(new { success = true, imagePath = relativePath });
-        }
-
-
-        //OLD Method
+        //old 2 
         //[HttpPost]
         //public async Task<IActionResult> GenerateDefaultProfile()
         //{
@@ -203,23 +154,140 @@ namespace Crowd_Funding_Platform.Controllers
         //        return Json(new { success = false, message = "User not found." });
         //    }
 
-        //    string relativePath = _acc.GenerateDefaultProfileImage(user.Username);
+        //    // Determine new image path for current username
+        //    string newRelativePath = _acc.GenerateDefaultProfileImage(user.Username, generateOnly: true);
 
-        //    // Remove old profile image if exists
-        //    if (!string.IsNullOrEmpty(user.ProfilePicture))
+        //    // Delete old image if it differs (username changed, etc.)
+        //    if (!string.IsNullOrEmpty(user.ProfilePicture) &&
+        //        user.ProfilePicture != newRelativePath &&
+        //        user.ProfilePicture.EndsWith("_profile.png")) // only delete auto-generated ones
         //    {
         //        string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+
         //        if (System.IO.File.Exists(oldImagePath))
         //        {
-        //            System.IO.File.Delete(oldImagePath);
+        //            try
+        //            {
+        //                System.IO.File.Delete(oldImagePath);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                return Json(new { success = false, message = "Error while deleting old profile image. " + ex.Message });
+        //            }
         //        }
         //    }
 
+        //    // Always regenerate to match the new username (even if char is same)
+        //    string finalRelativePath = _acc.GenerateDefaultProfileImage(user.Username, generateOnly: false);
+
+        //    // Save new profile picture path
+        //    user.ProfilePicture = finalRelativePath;
+        //    await _CFS.SaveChangesAsync();
+
+        //    return Json(new { success = true, imagePath = finalRelativePath });
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateDefaultProfile([FromForm] string updatedUsername)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Session expired. Please login again." });
+            }
+
+            var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Fallback to existing username if nothing passed
+            string finalUsername = string.IsNullOrWhiteSpace(updatedUsername) ? user.Username : updatedUsername;
+
+            // Remove all previously auto-generated images for this userId
+            string imageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProfileImage");
+            if (Directory.Exists(imageDirectory))
+            {
+                string searchPattern = $"*_{user.UserId}_profile.png";
+                string[] matchingFiles = Directory.GetFiles(imageDirectory, searchPattern);
+
+                foreach (string file in matchingFiles)
+                {
+                    try
+                    {
+                        System.IO.File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { success = false, message = "Error while cleaning old images: " + ex.Message });
+                    }
+                }
+            }
+
+            // Generate new image using updated username
+            string finalRelativePath = _acc.GenerateDefaultProfileImage(finalUsername, user.UserId, generateOnly: false);
+
+            // Save new profile picture path (username will be saved later on form submit)
+            user.ProfilePicture = finalRelativePath;
+            await _CFS.SaveChangesAsync();
+
+            return Json(new { success = true, imagePath = finalRelativePath });
+        }
+
+
+
+
+        //OLD code1
+        //[HttpPost]
+        //public async Task<IActionResult> GenerateDefaultProfile()
+        //{
+        //    int? userId = HttpContext.Session.GetInt32("UserId");
+
+        //    if (userId == null)
+        //    {
+        //        return Json(new { success = false, message = "Session expired. Please login again." });
+        //    }
+
+        //    var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        //    if (user == null)
+        //    {
+        //        return Json(new { success = false, message = "User not found." });
+        //    }
+
+        //    // First, generate the new default profile image
+        //    string relativePath = _acc.GenerateDefaultProfileImage(user.Username);
+
+        //    // Safely remove old profile image if it was not a default one
+        //    if (!string.IsNullOrEmpty(user.ProfilePicture))
+        //    {
+        //        // (Optional) Check if it's not a generated default before deleting
+        //        string oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
+
+        //        if (System.IO.File.Exists(oldImagePath))
+        //        {
+        //            try
+        //            {
+        //                System.IO.File.Delete(oldImagePath);
+        //            }                  
+        //                catch (Exception ex)
+        //            {
+        //                return Json(new { success = false, message = "Error while updating profile Image " + ex.Message });
+        //            }
+        //            // Log error if needed           
+        //        }
+        //    }
+
+
+        //    // Update user profile with new image path
         //    user.ProfilePicture = relativePath;
         //    await _CFS.SaveChangesAsync();
 
         //    return Json(new { success = true, imagePath = relativePath });
         //}
+
+
 
 
         [HttpPost]

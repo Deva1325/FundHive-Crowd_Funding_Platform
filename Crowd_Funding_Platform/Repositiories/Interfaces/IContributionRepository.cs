@@ -11,5 +11,6 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
          Task<bool> SaveContributionAsync(string orderId, string paymentId);
         Task AssignRewardAsync(int userId);
 
+        Task<List<Contribution>> GetContributionsByContributorId(int contributorId);
     }
 }

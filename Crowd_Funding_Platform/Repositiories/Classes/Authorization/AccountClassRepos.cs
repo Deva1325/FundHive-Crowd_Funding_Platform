@@ -56,7 +56,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 
             if(ImageFile == null)
             {
-                user.ProfilePicture = GenerateDefaultProfileImage(user.Username);
+                user.ProfilePicture = GenerateDefaultProfileImage(user.Username,user.UserId);
             }
 
             await _dbMain_CFS.Users.AddAsync(user);
@@ -64,43 +64,97 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
             return new { success = true, message = "Registration Sucessfull!!" };
         }
 
-        public string GenerateDefaultProfileImage(string userName)
+
+        public string GenerateDefaultProfileImage(string userName, int userId, bool generateOnly = false)
         {
             if (string.IsNullOrWhiteSpace(userName))
-                userName = "U"; // Default to 'U' if username is empty
+                userName = "U"; // fallback default
 
             string firstLetter = userName.Substring(0, 1).ToUpper();
-            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/ProfileImage");
+            string safeUserName = userName.Replace(" ", "_"); // optional: sanitize
+            string fileName = $"{safeUserName}_{userId}_profile.png";
+
+            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProfileImage");
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            string imagePath = Path.Combine(directoryPath, $"{userName}_profile.png");
-            string relativePath = $"/ProfileImage/{userName}_profile.png"; // Path for DB storage
+            string fullPath = Path.Combine(directoryPath, fileName);
+            string relativePath = $"/ProfileImage/{fileName}";
 
-            int width = 200, height = 200;
-
-            using (Bitmap bmp = new Bitmap(width, height))
+            if (generateOnly)
             {
-                using (Graphics g = Graphics.FromImage(bmp))
+                return relativePath; // Just return the path, don't generate the file
+            }
+
+            // Always regenerate the image, regardless of existing file (to handle username change correctly)
+            try
+            {
+                using (Bitmap bmp = new Bitmap(200, 200))
                 {
-                    g.Clear(Color.Gray); // Set background color
-
-                    using (System.Drawing.Font font = new System.Drawing.Font("Arial", 80, FontStyle.Bold, GraphicsUnit.Pixel))
-                    using (SolidBrush textBrush = new SolidBrush(Color.White))
+                    using (Graphics g = Graphics.FromImage(bmp))
                     {
-                        SizeF textSize = g.MeasureString(firstLetter, font);
-                        PointF position = new PointF((width - textSize.Width) / 2, (height - textSize.Height) / 2);
-                        g.DrawString(firstLetter, font, textBrush, position);
-                    }
-                }
+                        g.Clear(Color.Gray);
 
-                bmp.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
+                        using (Font font = new Font("Arial", 80, FontStyle.Bold, GraphicsUnit.Pixel))
+                        using (SolidBrush textBrush = new SolidBrush(Color.White))
+                        {
+                            SizeF textSize = g.MeasureString(firstLetter, font);
+                            PointF position = new PointF((bmp.Width - textSize.Width) / 2, (bmp.Height - textSize.Height) / 2);
+                            g.DrawString(firstLetter, font, textBrush, position);
+                        }
+                    }
+
+                    bmp.Save(fullPath, System.Drawing.Imaging.ImageFormat.Png);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to generate profile image: " + ex.Message);
             }
 
             return relativePath;
         }
+
+        //old code
+        //public string GenerateDefaultProfileImage(string userName)
+        //{
+        //    if (string.IsNullOrWhiteSpace(userName))
+        //        userName = "U"; // Default to 'U' if username is empty
+
+        //    string firstLetter = userName.Substring(0, 1).ToUpper();
+        //    string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/ProfileImage");
+        //    if (!Directory.Exists(directoryPath))
+        //    {
+        //        Directory.CreateDirectory(directoryPath);
+        //    }
+
+        //    string imagePath = Path.Combine(directoryPath, $"{userName}_profile.png");
+        //    string relativePath = $"/ProfileImage/{userName}_profile.png"; // Path for DB storage
+
+        //    int width = 200, height = 200;
+
+        //    using (Bitmap bmp = new Bitmap(width, height))
+        //    {
+        //        using (Graphics g = Graphics.FromImage(bmp))
+        //        {
+        //            g.Clear(Color.Gray); // Set background color
+
+        //            using (System.Drawing.Font font = new System.Drawing.Font("Arial", 80, FontStyle.Bold, GraphicsUnit.Pixel))
+        //            using (SolidBrush textBrush = new SolidBrush(Color.White))
+        //            {
+        //                SizeF textSize = g.MeasureString(firstLetter, font);
+        //                PointF position = new PointF((width - textSize.Width) / 2, (height - textSize.Height) / 2);
+        //                g.DrawString(firstLetter, font, textBrush, position);
+        //            }
+        //        }
+
+        //        bmp.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
+        //    }
+
+        //    return relativePath;
+        //}
 
 
         public async Task<string> fetchEmail(string cred)

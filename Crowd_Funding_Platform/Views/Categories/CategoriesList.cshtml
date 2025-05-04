@@ -1,80 +1,246 @@
-﻿@* @model List<Crowd_Funding_Platform.Models.Category>
-
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.Category>
 @{
     ViewData["Title"] = "Categories List";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
 
-<h2>Categories List</h2>
+@* asp-route-searchString="@ViewBag.CurrentFilter" *@
+<div class="export-buttons" style="margin-top: -16px; margin-right: 17px;">
+    <a asp-action="ExportCategoriesToExcel"     
+       class="btn btn-outline-success"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel"
+       style="background-color: #1bcfb4; color: white;">
+        <i class="fas fa-file-excel"></i>
+    </a>
 
-<!-- Toast Container -->
-<div aria-live="polite" aria-atomic="true" class="position-relative">
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="successMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
+    <a href="@Url.Action("ExportCategoriesToPdf", "Categories", new { searchString = ViewBag.CurrentFilter })"
+       class="btn btn-outline-danger"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF"
+       style="background-color: #fe7c96; color: white;">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+</div>
+
+
+<div class="container mt-4">
+
+    <!-- ✅ Filter Card with Title + Create Button -->
+    <div class="card mb-4 p-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-primary m-0">📦 Categories List</h2>
+            <a asp-action="SaveCategories" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Add Category
+            </a>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by Category Name..." />
             </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-danger" onclick="resetCategoryFilters()">
+                    <i class="fas fa-redo-alt"></i> Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 Table Section -->
+    <div class="table-responsive rounded shadow-sm bg-white p-3" id="categoriesTable">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Category Name</th>
+                    <th>Total Contributions</th>
+                    <th>Description</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int count = (Model.PageNumber - 1) * Model.PageSize + 1;
+                    foreach (var category in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>@category.Name</td>
+                            <td class="text-success fw-bold">₹@category.TotalContributions</td>
+                            <td>@category.Description</td>
+                            <td class="text-center">
+                                <a asp-action="SaveCategories" asp-route-id="@category.CategoryId" class="btn btn-primary btn-sm me-1" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="confirmDelete(@category.CategoryId)" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">No categories found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- 📄 Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            @Html.PagedListPager(Model, page => Url.Action("CategoriesList", new
+                {
+                    page,
+                    searchString = ViewBag.CurrentFilter
+                }),
+                     new PagedListRenderOptions
+            {
+                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                DisplayLinkToIndividualPages = true,
+                DisplayPageCountAndCurrentLocation = false,
+                MaximumPageNumbersToDisplay = 5,
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" }
+            })
         </div>
     </div>
 </div>
 
-<a asp-action="SaveCategories" class="btn btn-success mb-3">+ Add Category</a>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Category Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            int count = 1;
-            @foreach (var category in Model)
-            {
-                <tr>
-                    <td>@count</td>
-                    <td>@category.Name</td>
-                    <td>@category.Description</td>
-                    <td>
-                        <a asp-action="SaveCategories" asp-route-id="@category.CategoryId" class="btn btn-primary btn-sm">Edit</a>
-                        <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="confirmDelete(@category.CategoryId)">Delete</a>
-                    </td>
-                </tr>
-                count++;
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" class="text-center">No categories found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@section Scripts{
+@section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="~/js/Categories.js"></script>
+<!-- jQuery (required) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+
+    // ✅ Make loadCategories globally accessible
+    function loadCategories(url = '/Categories/CategoriesList') {
+        $.get(url, function (data) {
+            const newContent = $(data).find("#categoriesTable").html();
+            $("#categoriesTable").html(newContent);
+        });
+    }
+
+    // ✅ Make resetCategoryFilters globally accessible
+    function resetCategoryFilters() {
+        $('#searchInput').val('');
+        loadCategories(); // Now it will work
+    }
+
+    $(document).ready(function () {
+        function debounce(func, delay) {
+            let timer;
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, arguments), delay);
+            };
+        }
+
+        function fetchFilteredResults() {
+            const search = $("#searchInput").val();
+            const url = `/Categories/CategoriesList?searchString=${encodeURIComponent(search)}`;
+            loadCategories(url);
+        }
+
+        $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
+
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = $(this).attr("href");
+            loadCategories(url);
+        });
+    });
+</script>
 }
+
+
+
+<!-- AJAX & Filter Script -->
+@* <script>
+    $(document).ready(function () {
+
+        function debounce(func, delay) {
+            let timer;
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, arguments), delay);
+            };
+        }
+
+        function loadCategories(url) {
+            $.get(url, function (data) {
+                const newContent = $(data).find("#categoriesTable").html();
+                $("#categoriesTable").html(newContent);
+            });
+        }
+        // function loadCategories() {
+        //     $.ajax({
+        //         url: '/Categories/CategoriesList',  // Your controller action
+        //         type: 'GET',
+        //         data: {
+        //             categoryName: $('#CategoryName').val() || null,
+        //             //status: $('#StatusDropdown').val() || null
+        //         },
+        //         success: function (data) {
+        //             if (data.length > 0) {
+        //                 renderCategories(data);
+        //             } else {
+        //                 $('#categoryTableBody').html('<tr><td colspan="4" class="text-center">No categories found.</td></tr>');
+        //             }
+        //         },
+        //         error: function () {
+        //             alert('Error loading categories.');
+        //         }
+        //     });
+        // }
+
+
+        function fetchFilteredResults() {
+            const search = $("#searchInput").val();
+            const url = `/Categories/CategoriesList?searchString=${encodeURIComponent(search)}`;
+            loadCategories(url);
+        }
+
+        $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
+
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = $(this).attr("href");
+            loadCategories(url);
+        });
+
+        
+
+    });
+
+    function resetCategoryFilters() {
+
+        $('#searchInput').val('');  // Adjust ID to your actual input
+
+        loadCategories(); // Make sure this fetches ALL categories
+    }
+</script>
+
+  *@
  
- *@
-
-@model List<Crowd_Funding_Platform.Models.Category>
-
+@* 
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.Category>
 @{
     ViewData["Title"] = "Categories List";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
@@ -82,32 +248,153 @@
 
 <h2>Categories List</h2>
 
-<!-- Toast Container -->
-<div aria-live="polite" aria-atomic="true" class="">
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="successMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
+<!-- Search Input -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control rounded-pill shadow-sm" placeholder="🔍 Search by Category Name..." />
     </div>
 </div>
 
 <a asp-action="SaveCategories" class="btn btn-success mb-3">Add Category</a>
 
-<table class="table table-bordered">
+<div id="categoriesTable">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Category Name</th>
+                <th>Total Contributions</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                int count = (Model.PageNumber - 1) * Model.PageSize + 1;
+                foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@count</td>
+                        <td>@category.Name</td>
+                        <td>@category.TotalContributions.ToString("C")</td>
+                        <td>@category.Description</td>
+                        <td>
+                            <a asp-action="SaveCategories" asp-route-id="@category.CategoryId" class="btn btn-primary btn-sm">Edit</a>
+                            <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="confirmDelete(@category.CategoryId)">Delete</a>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center">No categories found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("CategoriesList", new
+            {
+                page,
+                searchString = ViewBag.CurrentFilter
+            }),
+                 new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            DisplayLinkToIndividualPages = true,
+            DisplayPageCountAndCurrentLocation = false,
+            MaximumPageNumbersToDisplay = 5,
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        // Debounce function
+        function debounce(func, delay) {
+            let timer;
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, arguments), delay);
+            };
+        }
+
+        function loadCategories(url) {
+            $.get(url, function (data) {
+                const newContent = $(data).find("#categoriesTable").html();
+                $("#categoriesTable").html(newContent);
+            });
+        }
+
+        function fetchFilteredResults() {   
+            const search = $("#searchInput").val();
+            const url = `/Categories/CategoriesList?searchString=${encodeURIComponent(search)}`;
+            loadCategories(url);
+        }
+
+        $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
+
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = $(this).attr("href");
+            loadCategories(url);
+        });
+    });
+</script>
+
+
+ *@
+@* @{
+    ViewData["Title"] = "Categories List";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<h2>Categories List</h2>
+<!-- Search Input -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <input type="text" id="searchInput" class="form-control rounded-pill shadow-sm" placeholder="🔍 Search by Category Name..." />
+        </div>
+    </div>
+
+<!-- Toast Container -->
+    <div aria-live="polite" aria-atomic="true" class="">
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="successMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="errorMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <a asp-action="SaveCategories" class="btn btn-success mb-3">Add Category</a>
+
+    <table class="table table-bordered">
     <thead>
         <tr>
             <th>#</th>
             <th>Category Name</th>
+            <th>Total Contributions</th>
             <th>Description</th>
             <th>Actions</th>
         </tr>
@@ -121,6 +408,7 @@
                 <tr>
                     <td>@count</td>
                     <td>@category.Name</td>
+                    <td>@category.TotalContributions.ToString("C")</td> <!-- C formats to currency -->
                     <td>@category.Description</td>
                     <td>
                         <a asp-action="SaveCategories" asp-route-id="@category.CategoryId" class="btn btn-primary btn-sm">Edit</a>
@@ -137,7 +425,28 @@
             </tr>
         }
     </tbody>
-</table>
+    </table>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("CategoriesList", new
+            {
+                page,
+                searchString = ViewBag.CurrentFilter
+            }),
+                new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            DisplayLinkToIndividualPages = true,
+            DisplayPageCountAndCurrentLocation = false,
+            MaximumPageNumbersToDisplay = 5,
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+    </div>
+
 
 <script>
     function confirmDelete(categoryId) {
@@ -165,4 +474,4 @@
         let toastElement = new bootstrap.Toast(document.getElementById(toastId));
         toastElement.show();
     }
-</script>
+</script> *@

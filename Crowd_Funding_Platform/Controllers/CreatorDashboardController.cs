@@ -15,7 +15,6 @@ namespace Crowd_Funding_Platform.Controllers
             _dashboard = dashboard;
         }
 
-        
         public async Task<IActionResult> Index()
         {
             int? creatorId = HttpContext.Session.GetInt32("UserId_ses");
@@ -29,7 +28,10 @@ namespace Crowd_Funding_Platform.Controllers
                 CompletedCampaigns = await _dashboard.GetCompletedCampaignsByCreator(creatorId.Value),
                 TotalRaisedAmount = await _dashboard.GetTotalRaisedAmountByCreator(creatorId.Value),
                 TotalContributors = await _dashboard.GetTotalContributorsByCreator(creatorId.Value),
-                ChartCampaigns = await _dashboard.GetCampaignsForChart(creatorId.Value)
+                ChartCampaigns = await _dashboard.GetCampaignsForChart(creatorId.Value),
+                ContributionTrends = await _dashboard.GetMonthlyContributions(creatorId.Value),
+                CampaignStatusCounts = await _dashboard.GetCampaignStatusCounts(creatorId.Value),
+                CampaignInsights = await _dashboard.GetCampaignInsights(creatorId.Value)
             };
 
             return View(model);

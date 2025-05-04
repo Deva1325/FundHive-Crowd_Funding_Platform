@@ -170,6 +170,7 @@
        
         @* <img src="~/icons8-trust (1).gif" alt="Loading..." /> *@
         <img src="~/icons8-trust (1).gif" alt="Loading..." />
+        
     </div>
     <!-- Preloader End -->
 
@@ -356,21 +357,16 @@
                                             </li> *@
                                             @if (isLoggedIn)
                                             {
-                                            <li>
-                                                <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Index", "Notification")">
-                                                    <i class="fa fa-bell me-2"></i> <!-- Notification icon -->
-                                                    @* <span>Notifications</span> *@
-                                                    @* <span id="notificationCount" class="badge bg-danger text-white ms-auto">
-                                                        @if (ViewBag.NotificationCount != null)
-                                                        {
-                                                            <span>@ViewBag.NotificationCount</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>0</span> <!-- Default to 0 if the count is null -->
-                                                        }                                            }
-                                                    </span> *@
-                                                </a>
+                                                <li>
+                                                    
+                                                    @await Component.InvokeAsync("NotificationCount")
+
+                                                    
+
+
+                                                   @* <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Index", "Notification")">
+                                                    <i class="fa fa-bell me-2"> </i>
+                                                </a>  *@
                                             </li>
                                             }
 
@@ -590,64 +586,7 @@
 
         gtag('config', 'UA-23581568-13');
     </script>
-    @* <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggle = document.getElementById("dpDropdownToggle");
-            const menu = document.getElementById("dpDropdownMenu");
-            const container = document.getElementById("dpContainer");
-
-            let hoverTimeout;
-
-            // Show on hover
-            container.addEventListener("mouseenter", () => {
-                clearTimeout(hoverTimeout);
-                menu.classList.add("show");
-            });
-
-            // Hide on mouse leave (with delay)
-            container.addEventListener("mouseleave", () => {
-                hoverTimeout = setTimeout(() => {
-                    menu.classList.remove("show");
-                }, 200);
-            });
-
-            // Toggle on click (mobile support)
-            toggle.addEventListener("click", (e) => {
-                e.preventDefault();
-                menu.classList.toggle("show");
-            });
-
-            // Hide dropdown if clicked outside
-            document.addEventListener("click", (e) => {
-                if (!container.contains(e.target)) {
-                    menu.classList.remove("show");
-                }
-            });
-
-            // Login check function (unchanged)
-            window.checkLoginAndNavigate = function ({ url, title, text, btnText }) {
-                const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
-                if (isLoggedIn) {
-                    window.location.href = url;
-                } else {
-                    Swal.fire({
-                        title: title || 'Hold on!',
-                        text: text || 'Please login or register to continue.',
-                        icon: 'info',
-                        showCancelButton: true,
-                        confirmButtonText: btnText || 'Login',
-                        cancelButtonText: 'Maybe later',
-                        confirmButtonColor: '#198754',
-                        cancelButtonColor: '#d33'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/Account/Login';
-                        }
-                    });
-                }
-            }
-        });
-    </script> *@
+    
     <script>
         toastr.options = {
             "closeButton": true,
@@ -745,3 +684,75 @@
 
 <!-- Mirrored from preview.colorlib.com/theme/chariter/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jan 2025 12:00:35 GMT -->
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggle = document.getElementById("dpDropdownToggle");
+            const menu = document.getElementById("dpDropdownMenu");
+            const container = document.getElementById("dpContainer");
+
+            let hoverTimeout;
+
+            // Show on hover
+            container.addEventListener("mouseenter", () => {
+                clearTimeout(hoverTimeout);
+                menu.classList.add("show");
+            });
+
+            // Hide on mouse leave (with delay)
+            container.addEventListener("mouseleave", () => {
+                hoverTimeout = setTimeout(() => {
+                    menu.classList.remove("show");
+                }, 200);
+            });
+
+            // Toggle on click (mobile support)
+            toggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                menu.classList.toggle("show");
+            });
+
+            // Hide dropdown if clicked outside
+            document.addEventListener("click", (e) => {
+                if (!container.contains(e.target)) {
+                    menu.classList.remove("show");
+                }
+            });
+
+            // Login check function (unchanged)
+            window.checkLoginAndNavigate = function ({ url, title, text, btnText }) {
+                const isLoggedIn = sessionStorage.getItem("UserId_ses") || document.body.getAttribute('data-is-loggedin');
+                if (isLoggedIn) {
+                    window.location.href = url;
+                } else {
+                    Swal.fire({
+                        title: title || 'Hold on!',
+                        text: text || 'Please login or register to continue.',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: btnText || 'Login',
+                        cancelButtonText: 'Maybe later',
+                        confirmButtonColor: '#198754',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/Account/Login';
+                        }
+                    });
+                }
+            }
+        });
+    </script> *@

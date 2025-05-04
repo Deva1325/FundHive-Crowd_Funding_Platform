@@ -15,10 +15,28 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             _db = db;
         }
 
+        //public async Task<List<Category>> GetAllCategories()
+        //{
+        //    return await _db.Categories.ToListAsync();
+        //}
+
         public async Task<List<Category>> GetAllCategories()
         {
-            return await _db.Categories.ToListAsync();
+            var categories = await _db.Categories
+                .Include(c => c.Campaigns)
+                .ThenInclude(camp => camp.Contributions)
+                .ToListAsync();
+
+            foreach (var category in categories)
+            {
+                category.TotalContributions = category.Campaigns
+                    .SelectMany(camp => camp.Contributions)
+                    .Sum(con => con.Amount); // Adjust if your contribution amount field is different
+            }
+
+            return categories;
         }
+
 
         public async Task<Category> GetCategoryById(int categoryId)
         {

@@ -66,9 +66,29 @@
     }
 </style>
 
+
+<div class="export-buttons" style="margin-top: -16px; margin-right: 17px;">
+    <a asp-action="ExportContributorsToExcel"
+       class="btn btn-outline-success"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel"
+       style="background-color: #1bcfb4; color: white;">
+        <i class="fas fa-file-excel"></i>
+    </a>
+
+    <a asp-action="ExportContributorsToPdf"
+       asp-route-searchString="@ViewBag.SearchString"
+       asp-route-category="@ViewBag.SelectedCategory"
+       class="btn btn-outline-danger"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF"
+       style="background-color: #fe7c96; color: white;">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+</div>
+
+@* 
 <a asp-action="ExportContributorsToExcel" class="btn btn-success">
     <i class="fa fa-download"></i> Export to Excel
-</a>
+</a> *@
 
 <div class="container mt-4">   
     @if (Model != null && Model.Any())
@@ -178,8 +198,14 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   
     <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
         $(document).ready(function () {
 
             // Debounce utility function

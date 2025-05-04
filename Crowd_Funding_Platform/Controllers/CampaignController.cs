@@ -13,12 +13,14 @@ namespace Crowd_Funding_Platform.Controllers
         private readonly ICreatorApplicationRepos _creatorAppInterface;
         private readonly IMemoryCache _memoryCache;
         private readonly DbMain_CFS _dbMain1;
+        private readonly IActivityRepository _activityRepository;
 
-        public CampaignController(ICreatorApplicationRepos creatorApplication,IMemoryCache memoryCache,DbMain_CFS dbMain_CFS)
+        public CampaignController(ICreatorApplicationRepos creatorApplication, IActivityRepository activityRepository, IMemoryCache memoryCache,DbMain_CFS dbMain_CFS)
         {
             _creatorAppInterface = creatorApplication;
             _memoryCache = memoryCache;
             _dbMain1 = dbMain_CFS;
+            _activityRepository = activityRepository;
         }
 
         public IActionResult Index()
@@ -88,6 +90,17 @@ namespace Crowd_Funding_Platform.Controllers
                 {
                     return Json(new { success = false, message = "Application submission failed. Please try again later." });
                 }
+               
+                // ✅ Add activity log
+                string desc = $"User {user.Username} with ID {user.UserId} applied to become a Creator (ApplicationId: {creatorApp.ApplicationId}).";
+                _activityRepository.AddNewActivity(
+                    userId: user.UserId,
+                    activityType: "ApplyForCreator",
+                    description: desc,
+                    tableName: "CreatorApplications",
+                    recordId: creatorApp.ApplicationId
+                );
+
 
                 // Respect the actual repository result (whether success = false or true)
                 return Json(result);

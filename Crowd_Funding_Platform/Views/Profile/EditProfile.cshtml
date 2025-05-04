@@ -137,7 +137,7 @@
 
                         <div class="form-group">
                             <label asp-for="Username" class="control-label"></label>
-                            <input asp-for="Username" class="form-control" />
+                            <input asp-for="Username" class="form-control" id="Username" />
                             <span asp-validation-for="Username" class="text-danger"></span>
                         </div>
 
@@ -304,34 +304,57 @@
     }
 
     // Set Default Picture (You can update this logic to generate initials later)
-    function setDefaultProfile() {
-        const userName = '@Model.Username'; // Replace or fetch dynamically
-        const firstLetter = userName.charAt(0).toUpperCase();
-        const defaultImageUrl = "/images/default - profile.png"; // Optional: generate initial avatar
+    // function setDefaultProfile() {
+    //     const userName = '@Model.Username'; // Replace or fetch dynamically
+    //     const firstLetter = userName.charAt(0).toUpperCase();
+    //     const defaultImageUrl = "/images/default - profile.png"; // Optional: generate initial avatar
 
-        // Optional: Generate dynamic letter-based image if needed
-        document.getElementById('profilePreview').src = defaultImageUrl;
-    }
+    //     // Optional: Generate dynamic letter-based image if needed
+    //     document.getElementById('profilePreview').src = defaultImageUrl;
+    // }
 
-    function setDefaultProfile() {
-        $.ajax({
-            url: '/Profile/GenerateDefaultProfile',
-            type: 'POST',
-            success: function (response) {
-                if (response.success) {
-                    $('#profilePreview').attr('src', response.imagePath);
-                    Swal.fire('Default Picture Set!', '', 'success');
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function () {
-                Swal.fire('Error', 'Something went wrong.', 'error');
+            function setDefaultProfile() {
+                const updatedUsername = $('#Username').val(); // Adjust input ID if needed
+
+                $.ajax({
+                    url: '/Profile/GenerateDefaultProfile',
+                    type: 'POST',
+                    data: { updatedUsername: updatedUsername },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#profilePreview').attr('src', response.imagePath);
+                            Swal.fire('Default Picture Set!', '', 'success');
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Something went wrong.', 'error');
+                    }
+                });
             }
-        });
-    }
+
+
+    // function setDefaultProfile() {
+    //     $.ajax({
+    //         url: '/Profile/GenerateDefaultProfile',
+    //         type: 'POST',
+    //         success: function (response) {
+    //             if (response.success) {
+    //                 $('#profilePreview').attr('src', response.imagePath);
+    //                 Swal.fire('Default Picture Set!', '', 'success');
+    //             } else {
+    //                 Swal.fire('Error', response.message, 'error');
+    //             }
+    //         },
+    //         error: function () {
+    //             Swal.fire('Error', 'Something went wrong.', 'error');
+    //         }
+    //     });
+    // }
 
         // Handle Profile Update (with Toastr notification)
+      
         function updateProfile() {
             $.ajax({
                 url: '/Profile/EditProfile',

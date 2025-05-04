@@ -22,7 +22,8 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
 
             var tabs = await (from t in _CFS.TblTabs
                               join p in _CFS.Permissions on t.TabId equals p.Tabid
-                              where (isAdminBool && p.Isadmin == true) || p.Iscreatorapproved == true // Fetch only for admin or approved creator
+                              where p.Isactive == true && ((isAdminBool && p.Isadmin == true) || p.Iscreatorapproved == true)
+                              //where p.Isactive == true && (isAdminBool && p.Isadmin == true) || p.Iscreatorapproved == true // Fetch only for admin or approved creator
                               orderby t.SortOrder
                               select new SidebarModel
                               {

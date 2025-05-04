@@ -73,19 +73,13 @@
 
         <div class="card-body p-5">
 
-            <form asp-action="ContributorEditProfile" enctype="multipart/form-data" method="post">
+            <form action="ContributorEditProfile" id="editProfileForm" enctype="multipart/form-data" method="post">
                 <input type="hidden" asp-for="UserId" />
 
                 <!-- Profile Image Section (Inside Form) -->
                 <div class="text-center mb-4">
                     <div class="position-relative d-inline-block">
-                        <!-- Profile Image -->
-                        @* <img id="profilePreview"
-                             src="@(!string.IsNullOrEmpty(Model.ProfilePicture) ? Model.ProfilePicture : "/images/default-profile.png")"
-                             class="rounded-circle border profile-img shadow-sm"
-                             alt="Profile Picture"
-                             style="width: 150px; height: 150px; object-fit: cover;">
- *@
+                       
                         <img id="profilePreview"
                              src="@(!string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content(Model.ProfilePicture) : Url.Content("~/images/default-profile.png"))"
                              onerror="this.onerror=null; this.src='/images/default-profile.png';"
@@ -183,7 +177,7 @@
 
                 <!-- Form Buttons -->
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success btn-lg">
+                    <button type="submit" class="btn btn-success btn-lg" onclick="updateProfile(); return false;">
                         <i class="fas fa-save"></i> Save Changes
                     </button>
                     <a asp-action="ContributorProfile" class="btn btn-secondary btn-lg">
@@ -262,15 +256,7 @@
 
 @section Scripts
 {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js\"></script>")
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-
-
+   
     <script>
         // Profile Image Preview
         function previewImage(event) {
@@ -286,20 +272,15 @@
             document.getElementById('ProfilePicture').click();
         }
 
-        // Set Default Picture (You can update this logic to generate initials later)
-        function setDefaultProfile() {
-            const userName = '@Model.Username'; // Replace or fetch dynamically
-            const firstLetter = userName.charAt(0).toUpperCase();
-            const defaultImageUrl = "/images/default - profile.png"; // Optional: generate initial avatar
-
-            // Optional: Generate dynamic letter-based image if needed
-            document.getElementById('profilePreview').src = defaultImageUrl;
-        }
 
         function setDefaultProfile() {
+        console.log("updateProfile function called");
+            const updatedUsername = $('#Username').val(); // Adjust input ID if needed
+
             $.ajax({
-                url: '/Profile/GenerateDefaultProfile',
+                url: '/ContributorProfile/GenerateDefaultProfile',
                 type: 'POST',
+                data: { updatedUsername: updatedUsername },
                 success: function (response) {
                     if (response.success) {
                         $('#profilePreview').attr('src', response.imagePath);
@@ -310,6 +291,37 @@
                 },
                 error: function () {
                     Swal.fire('Error', 'Something went wrong.', 'error');
+                }
+            });
+        }
+
+        function updateProfile() {
+            $.ajax({
+                url: '/ContributorProfile/ContributorEditProfile',
+                type: 'POST',
+                data: new FormData($('#editProfileForm')[0]),
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message, 'Success', {
+                            positionClass: 'toast-top-right',
+                        });
+                        setTimeout(() => {
+                            window.location.href = '/ContributorProfile/ContributorProfile';
+                        }, 3000);
+                    } else {
+                        toastr.error(response.message, 'Error', {
+                            positionClass: 'toast-top-right',
+                            timeOut: 2000
+                        });
+                    }
+                },
+                error: function () {
+                    toastr.error('There was an error processing your request. Please try again.', 'Error', {
+                        positionClass: 'toast-top-right',
+                        timeOut: 3000
+                    });
                 }
             });
         }

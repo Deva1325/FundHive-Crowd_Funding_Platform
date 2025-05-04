@@ -1,0 +1,243 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.Contribution>
+
+@{
+    ViewData["Title"] = "Contributions List";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+@functions {
+    public string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "success" => "success",
+            "failed" => "danger",
+            "pending" => "warning",
+            _ => "secondary"
+        };
+    }
+}
+<style>
+    .contributor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+</style>
+<div class="container mt-4">
+    @if (Model != null && Model.Any())
+    {
+        <div class="card shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="text-primary m-0">💸 Contributions Made</h2>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+            <form id="searchForm" method="get" asp-action="EachConributionsRecord">
+                <input type="hidden" name="contributorId" value="@ViewBag.ContributorId" />
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" id="searchBox" name="searchString" class="form-control" placeholder="🔍 Search by Campaign Title..." value="@ViewBag.SearchTerm" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a class="btn btn-outline-danger w-100" href="@Url.Action("EachConributionsRecord", new { contributorId = ViewBag.ContributorId })">
+                            <i class="fas fa-redo-alt"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Contributor</th>
+                            <th>Campaign Title</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Payment ID</th>
+                            @* <th>Order ID</th> *@
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (!string.IsNullOrEmpty(item.Contributor?.ProfilePicture))
+                                        {
+                                            <img src="@item.Contributor.ProfilePicture" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                @(item.Contributor?.FirstName?[0])
+                                            </div>
+                                        }
+                                        <span class="fw-semibold">@($"{item.Contributor?.FirstName} {item.Contributor?.LastName}")</span>
+                                    </div>
+                                </td>
+
+                                <td>@item.Campaign?.Title</td>
+                                <td class="text-success fw-bold">₹@item.Amount</td>
+                                <td>@item.Date?.ToString("dd-MM-yyyy")</td>
+                                <td>@item.TransactionId</td>
+                                <td>@item.PaymentId</td>
+                                @* <td>@item.OrderId</td> *@
+                                <td>
+                                    <span class="badge bg-@GetStatusClass(item.PaymentStatus)">
+                                        @item.PaymentStatus
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @* Pagination *@
+            <div class="d-flex justify-content-center mt-4">
+            @Html.PagedListPager(Model, page => Url.Action("EachConributionsRecord", new
+                {
+                    page,
+                    contributorId = ViewBag.ContributorId,
+                    searchString = ViewBag.SearchTerm
+                }), new PagedListRenderOptions
+            {
+               DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+               DisplayLinkToLastPage = PagedListDisplayMode.Always,
+               DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+               DisplayLinkToNextPage = PagedListDisplayMode.Always,
+               DisplayLinkToIndividualPages = true,
+               MaximumPageNumbersToDisplay = 5,
+               LiElementClasses = new[] { "page-item" },
+               PageClasses = new[] { "page-link" }
+            })
+
+
+            </div>
+        </div>
+    }
+    else
+    {
+        if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+        {
+            <div class="alert alert-warning shadow-sm">No contributions found matching your search for "<strong>@ViewBag.SearchTerm</strong>".</div>
+        }
+        else
+        {
+            <div class="alert alert-warning shadow-sm">No contributions found for this contributor.</div>
+        }
+    }
+</div>
+
+@section Scripts {
+  
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let debounceTimer;
+            const delay = 500; // milliseconds
+
+            const searchBox = document.getElementById("searchBox");
+            const searchForm = document.getElementById("searchForm");
+
+            if (searchBox && searchForm) {
+                searchBox.addEventListener("input", function () {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        searchForm.submit();
+                    }, delay);
+                });
+            }
+        });
+    </script>
+
+
+}
+
+
+
+
+
+
+
+@* <script>
+        function resetFilters() {
+            document.getElementById("searchBox").value = "";
+            location.reload(); // Placeholder; can be updated for dynamic filtering
+        }
+
+
+    </script> *@
+
+
+
+
+
+
+
+@* @using X.PagedList
+@using X.PagedList.Mvc.Core
+@model List<Crowd_Funding_Platform.Models.Contribution>
+@{
+    ViewData["Title"] = "";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+<h2>Campaigns Contributed To</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Contributor Name</th>
+            <th>Campaign Title</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Transaction ID</th>
+            <th>Payment ID</th>
+            <th>Order ID</th>
+            <th>Payment Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@($"{item.Contributor?.FirstName} {item.Contributor?.LastName}")</td>
+                <td>@item.Campaign?.Title</td>
+                <td>@item.Amount.ToString("C")</td>
+                <td>@item.Date?.ToString("dd-MM-yyyy")</td>
+                <td>@item.TransactionId</td>
+                <td>@item.PaymentId</td>
+                <td>@item.OrderId</td>
+                <td>@item.PaymentStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+ *@

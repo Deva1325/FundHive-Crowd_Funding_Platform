@@ -27,6 +27,9 @@ public partial class Contribution
     public string? Status { get; set; }
 
     [NotMapped]
+    public decimal TotalContribution { get; set; }
+
+    [NotMapped]
     public decimal TotalAmountContributed { get; set; }
 
     public virtual Campaign Campaign { get; set; } = null!;

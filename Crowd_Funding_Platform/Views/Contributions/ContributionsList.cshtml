@@ -16,11 +16,20 @@
         margin-bottom: 25px;
     }
 
+    /* .table-wrapper {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    } */
+
     .table-wrapper {
         background: #fff;
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        overflow-x: auto; /* Enables horizontal scroll */
+        max-width: 100%; /* Prevents overflow beyond card */
     }
 
     .custom-table th {
@@ -67,6 +76,26 @@
 </style>
 
 
+<div class="export-buttons" style="    margin-top: -16px;
+    margin-right: 17px;
+}">
+    <a asp-action="ExportContributorsListToExcel"
+       asp-route-searchTerm="@ViewBag.searchString"     
+       asp-route-ConDate="@ViewBag.ConDate"
+       class="btn btn-outline-success"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel" style="background-color: #1bcfb4;
+    color: white;">
+        <i class="fas fa-file-excel"></i>
+    </a>
+
+    <a href="@Url.Action("ExportContributionsToPdf", "Contributions")"
+       class="btn btn-outline-danger"
+       data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" style="    background-color: #fe7c96;
+    color: white;">
+        <i class="fas fa-file-pdf"></i>
+    </a>
+</div>
+
 <div class="container mt-4">
     @if (Model != null && Model.Any())
     {
@@ -77,20 +106,18 @@
                     <input type="text" id="searchInput" style="    margin-top: -28px;
     padding-block: 14px;" class="form-control rounded-pill shadow-sm" placeholder="🔍 Search by Contributor Name..." />
                 </div>
-                <div class="col-md-6">
-                    <select id="categoryInput" class="form-select rounded-pill shadow-sm" style="margin-top: -29px;
-    padding-block: 10px;">
-                        <option value="">🎯 All Categories</option>
-                        @foreach (var cat in ViewBag.Categories as List<string>)
-                        {
-                            var selected = Context.Request.Query["category"] == cat ? "selected" : "";
-                            <option value="@cat" selected="@(ViewBag.SelectedCategory == cat ? "selected" : null)">
-                                @cat
-                            </option>
 
-                        }
-                    </select>
+                <div class="col-md-3">
+                    <input type="date" id="ConDate" class="form-control rounded-pill shadow-sm" />
                 </div>
+               
+
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-outline-danger reset-btn" onclick="resetFilters()">
+                        <i class="fas fa-redo-alt"></i> Reset
+                    </button>
+                </div>
+
             </div>
             <div class="table-wrapper mt-4" id="contributorsTable">
                 <table class="table table-bordered table-hover custom-table">
@@ -99,11 +126,12 @@
                             <th>Contributor</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Category</th>
-                            <th>Amount</th>
+                            
+                            <th>Total Contributions</th>
                             <th>Date</th>
-                            <th>Transaction ID</th>
+                            
                             <th>Payment Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,14 +155,31 @@
                                 </td>
                                 <td>@item.Contributor?.Email</td>
                                 <td>@item.Contributor?.PhoneNumber</td>
-                                <td>@item.Campaign.Category.Name</td>
-                                <td class="text-success fw-bold">₹@item.Amount</td>
-                                <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "")</td>
-                                <td>@item.TransactionId</td>
+                               
+                                <td class="text-info fw-bold">₹@item.TotalContribution</td>
+                                <td>@(item.Date.HasValue ? item.Date.Value.ToString("dd MMM yyyy") : "-")</td>
+                               
                                 <td>
-                                    <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
-                                        @item.PaymentStatus
-                                    </span>
+                                    @if (!string.IsNullOrEmpty(item.PaymentStatus))
+                                    {
+                                        <span class="badge @(item.PaymentStatus == "Success" ? "bg-success" : "bg-danger")">
+                                            @item.PaymentStatus
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">-</span>
+                                    }
+                                </td>
+                               @*  <td>
+                                    <a href="@Url.Action("EachConributionsRecord", "Contributions", new { contributorId = item.ContributorId })" class="btn btn-primary btn-sm">
+                                        View Campaigns
+                                    </a>
+                                </td> *@
+                                <td class="text-center">
+                                    <a href="@Url.Action("EachConributionsRecord", "Contributions", new { contributorId = item.ContributorId })" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Campaigns">
+                                        <i class="fas fa-clipboard-list"></i>
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -142,23 +187,25 @@
                 </table>
 
                 <div class="d-flex justify-content-center mt-4">
-                    @Html.PagedListPager(Model, page => Url.Action("ContributorsList", new
-                        {
-                            page,
-                            searchString = ViewBag.CurrentFilter,
-                            category = ViewBag.SelectedCategory
-                        }), new PagedListRenderOptions
-           {
-               DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-               DisplayLinkToLastPage = PagedListDisplayMode.Always,
-               DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-               DisplayLinkToNextPage = PagedListDisplayMode.Always,
-               DisplayLinkToIndividualPages = true,
-               DisplayPageCountAndCurrentLocation = false,
-               MaximumPageNumbersToDisplay = 5,
-               LiElementClasses = new[] { "page-item" },
-               PageClasses = new[] { "page-link" }
-           })
+                    @Html.PagedListPager(Model, page => Url.Action("ContributionsList", new
+                    {
+                        page,
+                        searchString = ViewBag.CurrentFilter,
+                            ConDate = ViewBag.DateFilter
+                        //category = ViewBag.SelectedCategory
+                    }),
+                   new PagedListRenderOptions
+                   {
+                       DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                       DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                       DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                       DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                       DisplayLinkToIndividualPages = true,
+                       DisplayPageCountAndCurrentLocation = false,
+                       MaximumPageNumbersToDisplay = 5,
+                       LiElementClasses = new[] { "page-item" },
+                       PageClasses = new[] { "page-link" }
+                   })
                 </div>
             </div>
         </div>
@@ -176,10 +223,94 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js\"></script>")
+   @*  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
     <script>
-        $(document).ready(function () {
+        // Make fetchFilteredResults global
+        function fetchFilteredResults() {
+            const search = $("#searchInput").val();
+            const Date = $("#ConDate").val();
+            const url = `/Contributions/ContributionsList?searchString=${encodeURIComponent(search)}&ConDate=${Date}`;
+            loadContributors(url);
+        }
 
+        // Load contributors via AJAX
+        function loadContributors(url) {
+            $.get(url, function (data) {
+                const newContent = $(data).find("#contributorsTable").html();
+                $("#contributorsTable").html(newContent);
+            
+                // Tooltip initialization (Bootstrap 5)
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            });
+
+        }
+
+        // Reset filters
+        function resetFilters() {
+            $("#searchInput").val('');
+            $("#ConDate").val('');
+            fetchFilteredResults();
+        }
+
+        // Tooltip initialization (Bootstrap 5)
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        $(document).ready(function () {
+            // Debounce utility
+            function debounce(func, delay) {
+                let timer;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            // Search input with debounce
+            $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
+
+               // Trigger filtering when date is selected
+            $("#ConDate").on("change", fetchFilteredResults);
+
+            // Pagination click
+            $(document).on("click", ".pagination a", function (e) {
+                e.preventDefault();
+                const url = $(this).attr("href");
+                loadContributors(url);
+            });
+        });
+    </script>
+
+    
+    
+    @* <script>
+        $(document).ready(function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            function fetchFilteredResults() {
+                const search = $("#searchInput").val();
+                const Date = $("#ConDate").val();
+                const url = `/Contributions/ContributionsList?searchString=${encodeURIComponent(search)}&ConDate=${Date}`;
+                loadContributors(url);
+            }
+
+            function resetFilters() {
+                $("#searchInput").val('');
+                $("#ConDate").val('');
+                fetchFilteredResults();
+            }
             // Debounce utility function
             function debounce(func, delay) {
                 let timer;
@@ -198,17 +329,11 @@
                 });
             }
 
-            function fetchFilteredResults() {
-                const search = $("#searchInput").val();
-                const category = $("#categoryInput").val();
-
-                const url = `/Users/ContributorsList?searchString=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
-                loadContributors(url);
-            }
+            
 
             // Use debounce on input filters
             $("#searchInput").on("input", debounce(fetchFilteredResults, 500));
-            $("#categoryInput").on("change", fetchFilteredResults); // dropdown doesn't need debounce
+            //$("#categoryInput").on("change", fetchFilteredResults); // dropdown doesn't need debounce
 
             // AJAX pagination click
             $(document).on("click", ".pagination a", function (e) {
@@ -217,5 +342,8 @@
                 loadContributors(url);
             });
         });
-    </script>
+       
+
+       
+    </script> *@
 }

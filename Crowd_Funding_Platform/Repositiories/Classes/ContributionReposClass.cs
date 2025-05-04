@@ -173,5 +173,40 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             }
         }
 
+        public async Task<List<Contribution>> GetContributionsByContributorId(int contributorId)
+        {
+            var contributions = await (
+                from c in _CFS.Contributions
+                join cam in _CFS.Campaigns on c.CampaignId equals cam.CampaignId
+                join u in _CFS.Users on c.ContributorId equals u.UserId
+                where c.ContributorId == contributorId
+                orderby c.Date descending
+                select new Contribution
+                {
+                    ContributionId = c.ContributionId,
+                    Amount = c.Amount,
+                    Date = c.Date,
+                    PaymentStatus = c.PaymentStatus,
+                    TransactionId = c.TransactionId,
+                    PaymentId = c.PaymentId,
+                    OrderId = c.OrderId,
+                    Campaign = new Campaign
+                    {
+                        CampaignId = cam.CampaignId,
+                        Title = cam.Title
+                    },
+                    Contributor = new User
+                    {
+                        UserId = u.UserId,
+                        ProfilePicture = u.ProfilePicture,
+                        FirstName = u.FirstName,
+                        LastName = u.LastName,
+                        Email = u.Email
+                    }
+                }).ToListAsync();
+
+            return contributions;
+        }
+
     }
 }

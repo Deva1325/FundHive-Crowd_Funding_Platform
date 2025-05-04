@@ -15,5 +15,6 @@ namespace Crowd_Funding_Platform.Repositiories.Interfaces
 
         Task<List<User>> GetAllUsersList();
         Task<List<Contribution>> GetTop5Contributors();
+        Task<List<Contribution>> GetAllContributions_Contributor();
     }
 }

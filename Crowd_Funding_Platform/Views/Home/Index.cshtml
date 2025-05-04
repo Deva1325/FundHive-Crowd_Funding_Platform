@@ -1,10 +1,82 @@
-﻿@model Crowd_Funding_Platform.Models.HomePageViewModel
+﻿@using System.Globalization
+@{
+    var indianCulture = new CultureInfo("en-IN");
+}
+@model Crowd_Funding_Platform.Models.HomePageViewModel
 @{
     <title>@ViewData["Title"] - Crowd_Funding_Platform</title>
    //  Layout = "~/Views/Shared/_mainLayout.cshtml";
      Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
 
 }
+
+<style>
+    /* Make all cards the same height */
+    .properties {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Ensure the card content fills the height equally */
+    .properties-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    /* Fix inconsistent image height */
+    .properties-img img {
+        height: 250px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    /* Set fixed height for title + description area */
+    .properties-caption {
+        padding: 10px 15px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    /* Smaller donate button */
+    .properties-footer .btn {
+        padding: 5px -1px;
+        font-size: 14px;
+        border-radius: 20px;
+    }
+
+    /* Tidy up amount spacing and reduce size */
+    .properties-footer span.color-font1,
+    .properties-footer span.color-font2 {
+        font-size: 14px;
+        font-weight: 600;
+        display: block;
+        line-height: 1.2;
+    }
+
+    /* Align footer elements nicely */
+    .properties-footer {
+        padding: 10px 15px 15px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Keep equal height across all cards */
+    .services1-active .col-lg-4 {
+        display: flex;
+        flex-direction: column;
+    }
+
+</style>
 
 <main>
     <!-- slider Area Start-->
@@ -106,18 +178,22 @@
                                 <div class="wrap-wrapper">
                                     <div class="properties-caption">
                                         <h3><a href="#">@item.Title</a></h3>
-                                        <p>@item.Description</p>
+                                        @* <p>@item.Description</p> *@
                                     </div>
                                     <div class="properties-footer d-flex justify-content-between align-items-center">
                                         <div class="class-day">
-                                            <a href="#" class="btn">Donate</a>
+                                            <a href="#" class="btn" style="padding:17px 14px !important;">Donate</a>
                                         </div>
                                         <div class="class-day">
-                                            <span class="color-font2">@item.Requirement.ToString("C")</span>
+                                            <span class="color-font2" style="font-size : 13px !important">@item.Requirement.ToString("C", indianCulture)</span>
                                             <p>Goal</p>
                                         </div>
                                         <div class="class-day">
-                                            <span class="color-font1">@item.RaisedAmount?.ToString("C") ?? "$0"</span>
+                                            <span class="color-font1">
+                                                @(item.RaisedAmount.HasValue
+                                                    ? item.RaisedAmount.Value.ToString("C", indianCulture)
+                                                    : "₹0.00")
+                                            </span>
                                             <p>Raised</p>
                                         </div>
                                     </div>

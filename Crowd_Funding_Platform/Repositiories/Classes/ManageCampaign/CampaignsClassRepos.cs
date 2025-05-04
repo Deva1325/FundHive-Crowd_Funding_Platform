@@ -43,10 +43,20 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             return creators;
         }
 
+        //public async Task<List<Campaign>> GetAllCampaigns()
+        //{
+        //    return await _CFS.Campaigns.Where(c => !c.IsDeleted).OrderByDescending(c => c.StartDate).ToListAsync();
+        //}
+
         public async Task<List<Campaign>> GetAllCampaigns()
         {
-            return await _CFS.Campaigns.Where(c => !c.IsDeleted).OrderByDescending(c => c.StartDate).ToListAsync();
+            return await _CFS.Campaigns
+                .Where(c => !c.IsDeleted)
+                .Include(c => c.Category)
+                .OrderByDescending(c => c.StartDate)
+                .ToListAsync();
         }
+
 
         // Add this method inside the repository class
         private string GetCampaignStatus(DateOnly startDate, DateOnly endDate, DateOnly today)
@@ -552,13 +562,23 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
                 .FirstOrDefault();
         }
 
+        //public async Task<List<Campaign>> GetCampaignsByCreator(int creatorId)
+        //{
+        //    return await _CFS.Campaigns
+        //        .Where(c => c.CreatorId == creatorId)
+        //        .OrderByDescending(c => c.StartDate)
+        //        .ToListAsync();
+        //}
+
         public async Task<List<Campaign>> GetCampaignsByCreator(int creatorId)
         {
             return await _CFS.Campaigns
                 .Where(c => c.CreatorId == creatorId)
+                .Include(c => c.Category)
                 .OrderByDescending(c => c.StartDate)
                 .ToListAsync();
         }
+
 
         public async Task<int> GetTotalContributors(int campaignId)
         {

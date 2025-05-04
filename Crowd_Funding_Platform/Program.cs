@@ -9,12 +9,14 @@ using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IUserProfile;
 using Crowd_Funding_Platform.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
 using Microsoft.AspNetCore.Authentication.Google;
 
 //using Crowd_Funding_Platform.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

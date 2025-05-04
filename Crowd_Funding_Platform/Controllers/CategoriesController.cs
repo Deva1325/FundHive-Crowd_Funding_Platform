@@ -1,7 +1,10 @@
-﻿using Crowd_Funding_Platform.Models;
+﻿using ClosedXML.Excel;
+using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 using System.Threading.Tasks;
+using X.PagedList.Extensions;
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -19,11 +22,157 @@ namespace Crowd_Funding_Platform.Controllers
             return View();
         }
 
-        public async Task<IActionResult> CategoriesList()
+        //public async Task<IActionResult> CategoriesList()
+        //{
+        //    var categories = await _categories.GetAllCategories();
+        //    return View(categories);
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> CategoriesList(string searchString, int? page)
         {
             var categories = await _categories.GetAllCategories();
-            return View(categories);
+
+            // Apply search filter
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                categories = categories
+                    .Where(c => c.Name != null &&
+                                c.Name.ToLower().Contains(searchString.ToLower()))
+                    .ToList();
+            }
+
+            // Pagination setup
+            int pageSize = 5;
+            int pageNumber = page ?? 1;
+            var pagedCategories = categories.ToPagedList(pageNumber, pageSize);
+
+            ViewBag.CurrentFilter = searchString;
+
+            return View(pagedCategories);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCategoriesToExcel()
+        {
+            try
+            {
+                var categories = await _categories.GetAllCategories();
+
+                if (categories == null || !categories.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No category data available to generate the report."
+                    });
+                }
+
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Categories");
+                    var currentRow = 1;
+
+                    // Header
+                    worksheet.Cell(currentRow, 1).Value = "Category ID";
+                    worksheet.Cell(currentRow, 2).Value = "Category Name";
+                    worksheet.Cell(currentRow, 3).Value = "Total Contributions";
+                    worksheet.Cell(currentRow, 4).Value = "Description";
+
+                    var headerRange = worksheet.Range(currentRow, 1, currentRow, 4);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Data Rows
+                    foreach (var cat in categories)
+                    {
+                        currentRow++;
+                        worksheet.Cell(currentRow, 1).Value = cat.CategoryId;
+                        worksheet.Cell(currentRow, 2).Value = cat.Name ?? "-";
+                        worksheet.Cell(currentRow, 3).Value = cat.TotalContributions;
+                        worksheet.Cell(currentRow, 4).Value = cat.Description ?? "-";
+
+                        var rowRange = worksheet.Range(currentRow, 1, currentRow, 4);
+                        rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "CategoriesReport.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the categories report.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCategoriesToPdf(string searchString)
+        {
+            try
+            {
+                int? userId = HttpContext.Session.GetInt32("UserId_ses");
+                string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+                if (userId == null && isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
+
+                var categories = await _categories.GetAllCategories();
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    categories = categories
+                        .Where(c => c.Name != null &&
+                                    c.Name.ToLower().Contains(searchString.ToLower()))
+                        .ToList();
+                }
+
+                if (categories == null || !categories.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No category data available to generate the report."
+                    });
+                }
+
+                // Generate PDF using QuestPDF
+                var document = new CategoriesList_PDF(categories);
+                var pdfBytes = document.GeneratePdf();
+
+                return File(pdfBytes, "application/pdf", "CategoriesReport.pdf");
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the category report PDF.",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> SaveCategories(int? id)

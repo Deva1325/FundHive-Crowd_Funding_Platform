@@ -1,9 +1,18 @@
 ﻿@model List<AuditLogViewModel>
 
 @{
-    ViewData["Title"] = "Audit Log";
+    ViewData["Title"] = "Audit Logs";
     Layout = "~/Views/Shared/_dashboardLayout.cshtml";
 }
+<div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" id="roleToggle"
+    @(ViewBag.ViewAs == "creator" ? "checked" : "") onchange="onRoleToggle(this.checked)">
+    <label class="form-check-label" for="roleToggle">
+        @* View as <span id="roleLabel">@(ViewBag.ViewAs == "creator" ? "Creator" : "Admin")</span> *@
+        View as <span id="roleLabel">@(ViewBag.ViewAs == "creator" ? "Admin" : "Creator")</span>
+    </label>
+</div>
+
 
 @functions {
     public string GetRowClass(string activityType)
@@ -267,6 +276,22 @@
         })();
 
     </script>
+    <script>
+        function onRoleToggle(isCreatorView) {
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+
+            // Update only the viewAs param
+            params.set("viewAs", isCreatorView ? "creator" : "admin");
+
+            // Redirect to the new URL with all filters preserved
+            window.location.href = url.toString();
+        }
+    </script>
+
+
+
+
 
     <script>
         $(document).ready(function () {

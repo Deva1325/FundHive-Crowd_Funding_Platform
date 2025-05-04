@@ -147,7 +147,7 @@ namespace Crowd_Funding_Platform.Controllers
 
                 if (ImageFile == null)
                 {
-                    user.ProfilePicture = _acc.GenerateDefaultProfileImage(user.Username);
+                    user.ProfilePicture = _acc.GenerateDefaultProfileImage(user.Username,user.UserId);
                 }
 
                 //Get session value

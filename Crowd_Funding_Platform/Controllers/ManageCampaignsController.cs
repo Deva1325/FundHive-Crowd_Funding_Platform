@@ -1,5 +1,6 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
+using Crowd_Funding_Platform.Repositiories.Classes;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Crowd_Funding_Platform.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,8 @@ using System.Security.Claims;
 using X.PagedList.Extensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
+using QuestPDF.Fluent;
 
 
 namespace Crowd_Funding_Platform.Controllers
@@ -131,22 +134,7 @@ namespace Crowd_Funding_Platform.Controllers
                         return Json(new { success = false, message = "Only 'Upcoming' campaigns can be edited." });
                     }
                 }
-
-                //// ✅ Validate campaign dates
-                //if (campaign.StartDate < today)
-                //{
-                //    return Json(new { success = false, message = "Start date cannot be before today." });
-                //}
-
-                //if (campaign.EndDate < today)
-                //{
-                //    return Json(new { success = false, message = "End date cannot be before today." });
-                //}
-
-                //if (campaign.EndDate < campaign.StartDate)
-                //{
-                //    return Json(new { success = false, message = "End date cannot be before start date." });
-                //}
+              
 
                 // ✅ Determine status based on start/end date
                 if (campaign.StartDate > today)
@@ -281,8 +269,8 @@ namespace Crowd_Funding_Platform.Controllers
         //}
 
 
-        [HttpGet, ActionName("CampaignsList")]
-        public async Task<IActionResult> CampaignsList(string searchTerm, string categoryFilter, DateOnly? startDate, DateOnly? endDate, int? page)
+        [HttpGet]
+        public async Task<IActionResult> CampaignsList(string searchTerm, string categoryFilter, string statusFilter, DateOnly? startDate, DateOnly? endDate, int? page)
         {
             try
             {
@@ -310,6 +298,13 @@ namespace Crowd_Funding_Platform.Controllers
                         campaign.Status = "Ongoing";
                     else if (campaign.EndDate < today)
                         campaign.Status = "Completed";
+
+                    if (!string.IsNullOrEmpty(statusFilter))
+                    {
+                        campaigns = campaigns
+                            .Where(c => c.Status != null && c.Status.Equals(statusFilter, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
 
                     // Add total contributors
                     campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId);
@@ -368,6 +363,7 @@ namespace Crowd_Funding_Platform.Controllers
                 ViewBag.SearchTerm = searchTerm;
                 ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
                 ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+                ViewBag.SelectedStatus = statusFilter;
 
                 return View(pagedCampaigns);
 
@@ -478,6 +474,115 @@ namespace Crowd_Funding_Platform.Controllers
         //        return Json(new { success = false, message = "An unexpected error occurred: " + ex.Message });
         //    }
         //}
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCampaignsToPdf(string searchTerm, string categoryFilter, DateOnly? startDate, DateOnly? endDate)
+        {
+            try
+            {
+                int? userId = HttpContext.Session.GetInt32("UserId_ses");
+                string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+
+                if (userId == null && isAdmin != "true")
+                    return RedirectToAction("Login", "Account");
+
+                List<Campaign> campaigns;
+
+                if (isAdmin == "true")
+                    campaigns = await _campaign.GetAllCampaigns();
+                else
+                    campaigns = await _campaign.GetCampaignsByCreator(userId.Value);
+
+                DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+                foreach (var campaign in campaigns)
+                {
+                    if (campaign.StartDate > today)
+                        campaign.Status = "Upcoming";
+                    else if (campaign.StartDate <= today && campaign.EndDate >= today)
+                        campaign.Status = "Ongoing";
+                    else if (campaign.EndDate < today)
+                        campaign.Status = "Completed";
+
+                    campaign.TotalContributors = await _campaign.GetTotalContributors(campaign.CampaignId);
+                }
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    campaigns = campaigns
+                        .Where(c => c.Title != null &&
+                                    c.Title.ToLower().Contains(searchTerm.ToLower()))
+                        .ToList();
+                }
+
+                if (startDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.StartDate >= startDate.Value).ToList();
+                }
+
+                if (endDate.HasValue)
+                {
+                    campaigns = campaigns.Where(c => c.EndDate <= endDate.Value).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(categoryFilter) && int.TryParse(categoryFilter, out int categoryId))
+                {
+                    campaigns = campaigns
+                        .Where(c => c.CategoryId == categoryId)
+                        .ToList();
+                }
+
+                if (campaigns == null || !campaigns.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No campaign data available to generate the report."
+                    });
+                }
+
+                // Generate PDF using QuestPDF
+                var document = new CampaignsList_PDF(campaigns);
+                var pdfBytes = document.GeneratePdf();
+
+                // Send Email with PDF Attachment
+                var user = await _CFS.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (user != null)
+                {
+                //    var subject = "Campaign Report Downloaded";
+                //    var body = $@"
+                //Hi {user.Username},<br><br>
+                //Your <b>Campaign Report</b> has been successfully generated on 
+                //<b>{DateTime.Now:dd MMM yyyy HH:mm}</b>.<br><br>
+                //The report is attached to this email.<br><br>
+                //Regards,<br>
+                //FundHive Team";
+
+                //    var attachmentFileName = "CampaignReport.pdf";
+
+                //    await _emailSender.SendEmailWithAttachmentAsync(
+                //        user.Email,
+                //        subject,
+                //        body,
+                //        pdfBytes,
+                //        attachmentFileName
+                //    );
+                }
+
+                return File(pdfBytes, "application/pdf", "CampaignReport.pdf");
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while generating the campaign report PDF.",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> ExportCampaignsToExcel(string searchTerm, string categoryFilter, DateOnly? startDate, DateOnly? endDate)

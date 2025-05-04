@@ -68,6 +68,48 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             return contributors;
         }
 
+        public async Task<List<Contribution>> GetAllContributions_Contributor()
+        {
+            var rawContributions = await (
+                from c in _CFS.Contributions
+                join u in _CFS.Users on c.ContributorId equals u.UserId
+                orderby c.Date descending
+                select new
+                {
+                    c.ContributorId,
+                    c.Amount,
+                    c.Date,
+                    c.PaymentStatus,
+                    User = new User
+                    {
+                        UserId = u.UserId,
+                        Username = u.Username,
+                        Email = u.Email,
+                        PhoneNumber = u.PhoneNumber,
+                        ProfilePicture = u.ProfilePicture
+                    }
+                }).ToListAsync();
+
+            // Group by contributor
+            var contributorSummary = rawContributions
+                .GroupBy(c => c.ContributorId)
+                .Select(g =>
+                {
+                    var latest = g.OrderByDescending(x => x.Date).First();
+                    return new Contribution
+                    {
+                        ContributorId = g.Key,
+                        Contributor = latest.User,
+                        TotalContribution = g.Sum(x => x.Amount),
+                        Date = latest.Date,
+                        PaymentStatus = latest.PaymentStatus
+                    };
+                }).OrderByDescending(x => x.Date).ToList();
+
+            return contributorSummary;
+        }
+
+
         public async Task<List<CreatorApplication>> GetAllCreatorsAsync()
         {
             var creators = await (

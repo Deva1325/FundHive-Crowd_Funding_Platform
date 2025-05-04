@@ -59,11 +59,51 @@
         </div>
     </div>
 
-    <!-- Campaign-wise Raised Amount Chart -->
-    <div class="mt-5">
-        <h4>Campaign-wise Raised Amount</h4>
-        <canvas id="campaignChart" height="150"></canvas>
+
+
+    <div class="row mt-4">
+        <!-- Campaign-wise Raised Amount -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Campaign-wise Raised Amount</h5>
+                    <canvas id="campaignChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Donation Trends -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Donation Trends</h5>
+                    <canvas id="donationTrendChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Status Overview -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Campaign Status Overview</h5>
+                    <canvas id="campaignStatusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Insights -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Campaign Insights</h5>
+                    <canvas id="campaignInsightsChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
+
+
 </div>
 
 @section Scripts {
@@ -95,5 +135,96 @@
                 }
             }
         });
+
+        
+        const trendCtx = document.getElementById('donationTrendChart').getContext('2d');
+        const donationTrendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ContributionTrends.Select(c => c.Month))),
+                datasets: [{
+                    label: 'Total Donations (₹)',
+                    data: @Html.Raw(Json.Serialize(Model.ContributionTrends.Select(c => c.TotalAmount))),
+                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                    borderColor: '#4e73df',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => '₹' + value
+                        }
+                    }
+                }
+            }
+        });
+
+           
+        const statusCtx = document.getElementById('campaignStatusChart').getContext('2d');
+        const campaignStatusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CampaignStatusCounts.Keys)),
+                datasets: [{
+                    label: 'Campaigns',
+                    data: @Html.Raw(Json.Serialize(Model.CampaignStatusCounts.Values)),
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        
+
+        const insightsCtx = document.getElementById('campaignInsightsChart').getContext('2d');
+        const campaignInsightsChart = new Chart(insightsCtx, {
+            type: 'radar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CampaignInsights.Select(c => c.CampaignTitle))),
+                datasets: [
+                    {
+                        label: 'Avg Donation (₹)',
+                        data: @Html.Raw(Json.Serialize(Model.CampaignInsights.Select(c => c.AvgDonation))),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: '#4bc0c0',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Raised (%)',
+                        data: @Html.Raw(Json.Serialize(Model.CampaignInsights.Select(c => c.RaisedPercent))),
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        borderColor: '#ffcd56',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
     </script>
 }
