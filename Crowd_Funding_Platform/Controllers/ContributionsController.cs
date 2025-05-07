@@ -136,7 +136,42 @@ namespace Crowd_Funding_Platform.Controllers
                 {
                     campaign.RaisedAmount += data.amount;
                     _context.Campaigns.Update(campaign);
+
+                    if ((campaign.Status == "Ongoing" || campaign.Status == "Completed") &&
+                        campaign.RaisedAmount >= campaign.Requirement)
+                    {
+                        bool isAlreadyAwarded = _context.CampaignAchievements
+                            .Any(x => x.CampaignId == campaign.CampaignId);
+
+                        if (!isAlreadyAwarded)
+                        {
+                            // Generate Certificate for Creator
+                            var creator = await _context.Users.FindAsync(campaign.CreatorId);
+                            string certPath = CertificateHelper.GenerateCreatorCertificatePDF(creator);
+
+                            _context.CampaignAchievements.Add(new CampaignAchievement
+                            {
+                                CampaignId = campaign.CampaignId,
+                                CreatorId = campaign.CreatorId,
+                                IsGoalAchieved = true,
+                                CertificatePath = certPath,
+                                AwardDate = DateTime.Now
+                            });
+
+                            await _context.SaveChangesAsync();
+
+                            // Send Email with Certificate
+                            await _emailSender.SendEmailAsync(
+                                toEmail: creator.Email,
+                                userName: creator.Username,
+                                subject: "🎉 You're Now a Verified Campaign Creator!",
+                                body: "Verified Campaign Creator | CERTIFICATE_PATH:" + certPath,
+                                emailType: "CreatorCertificate"
+                            );
+                        }
+                    }
                 }
+
 
                 await _context.SaveChangesAsync();
 

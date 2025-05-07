@@ -50,17 +50,17 @@
                     <strong>Status:</strong>
                     <p class="text-muted">@Html.DisplayFor(model => model.Status)</p>
                 </div>
-                <div class="col-md-6">
+                @* <div class="col-md-6">
                     <strong>Category:</strong>
-                    <p class="text-muted">@Html.DisplayFor(model => model.Category.CategoryId)</p>
-                </div>
+                    <p class="text-muted">@Html.DisplayFor(model => model.Category.Name)</p>
+                </div> *@
             </div>
 
             <div class="row mb-4">
-                <div class="col-md-6">
+              @*   <div class="col-md-6">
                     <strong>Creator:</strong>
                     <p class="text-muted">@Html.DisplayFor(model => model.Creator.UserId)</p>
-                </div>
+                </div> *@
 
                 <p class="text-muted">Images count: @Model.CampaignImages?.Count()</p>
 

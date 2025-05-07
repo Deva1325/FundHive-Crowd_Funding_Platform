@@ -27,6 +27,8 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
                 .ToListAsync();
         }
 
+        
+
         public async Task MarkAsReadAsync(int notificationId)
         {
             var notification = await _CFS.TblNotifications.FindAsync(notificationId);
@@ -38,3 +40,27 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
         }
     }
 }
+
+
+
+
+
+
+//public async Task<IEnumerable<TblNotification>> GetUserNotificationsAsync(int userId)
+//{
+//    if (userId == 2041) // Admin
+//    {
+//        return await _CFS.TblNotifications
+//                         .Where(n => n.UserId == 2041)
+//                         .OrderByDescending(n => n.Date)
+//                         .ToListAsync();
+//    }
+//    else // Regular user
+//    {
+//        return await _CFS.TblNotifications
+//                         .Where(n => n.UserId == userId)
+//                         .OrderByDescending(n => n.Date)
+//                         .ToListAsync();
+//    }
+//}
+

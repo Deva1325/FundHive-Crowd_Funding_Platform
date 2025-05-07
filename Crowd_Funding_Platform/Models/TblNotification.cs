@@ -13,7 +13,7 @@ public partial class TblNotification
 
     public DateTime? Date { get; set; }
 
-    public bool IsRead { get; set; }
+    public bool IsRead { get; set; }//remove the ?
 
     public int? Type { get; set; }
 

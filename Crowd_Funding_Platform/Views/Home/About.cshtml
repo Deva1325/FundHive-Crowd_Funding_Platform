@@ -1,0 +1,211 @@
+﻿@using System.Globalization
+@{
+    var indianCulture = new CultureInfo("en-IN");
+}
+@model Crowd_Funding_Platform.Models.HomePageViewModel
+@{
+    <title>@ViewData["Title"] - Crowd_Funding_Platform</title>
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+
+<main>
+    <!-- Hero area Start-->
+    <div class="slider-area">
+        <div class="slider-height2 slider-bg4 hero-overly d-flex align-items-center">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-xl-5 col-lg-6 col-md-6">
+                        <div class="hero-caption hero-caption2">
+                            <h2>About Us</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  Hero area End -->
+    <!-- About -->
+    <div class="support-company-area section-padding">
+        <div class="container">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-xl-6 col-lg-6 col-md-10">
+                    <div class="support-location-img">
+                        <img src="assets/img/gallery/about.jpg" alt="">
+                    </div>
+                </div>
+                <div class="col-xl-5 col-lg-6 col-md-10">
+                    <div class="right-caption">
+                        <!-- Section Tittle -->
+                        <div class="section-tittle">
+                            <h2>Who we are?</h2>
+                        </div>
+                        <div class="support-caption">
+                            <p class="mb-10">FundHive is a smart crowdfunding platform built to empower changemakers, individuals, and social causes through AI, transparency, and accessible technology. Designed as a final-year academic project, it bridges the gap between passionate campaigners and trusted contributors.</p>
+                            <p class="pera-top">With AI-generated campaign content, secure donations via Razorpay, email-based user verification, and real-time analytics, FundHive offers a reliable, easy-to-use platform to bring impactful ideas to life.</p>
+                            <a href="about.html" class="btn about-btn">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About Area End-->
+    <!-- Count Down Start -->
+    <div class="count-down-area pt-25 section-img-bg2" data-background="assets/img/gallery/section-bg1.jpg">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12 col-md-12">
+                    <div class="count-down-wrapper">
+                        <div class="row justify-content-between">
+                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                <div class="single-counter d-flex align-items-center">
+                                    <div class="counter-img">
+                                        <img src="assets/img/icon/count-icon1.svg" alt="">
+                                    </div>
+                                    <div class="captions">
+                                        <span class="counter">35</span>
+                                        <span class="plus">+</span>
+                                        <p class="color-green">Live Campaigns</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                <div class="single-counter d-flex align-items-center">
+                                    <div class="counter-img">
+                                        <img src="assets/img/icon/count-icon2.svg" alt="">
+                                    </div>
+                                    <div class="captions">
+                                        <span class="counter">12</span>
+                                        <span class="plus">k</span>
+                                        <p class="color-green">Contributors</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                <div class="single-counter d-flex align-items-center">
+                                    <div class="counter-img">
+                                        <img src="assets/img/icon/count-icon3.svg" alt="">
+                                    </div>
+                                    <div class="captions">
+                                        <span class="counter">100</span>
+                                        <span class="plus">k</span>
+                                        <p class="color-green">Raised in Donations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                <div class="single-counter d-flex align-items-center">
+                                    <div class="counter-img">
+                                        <img src="assets/img/icon/count-icon4.svg" alt="">
+                                    </div>
+                                    <div class="captions">
+                                        <span class="counter">500</span>
+                                        <p class="color-green">People Impacted</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Count Down End -->
+    <!-- Our Services Start -->
+    <div class="our-services section-padding position-relative">
+        <div class="container">
+            <div class="row justify-content-sm-center">
+                <div class="col-xl-7 col-lg-8 col-md-11">
+                    <!-- Section Tittle -->
+                    <div class="section-tittle text-center mb-70">
+                        <h2>What makes FundHive different?</h2>
+                        <p>From AI-powered campaign generation to real-time analytics — we’ve made raising funds smarter, faster, and safer.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-between">
+                <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-services text-center mb-30">
+                        <div class="services-icon">
+                            <img src="assets/img/icon/services1.svg" alt="">
+                        </div>
+                        <div class="services-cap">
+                            <h5><a href="#">AI-Powered Content</a></h5>
+                            <p>Auto-generate compelling campaign titles and descriptions using Gemini and GPT-based AI assistants.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-services text-center mb-30">
+                        <div class="services-icon">
+                            <img src="assets/img/icon/services2.svg" alt="">
+                        </div>
+                        <div class="services-cap">
+                            <h5><a href="#">Secure Transactions</a></h5>
+                            <p>Collect funds confidently with integrated Razorpay support and OTP-verified contributors.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-services text-center mb-30">
+                        <div class="services-icon">
+                            <img src="assets/img/icon/services1.svg" alt="">
+                        </div>
+                        <div class="services-cap">
+                            <h5><a href="#">Live Dashboard Insights</a></h5>
+                            <p>Visualize campaign performance using live charts and graphs — including donation trends, status breakdowns, and more.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Our Services End -->
+    <!-- Emergency care start -->
+    <div class="emargency-care section-img-bg2" data-background="assets/img/gallery/section-bg2.jpg">
+        <div class="container">
+            <div class="row justify-content-end">
+                <div class="col-xl-6 col-lg-8 col-md-9 col-sm-12">
+                    <div class="single-emargency">
+                        <div class="emargency-cap">
+                            <h5><a href="#">Real-time Support, Always</a></h5>
+                            <p>Our integrated Dialogflow chatbot helps you get answers instantly — from campaign creation to donation tracking.</p>
+                            <p class="emargenc-cap">Whether you're a first-time fundraiser or frequent contributor, FundHive ensures every question gets answered professionally and promptly.</p>
+                            <a href="#" class="btn loan-btn">Try the Chatbot</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Emergency care End -->
+    <!-- Join with Us Start-->
+    <div class="join-us-area section-padding">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-xl-4 col-lg-6 col-md-10">
+                    <div class="joing-details">
+                        <div class="section-tittle">
+                            <h2>Join with Us</h2>
+                        </div>
+                        <p>Be a part of the next-gen fundraising revolution. Whether you want to raise money, support a cause, or explore AI in action — FundHive welcomes you to experience smart giving.</p>
+                        <a href="about.html" class="btn about-btn">Join Now</a>
+                    </div>
+                </div>
+                <div class="offset-xl-1 col-xl-4 col-lg-4 col-md-7 col-sm-7">
+                    <div class="joning-img">
+                        <img src="assets/img/gallery/joining1.jpg" alt="" class="w-100">
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-5 col-sm-5">
+                    <div class="joning-img">
+                        <img src="assets/img/gallery/joining2.jpg" alt="" class="w-100">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Join with Us End-->
+</main>
+

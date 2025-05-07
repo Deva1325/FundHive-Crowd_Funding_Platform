@@ -1,7 +1,11 @@
 ﻿using Crowd_Funding_Platform.Models;
 using Crowd_Funding_Platform.Repositiories.Interfaces;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
+
 
 namespace Crowd_Funding_Platform.Controllers
 {
@@ -80,22 +84,115 @@ namespace Crowd_Funding_Platform.Controllers
         //    return RedirectToAction("Index", "Home");
         //}
 
+        //public async Task<IActionResult> ContactSubmissions()
+        //{
+        //    string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+        //    if (isAdmin != "true")
+        //    {
+        //        return RedirectToAction("unAuthorized401", "Error");
+        //    }
+
+        //    var contacts = await _context.TblContacts
+        //        .OrderByDescending(c => c.SubmittedAt)
+        //        .ToListAsync();
+
+        //    return View(contacts);
+        //}
+     
+
+        public IActionResult ContactSubmissions(int? page)
+    {
+        string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+        if (isAdmin != "true")
+        {
+            return RedirectToAction("unAuthorized401", "Error");
+        }
+
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
+            var contacts = _context.TblContacts
+                .OrderByDescending(c => c.SubmittedAt)
+                .ToPagedList(pageNumber, pageSize);
+            return View(contacts);
+    }
+
+
+        //[Route("AuditLogs")]
+        //[HttpGet]
+        //public IActionResult AuditLogs(string? username, string? activityType, string? tableName, DateTime? fromDate, DateTime? toDate, string? viewAs)
+        //{
+        //    var isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
+        //    var isCreator = HttpContext.Session.GetString("IsCreatorApproved");
+        //    var userId = HttpContext.Session.GetInt32("UserId_ses");
+
+        //    viewAs ??= "admin"; // default to "admin" if null
+        //    ViewBag.ViewAs = viewAs;
+
+        //    if (viewAs == "admin" && isAdmin == "true")
+        //    {
+        //        var logs = _activityRepository.GetAllAuditLogs()
+        //                        .Where(l => !l.IsDeleted).ToList();
+
+        //        if (!string.IsNullOrEmpty(username))
+        //            logs = logs.Where(l => l.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        //        if (!string.IsNullOrEmpty(activityType))
+        //            logs = logs.Where(l => l.ActivityType.Contains(activityType, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        //        if (!string.IsNullOrEmpty(tableName))
+        //            logs = logs.Where(l => !string.IsNullOrEmpty(l.TableName) && l.TableName.Contains(tableName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        //        if (fromDate.HasValue)
+        //            logs = logs.Where(l => l.Timestamp >= fromDate.Value).ToList();
+
+        //        if (toDate.HasValue)
+        //            logs = logs.Where(l => l.Timestamp <= toDate.Value).ToList();
+
+        //        return View("AuditLogs", logs);
+        //    }
+        //    else if (viewAs == "creator" && isCreator == "true" && userId.HasValue)
+        //    {
+        //        var creatorCampaignIds = _context.Campaigns
+        //                                .Where(c => c.CreatorId == userId.Value)
+        //                                .Select(c => c.CampaignId)
+        //                                .ToList();
+
+        //        var relatedUserIds = _context.Contributions
+        //                            .Where(d => creatorCampaignIds.Contains(d.CampaignId))
+        //                            .Select(d => d.ContributorId)
+        //                            .Distinct()
+        //                            .ToList();
+
+        //        var creatorLogs = _context.TblAuditLogs
+        //                            .Where(log => !log.IsDeleted && relatedUserIds.Contains(log.UserId))
+        //                            .ToList();
+
+        //        return View("CreatorAuditLogs", creatorLogs);
+        //    }
+        //    else
+        //    {
+        //        // fallback
+        //        TempData["Error"] = "You are not authorized to view audit logs.";
+        //        return RedirectToAction("Index", "Home");
+        //    }
+
+           
+        //}
 
         [Route("AuditLogs")]
         [HttpGet]
-        public IActionResult AuditLogs(string? username, string? activityType, string? tableName, DateTime? fromDate, DateTime? toDate, string? viewAs)
+        public IActionResult AuditLogs(string? username, string? activityType, string? tableName, DateTime? fromDate, DateTime? toDate)
         {
             var isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
             var isCreator = HttpContext.Session.GetString("IsCreatorApproved");
             var userId = HttpContext.Session.GetInt32("UserId_ses");
 
-            viewAs ??= "admin"; // default to "admin" if null
-            ViewBag.ViewAs = viewAs;
-
-            if (viewAs == "admin" && isAdmin == "true")
+            if (isAdmin == "true")
             {
                 var logs = _activityRepository.GetAllAuditLogs()
-                                .Where(l => !l.IsDeleted).ToList();
+                             .Where(l => !l.IsDeleted)
+                             .ToList();
 
                 if (!string.IsNullOrEmpty(username))
                     logs = logs.Where(l => l.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -114,35 +211,31 @@ namespace Crowd_Funding_Platform.Controllers
 
                 return View("AuditLogs", logs);
             }
-            else if (viewAs == "creator" && isCreator == "true" && userId.HasValue)
+            else if (isCreator == "true" && userId.HasValue)
             {
                 var creatorCampaignIds = _context.Campaigns
-                                        .Where(c => c.CreatorId == userId.Value)
-                                        .Select(c => c.CampaignId)
-                                        .ToList();
+                                         .Where(c => c.CreatorId == userId.Value)
+                                         .Select(c => c.CampaignId)
+                                         .ToList();
 
                 var relatedUserIds = _context.Contributions
-                                    .Where(d => creatorCampaignIds.Contains(d.CampaignId))
-                                    .Select(d => d.ContributorId)
-                                    .Distinct()
-                                    .ToList();
+                                     .Where(d => creatorCampaignIds.Contains(d.CampaignId))
+                                     .Select(d => d.ContributorId)
+                                     .Distinct()
+                                     .ToList();
 
                 var creatorLogs = _context.TblAuditLogs
-                                    .Where(log => !log.IsDeleted && relatedUserIds.Contains(log.UserId))
-                                    .ToList();
+                                     .Where(log => !log.IsDeleted && relatedUserIds.Contains(log.UserId))
+                                     .ToList();
 
                 return View("CreatorAuditLogs", creatorLogs);
             }
             else
             {
-                // fallback
                 TempData["Error"] = "You are not authorized to view audit logs.";
                 return RedirectToAction("Index", "Home");
             }
-
-           
         }
-
 
 
         //[Route("AuditLogs")]

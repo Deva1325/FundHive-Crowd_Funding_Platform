@@ -80,11 +80,15 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             await _dbMain_CFS.CreatorApplications.AddAsync(creatorApp);
             await _dbMain_CFS.SaveChangesAsync();
 
-            await _notificationService.SendReminderNotificationAsync(
-            creatorApp.UserId.Value,
-                        $"Reminder: Your Application is sent to the Admin for is due in 3 days."
-      );
+      //      await _notificationService.SendReminderNotificationAsync(
+      //      creatorApp.UserId.Value,
+      //                  $"Reminder: Your Application is sent to the Admin for is due in 3 days."
+      //);
 
+              await _notificationService.SendReminderNotificationAsync(
+              2041,$"📥 New Creator Application Submitted by {creatorApp.User.Username} on {DateTime.Now:MMMM dd, yyyy hh:mm tt}."
+
+        );
             return new { success = true, message = "Application submitted successfully!" };
         }
 

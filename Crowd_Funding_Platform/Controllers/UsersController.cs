@@ -28,7 +28,14 @@ namespace Crowd_Funding_Platform.Controllers
 
         [HttpGet]
         public async Task<IActionResult> CreatorsList() 
-        {    
+        {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
             List<CreatorApplication> creators = await _user.GetAllCreatorsAsync();
             return View(creators);
         }

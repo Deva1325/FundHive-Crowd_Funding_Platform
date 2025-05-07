@@ -17,6 +17,13 @@ namespace Crowd_Funding_Platform.Controllers
 
         public async Task<IActionResult> Index()
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            string IScreator = HttpContext.Session.GetString("IsCreatorApproved");
+            if (ISadmin != "true" && IScreator != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+
+            }
             int? creatorId = HttpContext.Session.GetInt32("UserId_ses");
             if (creatorId == null)
                 return RedirectToAction("Login", "Account");

@@ -1,4 +1,5 @@
 ﻿using Crowd_Funding_Platform.Models;
+using Crowd_Funding_Platform.Repositiories.Interfaces;
 using Crowd_Funding_Platform.Repositiories.Interfaces.IManageCampaign;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
@@ -8,10 +9,13 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
     public class CampaignsClassRepos : ICampaignsRepos
     {
         private readonly DbMain_CFS _CFS;
+        private readonly INotificationService _notificationService;
 
-        public CampaignsClassRepos(DbMain_CFS CFS)
+
+        public CampaignsClassRepos(DbMain_CFS CFS, INotificationService notificationService)
         {
             _CFS = CFS;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -489,6 +493,12 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
             user.IsCreatorApproved = true;
 
             await _CFS.SaveChangesAsync();
+
+            await _notificationService.SendReminderNotificationAsync(
+            2041,
+            $"✅ Congratulations {creator.User.Username}, your creator application has been approved on {DateTime.Now:MMMM dd, yyyy hh:mm tt}. You can now create campaigns!"
+            );
+
             return (true, "Creator approved successfully.");
         }
 
@@ -573,7 +583,7 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.ManageCampaign
         public async Task<List<Campaign>> GetCampaignsByCreator(int creatorId)
         {
             return await _CFS.Campaigns
-                .Where(c => c.CreatorId == creatorId)
+                .Where(c => c.CreatorId == creatorId && !c.IsDeleted) 
                 .Include(c => c.Category)
                 .OrderByDescending(c => c.StartDate)
                 .ToListAsync();

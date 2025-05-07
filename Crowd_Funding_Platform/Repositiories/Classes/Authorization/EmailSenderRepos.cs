@@ -286,6 +286,40 @@ namespace Crowd_Funding_Platform.Repositiories.Classes.Authorization
 </body>
 </html>";
                 }
+                else if (emailType == "CreatorCertificate")
+                {
+                    string badgeName = "Verified Campaign Creator";
+
+                    // Extract badge name and certificate path from the input
+                    var match = Regex.Match(body, @"^(.*?)\|CERTIFICATE_PATH:(.+)$");
+                    if (match.Success)
+                    {
+                        badgeName = match.Groups[1].Value.Trim();
+                        certificateFilePath = match.Groups[2].Value.Trim();
+                    }
+
+                    emailBody = $@"<html>
+<head> ... </head>
+<body>
+    <div class='email-container'>
+        <h2>🎉 Welcome to FundHive as a Verified Campaign Creator!</h2>
+        <p>Dear {userName},</p>
+        <p>We are excited to officially recognize you as a <strong>{badgeName}</strong> at <strong>FundHive</strong>.</p>
+        <p>Your dedication and commitment to launching impactful campaigns are highly valued.</p>
+        <p>Attached is your certificate of verification. We wish you great success ahead!</p>
+        <div class='footer'>
+            &mdash; The FundHive Team
+        </div>
+    </div>
+</body>
+</html>";
+
+                    // Ensure the path is also assigned if Regex fails (fallback from controller)
+                    if (string.IsNullOrEmpty(certificateFilePath) && body.Contains("CERTIFICATE_PATH:"))
+                    {
+                        certificateFilePath = body.Split("CERTIFICATE_PATH:").Last().Trim();
+                    }
+                }
 
                 var builder = new BodyBuilder();
                 builder.HtmlBody = emailBody;

@@ -23,7 +23,7 @@
         padding: 15px 20px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         font-size: 14px;
-        max-width: 600px;
+        max-width: 732px;
         width: 100%;
     }
 
@@ -77,9 +77,9 @@
 
                 <div class="form-check ms-2">
                     <input class="form-check-input" type="checkbox" value="" id="autoFillCheckbox" checked>
-                    <label class="form-check-label" for="autoFillCheckbox">
+                    @* <label class="form-check-label" for="autoFillCheckbox">
                         Auto-fill fields
-                    </label>
+                    </label> *@
                 </div>
             </div>
 
@@ -188,7 +188,7 @@
             if (!suggestion) return;
 
             const suggestionHtml = `
-                    <div class="ai-card w-100 p-3 border rounded shadow-sm">
+                            <div class="ai-card w-100 p-3 border rounded shadow-sm" style="margin-top: -49px;margin-left: -207px;margin-bottom: 34px;">
                                 <h5><i class="bi bi-stars me-2 text-primary"></i> ${suggestion.title}</h5>
                                 <p class="mb-2"><strong>Description:</strong> ${suggestion.description}</p>
                                 <p class="mb-3"><strong>Category:</strong> ${suggestion.category}</p>
@@ -213,13 +213,14 @@
 
             if (matchedOption.length > 0) {
                 matchedOption.prop('selected', true);
-            } else {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Category not found',
-                    text: 'AI suggested a category that is not in your list. Please select manually.'
-                });
-            }
+            } 
+            // else {
+            //     Swal.fire({
+            //         icon: 'info',
+            //         title: 'Category not found',
+            //         text: 'AI suggested a category that is not in your list. Please select manually.'
+            //     });
+            // }
         }
 
         function generateAI(keyword) {

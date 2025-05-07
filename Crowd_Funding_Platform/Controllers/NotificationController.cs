@@ -18,31 +18,55 @@ namespace Crowd_Funding_Platform.Controllers
             _notificationRepos = notificationRepository;
             _accountRepos= accountRepos;
         }
-    public async Task<IActionResult> Index()
-    {
-        int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
 
-        if (userId != 0)
+        //current method 
+        //public async Task<IActionResult> Index()
+        //{
+        //    int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+
+        //    if (userId != 0)
+        //    {
+        //        // Get unread notification count
+        //        var unreadCount = await _notificationService.GetUnreadCountAsync(userId);
+        //        ViewBag.NotificationCount = unreadCount;
+        //    }
+        //    else
+        //    {
+        //        ViewBag.NotificationCount = 0; // Default value if no userId is found
+        //    }
+        //    var notifications = await _notificationService.GetUserNotificationsAsync(userId);
+
+        //    return View(notifications);
+        //}
+
+        public async Task<IActionResult> Index()
         {
-            // Get unread notification count
-            var unreadCount = await _notificationService.GetUnreadCountAsync(userId);
-            ViewBag.NotificationCount = unreadCount;
+            int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+
+            // Return unauthorized if no session
+            if (userId == 0)
+                return RedirectToAction("unAuthorized401", "Error");
+
+            // Get unread count
+            ViewBag.NotificationCount = await _notificationService.GetUnreadCountAsync(userId);
+
+            // Admin ID is hardcoded as 2041
+            bool isAdmin = userId == 2041;
+
+            // Admin sees only admin-related notifications
+            // Other users see only their notifications
+            var notifications = await _notificationService.GetUserNotificationsAsync(userId);
+
+            return View(notifications);
         }
-        else
+
+        // ✅ Mark Notification as Read
+        public async Task<IActionResult> MarkAsRead(int notificationId)
         {
-            ViewBag.NotificationCount = 0; // Default value if no userId is found
+            await _notificationService.MarkNotificationAsReadAsync(notificationId);
+            return RedirectToAction("Index"); // Refresh notification list
+        }
+
+
         }
-        var notifications = await _notificationService.GetUserNotificationsAsync(userId);
-
-        return View(notifications);
-    }
-    // ✅ Mark Notification as Read
-    public async Task<IActionResult> MarkAsRead(int notificationId)
-    {
-        await _notificationService.MarkNotificationAsReadAsync(notificationId);
-        return RedirectToAction("Index"); // Refresh notification list
-    }
-
-
-    }
 }

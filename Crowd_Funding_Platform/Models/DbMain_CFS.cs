@@ -19,6 +19,8 @@ public partial class DbMain_CFS : DbContext
 
     public virtual DbSet<Campaign> Campaigns { get; set; }
 
+    public virtual DbSet<CampaignAchievement> CampaignAchievements { get; set; }
+
     public virtual DbSet<CampaignAnalytic> CampaignAnalytics { get; set; }
 
     public virtual DbSet<CampaignImage> CampaignImages { get; set; }
@@ -80,7 +82,6 @@ public partial class DbMain_CFS : DbContext
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Requirement).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.IsDeleted);
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasDefaultValue("Active");
@@ -95,6 +96,16 @@ public partial class DbMain_CFS : DbContext
                 .HasForeignKey(d => d.CreatorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Campaigns__Creat__47DBAE45");
+        });
+
+        modelBuilder.Entity<CampaignAchievement>(entity =>
+        {
+            entity.HasKey(e => e.AchievementId).HasName("PK__Campaign__276330C0CF47A669");
+
+            entity.Property(e => e.AwardDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CertificatePath).HasMaxLength(255);
         });
 
         modelBuilder.Entity<CampaignAnalytic>(entity =>
@@ -266,8 +277,8 @@ public partial class DbMain_CFS : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.RecordId).HasColumnName("RecordID");
-            entity.Property(e => e.IsDeleted);
             entity.Property(e => e.TableName)
                 .HasMaxLength(255)
                 .IsUnicode(false);

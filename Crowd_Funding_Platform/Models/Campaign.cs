@@ -28,6 +28,8 @@ public partial class Campaign
 
     public string? Status { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     [NotMapped]
     public IFormFile? ImageFile { get; set; }  // Updated type
 
@@ -36,9 +38,6 @@ public partial class Campaign
 
     [NotMapped]
     public List<IFormFile>? GalleryImages { get; set; }
-
-    public bool IsDeleted { get; set; }
-
 
     public virtual ICollection<CampaignAnalytic> CampaignAnalytics { get; set; } = new List<CampaignAnalytic>();
 

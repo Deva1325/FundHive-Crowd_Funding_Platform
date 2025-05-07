@@ -40,6 +40,7 @@
     <Folder Include="wwwroot\Campaign_Media\" />
     <Folder Include="wwwroot\Campaign_Gallery\" />
     <Folder Include="wwwroot\Certificates\" />
+    <Folder Include="wwwroot\CreatorCertificates\" />
   </ItemGroup>
 
 </Project>

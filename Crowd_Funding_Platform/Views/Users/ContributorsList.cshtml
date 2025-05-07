@@ -17,6 +17,10 @@
     }
 
     .table-wrapper {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    .table-wrapper {
         background: #fff;
         padding: 20px;
         border-radius: 12px;
@@ -90,7 +94,8 @@
     <i class="fa fa-download"></i> Export to Excel
 </a> *@
 
-<div class="container mt-4">   
+<div class="container mt-4">
+    <div class="table-responsive">
     @if (Model != null && Model.Any())
     {       
         <div id="contributorsContainer">
@@ -192,6 +197,7 @@
                 No contributors found for this campaign.
             </div>
         }
+    </div> <!-- End of table-responsive -->
 </div>
 
 @section Scripts {

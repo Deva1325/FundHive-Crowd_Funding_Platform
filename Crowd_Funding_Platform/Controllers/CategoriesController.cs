@@ -31,6 +31,12 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet]
         public async Task<IActionResult> CategoriesList(string searchString, int? page)
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
             var categories = await _categories.GetAllCategories();
 
             // Apply search filter
@@ -177,6 +183,12 @@ namespace Crowd_Funding_Platform.Controllers
         [HttpGet]
         public async Task<IActionResult> SaveCategories(int? id)
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
             if (id == null || id == 0)
                 return View(new Category()); // Add Mode (Empty form)
 

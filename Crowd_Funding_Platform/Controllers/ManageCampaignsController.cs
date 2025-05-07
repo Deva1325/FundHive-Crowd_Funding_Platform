@@ -44,8 +44,40 @@ namespace Crowd_Funding_Platform.Controllers
         public async Task<IActionResult> ShowCampaignCases()
         {
             var campaigns = _campaign.ShowCampaignCases();
-            return View(campaigns);
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            // Set status and filter to Ongoing only
+            var ongoingCampaigns = campaigns
+                .Where(c =>
+                {
+                    if (c.StartDate > today)
+                    {
+                        c.Status = "Upcoming";
+                        return false;
+                    }
+                    else if (c.StartDate <= today && c.EndDate >= today)
+                    {
+                        c.Status = "Ongoing";
+                        return true;
+                    }
+                    else
+                    {
+                        c.Status = "Completed";
+                        return false;
+                    }
+                })
+                .ToList();
+
+            return View(ongoingCampaigns); // ✅ return only ongoing
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> ShowCampaignCases()
+        //{
+        //    var campaigns = _campaign.ShowCampaignCases();
+        //    return View(campaigns);
+        //}
 
         [HttpGet]
         public async Task<IActionResult> DetailCampaignCases(int id)
@@ -68,6 +100,12 @@ namespace Crowd_Funding_Platform.Controllers
 
         public async Task<IActionResult> PendingCampaigns()
         {
+            string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+            if (ISadmin != "true")
+            {
+                return RedirectToAction("unAuthorized401", "Error");
+            }
+
             List<CreatorApplication> pendingCampaigns = await _campaign.GetPendingCampaigns();
             return View(pendingCampaigns);
             // return View();
@@ -274,6 +312,14 @@ namespace Crowd_Funding_Platform.Controllers
         {
             try
             {
+                string ISadmin = HttpContext.Session.GetString("IsAdmin_ses");
+                string IScreator = HttpContext.Session.GetString("IsCreatorApproved");
+                if (ISadmin != "true" && IScreator != "true")
+                {
+                    return RedirectToAction("unAuthorized401", "Error");
+                }
+
+
                 int? userId = HttpContext.Session.GetInt32("UserId_ses");
                 string isAdmin = HttpContext.Session.GetString("IsAdmin_ses");
 

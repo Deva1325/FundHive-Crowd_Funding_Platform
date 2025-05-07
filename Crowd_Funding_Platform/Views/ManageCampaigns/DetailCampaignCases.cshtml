@@ -5,7 +5,12 @@
     Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
 }
 
-<link rel="stylesheet" type="text/css" href="~/Authentication_T/aapp-assets/vendors/css/extensions/sweetalert2.min.css">
+@* <link rel="stylesheet" type="text/css" href="~/Authentication_T/aapp-assets/vendors/css/extensions/sweetalert2.min.css"> *@
+
+
+<div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; text-align:center;">
+    <img src="~/Spinner.gif" alt="Loading..." style="margin-top:20%;">
+</div>
 
 <div class="container my-5">
     <div class="row">
@@ -23,11 +28,11 @@
                                 var progressPercentage = Model.Requirement > 0 ? (Model.RaisedAmount / Model.Requirement) * 100 : 0;
                             }
                             <div class="progress-bar bg-success" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
-                                @progressPercentage?.ToString("0") ?? "0"%
+                                @((progressPercentage?.ToString("0") ?? "0") + "%")
                             </div>
                         </div>
                         <span class="ms-3 fw-bold">
-                            @progressPercentage?.ToString("0") ?? "0"% Raised
+                            @((progressPercentage?.ToString("0") ?? "0") + "% Raised")
                         </span>
                     </div>
                     <p class="mt-2"><strong>₹@Model.RaisedAmount</strong> of ₹@Model.Requirement</p>
@@ -209,7 +214,7 @@
             }
         });
 
-document.getElementById("donationForm").addEventListener("submit", function (e) {
+    document.getElementById("donationForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const amount = parseFloat(document.getElementById("amount").value);
@@ -246,6 +251,21 @@ document.getElementById("donationForm").addEventListener("submit", function (e) 
                     contact: "9999999999" // Use test number
                 },
                 handler: function (response) {
+
+                    // ✅ Close the donate modal
+                    // const donateModal = bootstrap.Modal.getInstance(document.getElementById('donateModal'));
+                    // donateModal.hide();
+
+                     // ✅ Show loader
+                    // Swal.fire({
+                    //     title: 'Processing payment...',
+                    //     html: '<img src="~/PaymentLoader1.gif" alt="Loading..."',
+                    //     allowOutsideClick: false,
+                    //     showConfirmButton: false,
+                    // });
+
+                            document.getElementById("loaderOverlay").style.display = "block";
+
                     fetch(`/Contributions/VerifyAndStorePayment`, {
                         method: "POST",
                         headers: {
@@ -286,6 +306,12 @@ document.getElementById("donationForm").addEventListener("submit", function (e) 
                 }
             };
             const rzp = new Razorpay(options);
+                  
+            // Show loader and close modal before opening Razorpay
+            //document.getElementById("loaderOverlay").style.display = "block";  // Show loader
+            const modal = bootstrap.Modal.getInstance(document.getElementById('donateModal'));
+            modal.hide();  // Close modal
+
             rzp.open();
         })
         .catch(error => {

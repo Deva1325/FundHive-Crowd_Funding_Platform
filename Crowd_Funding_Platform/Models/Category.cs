@@ -11,8 +11,10 @@ public partial class Category
     public string Name { get; set; } = null!;
 
     public string? Description { get; set; }
+
     [NotMapped]
     public decimal TotalContributions { get; set; } // <-- Add this
+
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 }

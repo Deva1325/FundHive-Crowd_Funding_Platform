@@ -88,12 +88,11 @@
                     <div class="row">
                         <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-8 col-sm-10">
                             <div class="hero-caption">
-                                <h1 data-animation="fadeInUp" data-delay=".2s">Support a causes you care about</h1>
+                                <h1 data-animation="fadeInUp" data-delay=".2s">Launch Your Dream Campaign</h1>
                                 <P data-animation="fadeInUp" data-delay=".4s">
-                                    Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet
-                                    pulvinar ante tempor etiam lacus eros
+                                    Turn your ideas into reality with the power of crowdfunding.
                                 </P>
-                                <a href="#" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Active Cases</a>
+                                <a href="~/ManageCampaigns/ShowCampaignCases" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Total Cases</a>
                             </div>
                         </div>
                     </div>
@@ -105,12 +104,11 @@
                     <div class="row justify-content-end">
                         <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-8 col-sm-10">
                             <div class="hero-caption">
-                                <h1 data-animation="fadeInUp" data-delay=".2s">Support a causes you care about</h1>
+                                <h1 data-animation="fadeInUp" data-delay=".2s">Support Causes That Matter</h1>
                                 <P data-animation="fadeInUp" data-delay=".4s">
-                                    Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet
-                                    pulvinar ante tempor etiam lacus eros
+                                    Contribute to campaigns and make a real impact in lives.
                                 </P>
-                                <a href="#" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Active Cases</a>
+                                <a href="~/ManageCampaigns/ShowCampaignCases" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Active Cases</a>
                             </div>
                         </div>
                     </div>
@@ -122,12 +120,11 @@
                     <div class="row">
                         <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-8 col-sm-10">
                             <div class="hero-caption">
-                                <h1 data-animation="fadeInUp" data-delay=".2s">Support a causes you care about</h1>
+                                <h1 data-animation="fadeInUp" data-delay=".2s">Get Rewarded for Giving</h1>
                                 <P data-animation="fadeInUp" data-delay=".4s">
-                                    Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet
-                                    pulvinar ante tempor etiam lacus eros
+                                    Receive exclusive rewards and recognition for your support.
                                 </P>
-                                <a href="#" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Active Cases</a>
+                                <a href="~/ManageCampaigns/ShowCampaignCases" class="btn hero-btn" data-animation="fadeInUp" data-delay=".8s">Active Cases</a>
                             </div>
                         </div>
                     </div>
@@ -155,7 +152,7 @@
                         <div class="properties pb-30">
                             <div class="properties-card">
                                 <div class="properties-img">
-                                    <a href="#"><img src="@item.MediaUrl" alt="@item.Title" style="height: 250px; width: 100%; object-fit: cover;" /></a>
+                                    <a href="#"><img src="@item.MediaUrl" alt="@item.Title" style="height: 250px; width: 100%; object-fit: cover;font-size : 20px;" /></a>
 
                                     <!-- Progress Bar -->
                                     @{
@@ -182,7 +179,7 @@
                                     </div>
                                     <div class="properties-footer d-flex justify-content-between align-items-center">
                                         <div class="class-day">
-                                            <a href="#" class="btn" style="padding:17px 14px !important;">Donate</a>
+                                            <a href="~/ManageCampaigns/DetailCampaignCases/@item.CampaignId" class="btn" style="padding:17px 14px !important;">Donate</a>
                                         </div>
                                         <div class="class-day">
                                             <span class="color-font2" style="font-size : 13px !important">@item.Requirement.ToString("C", indianCulture)</span>
@@ -213,28 +210,30 @@
             <div class="row align-items-center justify-content-between">
                 <div class="col-xl-6 col-lg-6 col-md-10">
                     <div class="support-location-img">
-                        <img src="~/assets/img/gallery/about.jpg" alt="">
+                        <img src="~/assets/img/gallery/about.jpg" alt="About FundHive">
                     </div>
                 </div>
                 <div class="col-xl-5 col-lg-6 col-md-10">
                     <div class="right-caption">
                         <!-- Section Tittle -->
                         <div class="section-tittle">
-                            <h2>Who we are?</h2>
+                            <h2>Who We Are</h2>
                         </div>
                         <div class="support-caption">
                             <p class="mb-10">
-                                Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet
-                                pulvinar ante tempor etiam lacus eros
+                                FundHive is a dynamic web-based crowdfunding platform designed to empower individuals and communities by providing them with a secure, transparent, and user-friendly space to raise funds for personal, social, medical, and emergency causes.
                             </p>
-                            <p class="pera-top">The legal definition of a charitable organization (and of charity) varies between countries and in some instances regions of the country. The regulation, the tax treatment, and the way in which charity law affects charitable organizations also vary.</p>
-                            <a href="about.html" class="btn about-btn">Learn More</a>
+                            <p class="pera-top">
+                                Whether you're supporting a friend in need, backing a social cause, or launching a personal campaign, FundHive offers seamless campaign management, donor engagement tools, and reward-based incentives to inspire meaningful contributions. Our mission is to connect people through compassion, simplify giving, and create impact — one campaign at a time.
+                            </p>
+                            <a href="/Home/About" class="btn about-btn">Learn More</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- About Area End-->
     <!-- Count Down Start -->
     <div class="count-down-area pt-25 section-img-bg2" data-background="@Url.Content("~/assets/img/gallery/section-bg1.jpg")">
@@ -262,7 +261,7 @@
                                     </div>
                                     <div class="captions">
                                         <span class="counter">@ViewBag.Totals.TotalUsers</span>
-                                        <p class="color-green">People Joined</p>
+                                        <p class="color-green">Supporters Joined</p>
                                     </div>
                                 </div>
                             </div>
@@ -272,8 +271,8 @@
                                         <img src="~/assets/img/icon/count-icon3.svg" alt="">
                                     </div>
                                     <div class="captions">
-                                        <span class="counter">@ViewBag.Totals.TotalCampaigns</span>
-                                        <p class="color-green">Cases every Year</p>
+                                        <span class="counter">@ViewBag.Totals.TotalContributions</span>
+                                        <p class="color-green">Total Donations</p>
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +283,7 @@
                                     </div>
                                     <div class="captions">
                                         <span class="counter">@ViewBag.Totals.TotalRaisedAmount</span>
-                                        <p class="color-green">People get help from us</p>
+                                        <p class="color-green">Funds Raised (INR)</p>
                                     </div>
                                 </div>
                             </div>
@@ -296,14 +295,15 @@
     </div>
     <!-- Count Down End -->
     <!-- Our Services Start -->
+    <!-- Our Services Start -->
     <div class="our-services section-padding position-relative">
         <div class="container">
             <div class="row justify-content-sm-center">
                 <div class="col-xl-7 col-lg-8 col-md-11">
                     <!-- Section Tittle -->
                     <div class="section-tittle text-center mb-70">
-                        <h2>We serve for peoples</h2>
-                        <p>Sedac odio aliquet, fringilla odio eget, tincidunt  nunc duis aliquet <br>pulvinar ante.</p>
+                        <h2>Empowering Causes, Impacting Lives</h2>
+                        <p>We provide tools and technology to help people raise funds for real-life causes — from medical emergencies to education, and community development to social impact.</p>
                     </div>
                 </div>
             </div>
@@ -314,8 +314,8 @@
                             <img src="~/assets/img/icon/services1.svg" alt="">
                         </div>
                         <div class="services-cap">
-                            <h5><a href="#">Pure Food & Water</a></h5>
-                            <p>Odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante employees and organizations to support.</p>
+                            <h5><a href="#">Disaster & Emergency Relief</a></h5>
+                            <p>Quickly launch campaigns to support urgent needs such as medical crises, natural disasters, or unexpected life events with ease and transparency.</p>
                         </div>
                     </div>
                 </div>
@@ -325,8 +325,8 @@
                             <img src="~/assets/img/icon/services2.svg" alt="">
                         </div>
                         <div class="services-cap">
-                            <h5><a href="#">Health & Medicine</a></h5>
-                            <p>Odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante employees and organizations to support.</p>
+                            <h5><a href="#">Health & Medical Support</a></h5>
+                            <p>Raise funds for surgeries, treatments, and long-term medical care with full transparency and verification mechanisms.</p>
                         </div>
                     </div>
                 </div>
@@ -336,8 +336,8 @@
                             <img src="~/assets/img/icon/services1.svg" alt="">
                         </div>
                         <div class="services-cap">
-                            <h5><a href="#">Education</a></h5>
-                            <p>Odio aliquet, fringilla odio eget, tincidunt nunc duis aliquet pulvinar ante employees and organizations to support.</p>
+                            <h5><a href="#">Education & Dreams</a></h5>
+                            <p>Help students, innovators, and changemakers secure the financial support they need for tuition, projects, and academic goals.</p>
                         </div>
                     </div>
                 </div>
@@ -352,10 +352,10 @@
                 <div class="col-xl-6 col-lg-8 col-md-9 col-sm-12">
                     <div class="single-emargency">
                         <div class="emargency-cap">
-                            <h5><a href="#">They need your help</a></h5>
-                            <p>Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet pulvinar ante tempor etiam lacus eros</p>
-                            <p class="emargenc-cap">Sedac odio aliquet, fringilla odio eget, tincidunt nunc. Duis aliquet pulvinar ante tempor etiam lacus eros</p>
-                            <a href="#" class="btn loan-btn">Donate in a Case</a>
+                            <h5><a href="#">Your Support Can Save Lives</a></h5>
+                            <p>FundHive empowers individuals facing emergencies to seek help through verified, time-sensitive campaigns. Every rupee raised matters.</p>
+                            <p class="emargenc-cap">From medical emergencies to crisis relief, our platform enables fast action, real-time sharing, and impactful outcomes.</p>
+                            <a href="~/Campaign/ApplyForCreator" class="btn loan-btn">Start a Campaign</a>
                         </div>
                     </div>
                 </div>
@@ -363,6 +363,7 @@
         </div>
     </div>
     <!-- Emergency care End -->
+    
     <!-- Join with Us Start-->
     <div class="join-us-area section-padding">
         <div class="container">
@@ -370,20 +371,20 @@
                 <div class="col-xl-4 col-lg-5 col-md-10">
                     <div class="joing-details">
                         <div class="section-tittle">
-                            <h2>Join with Us</h2>
+                            <h2>Join FundHive Today</h2>
                         </div>
-                        <p>The legal definition of a charitable organization (and of charity) varies between countries and in some instances regions of the country. The regulation, the tax treatment, and the way.</p>
-                        <a href="about.html" class="btn about-btn">Join Now</a>
+                        <p>Become a part of a growing community committed to transparency, trust, and transformation. Whether you're a donor or a campaign creator — your journey starts here.</p>
+                        <a href="/Account/Register" class="btn about-btn">Join Now</a>
                     </div>
                 </div>
                 <div class="offset-xl-1 col-xl-4 col-lg-4 col-md-7 col-sm-7">
                     <div class="joning-img">
-                        <img src="~/assets/img/gallery/joining1.jpg" alt="" class="w-100">
+                        <img src="~/assets/img/gallery/joining1.jpg" alt="Join Image 1" class="w-100">
                     </div>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-5 col-sm-5">
                     <div class="joning-img">
-                        <img src="~/assets/img/gallery/joining2.jpg" alt="" class="w-100">
+                        <img src="~/assets/img/gallery/joining2.jpg" alt="Join Image 2" class="w-100">
                     </div>
                 </div>
             </div>

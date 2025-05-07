@@ -84,21 +84,6 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
             }
         }
 
-        //public async Task<bool> SaveContributionAsync(Contribution contribution)
-        //{
-        //    try
-        //    {
-        //        await _CFS.Contributions.AddAsync(contribution);
-        //        await _CFS.SaveChangesAsync();
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error in SaveContributionAsync: {ex.Message}");
-        //        return false;
-        //    }
-        //}
-
         public async Task<bool> SaveContributionAsync(string orderId, string paymentId)
         {
             var contribution = await _CFS.Contributions.FirstOrDefaultAsync(c => c.OrderId == orderId);
@@ -210,3 +195,21 @@ namespace Crowd_Funding_Platform.Repositiories.Classes
 
     }
 }
+
+
+
+
+//public async Task<bool> SaveContributionAsync(Contribution contribution)
+//{
+//    try
+//    {
+//        await _CFS.Contributions.AddAsync(contribution);
+//        await _CFS.SaveChangesAsync();
+//        return true;
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"Error in SaveContributionAsync: {ex.Message}");
+//        return false;
+//    }
+//}

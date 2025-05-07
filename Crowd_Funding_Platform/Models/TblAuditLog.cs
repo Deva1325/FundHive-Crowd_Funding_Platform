@@ -19,7 +19,7 @@ public partial class TblAuditLog
 
     public DateTime Timestamp { get; set; }
 
-    public bool IsDeleted { get; set; }
-
+    public bool IsDeleted { get; set; } // remove the ? 
+    
     public virtual User User { get; set; } = null!;
 }

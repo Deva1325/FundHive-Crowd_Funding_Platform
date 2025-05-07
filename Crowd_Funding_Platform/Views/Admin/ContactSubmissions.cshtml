@@ -1,0 +1,50 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<Crowd_Funding_Platform.Models.TblContact>
+
+@{
+    ViewData["Title"] = "Contact Submissions";
+    Layout = "~/Views/Shared/_dashboardLayout.cshtml";
+}
+
+<h2>Contact Submissions</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Submitted At</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in Model)
+        {
+            <tr>
+                <td>@contact.SubmittedAt.ToString("g")</td>
+                <td>@contact.Name</td>
+                <td>@contact.Email</td>
+                <td>@contact.Phone</td>
+                <td>@contact.Message</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("ContactSubmissions", new { page }),
+            new PagedListRenderOptions
+    {
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+        DisplayLinkToIndividualPages = true,
+        MaximumPageNumbersToDisplay = 5,
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" }
+    })
+</div>
+

@@ -1,0 +1,179 @@
+﻿@model Crowd_Funding_Platform.Models.TblContact
+
+@{
+    ViewData["Title"] = "ContactUs";
+    Layout = "~/Views/Shared/_LandingPageLayout.cshtml";
+}
+
+<main>
+    <!-- Hero area Start-->
+    <div class="slider-area">
+        <div class="slider-height2 slider-bg4 hero-overly d-flex align-items-center">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-xl-5 col-lg-6 col-md-6">
+                        <div class="hero-caption hero-caption2">
+                            <h2>Contact</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hero area End -->
+    <!-- Contact Area Start -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="contact-title">Get in Touch</h2>
+                </div>
+                <div class="col-lg-8">
+                    <form class="form-contact contact_form" id="contactForm" novalidate="novalidate">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input class="form-control valid" name="Name" id="Name" type="text" placeholder="Enter your name" value="@ViewBag.UserName ?? " "">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input class="form-control valid" name="Email" id="Email" type="email" placeholder="Email" value="@ViewBag.UserEmail ?? " "">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <input class="form-control" name="Phone" id="Phone" type="text" placeholder="Phone Number">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <textarea class="form-control w-100" name="Message" id="Message" cols="30" rows="9" placeholder="Enter Message"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="button button-contactForm boxed-btn">Send</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-3 offset-lg-1">
+                    <!-- Contact Info -->
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-home"></i></span>
+                        <div class="media-body">
+                            <h3>Surat, India</h3>
+                            <p>Vesu , 394510</p>
+                        </div>
+                    </div>
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-tablet"></i></span>
+                        <div class="media-body">
+                            <h3>+91 93245 67890</h3>
+                            <p>Mon to Sat, 10 AM – 7 PM IST</p>
+                        </div>
+                    </div>
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-email"></i></span>
+                        <div class="media-body">
+                            <h3><a href="mailto:support@fundhive.org">support@fundhive.org</a></h3>
+                            <p>We’re here to help you anytime!</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- Contact Area End -->
+</main>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "5000"
+            };
+
+            $("#contactForm").validate({
+                rules: {
+                    Name: { required: true },
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Message: { required: true }
+                },
+                messages: {
+                    Name: { required: "Please enter your name." },
+                    Email: {
+                        required: "Please enter your email.",
+                        email: "Enter a valid email address."
+                    },
+                    Message: { required: "Please enter a message." }
+                },
+                errorPlacement: function (error, element) {
+                    error.addClass("text-danger");
+                    error.insertAfter(element);
+                },
+                submitHandler: function (form, event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(form);
+
+                    $.ajax({
+                        url: "/Home/ContactUs",
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (result) {
+                            if (result.success) {
+                                toastr.success(result.message);
+                                $('#contactForm')[0].reset();
+                            } else {
+                                toastr.error(result.message);
+                            }
+                        },
+                        error: function () {
+                            toastr.error("An unexpected error occurred. Please try again.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+
+
+
+
+
+@* <form id="contactForm">
+    <div class="form-group">
+        <label>Name</label>
+        <input name="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input name="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Phone</label>
+        <input name="Phone" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Message</label>
+        <textarea name="Message" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form> *@
+
